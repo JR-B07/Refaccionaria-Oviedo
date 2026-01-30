@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arqueos de Caja</title>
+    <style>
+        :root {
+            --primary-red: #c41e3a;
+            --dark-red: #8b1428;
+            --light-bg: #f5f5f5;
+            --white: #fff;
+            --text: #333;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--light-bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+        }
+
+        .top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--primary-red);
+            color: #fff;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 10;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .top-bar h1 {
+            font-size: 18px;
+            margin: 0;
+            font-weight: 700;
+            flex: 1;
+        }
+
+        .top-bar-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: var(--primary-red);
+            color: #fff;
+            border: 1px solid var(--dark-red);
+        }
+
+        .btn-primary:hover {
+            background: var(--dark-red);
+            transform: translateY(-1px);
+        }
+
+        .sucursal-badge {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            color: #fff;
+            padding: 8px 14px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sucursal-badge::before {
+            content: "📍";
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: #fff;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .main {
+            max-width: 1400px;
+            margin: 90px auto 40px;
+            padding: 20px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e5e5e5;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            color: var(--primary-red);
+            border-bottom-color: var(--primary-red);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background: #fff;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            background: #f1f1f1;
+            padding: 12px 16px;
+            font-weight: 700;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .card-body {
+            padding: 16px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .field label {
+            font-weight: 600;
+            font-size: 13px;
+            color: #555;
+        }
+
+        .field input,
+        .field select,
+        .field textarea {
+            padding: 8px 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .field input:focus,
+        .field select:focus,
+        .field textarea:focus {
+            outline: none;
+            border-color: var(--primary-red);
+            box-shadow: 0 0 0 3px rgba(196, 30, 58, 0.1);
+        }
+
+        .field.read-only input {
+            background: #f9f9f9;
+            cursor: not-allowed;
+        }
+
+        .section-title {
+            font-weight: 700;
+            margin: 20px 0 15px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e5e5e5;
+            color: var(--primary-red);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        thead {
+            background: #f1f1f1;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #e5e5e5;
+            font-size: 13px;
+        }
+
+        th {
+            font-weight: 700;
+            color: #333;
+        }
+
+        tbody tr:hover {
+            background: #fafafa;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-badge.reconciliado {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge.pendiente {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-badge.discrepancia {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .difference-positive {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .difference-negative {
+            color: var(--danger);
+            font-weight: 600;
+        }
+
+        .difference-zero {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .summary-box {
+            background: linear-gradient(135deg, #f5f5f5 0%, #fff 100%);
+            border: 2px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .summary-box h3 {
+            margin: 0 0 12px 0;
+            color: var(--primary-red);
+            font-size: 14px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .summary-item {
+            background: #fff;
+            padding: 10px;
+            border-radius: 4px;
+            border-left: 3px solid var(--primary-red);
+        }
+
+        .summary-item label {
+            display: block;
+            font-size: 11px;
+            color: #666;
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .summary-item .value {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .filter-box {
+            background: #fff;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .filter-box .field {
+            flex: 0 1 auto;
+            min-width: 150px;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .no-data p {
+            margin: 0;
+            font-size: 16px;
+        }
+
+        @media (max-width: 768px) {
+
+            .grid-2,
+            .grid-3,
+            .grid-4 {
+                grid-template-columns: 1fr;
+            }
+
+            .summary-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .top-bar {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .top-bar-actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            table {
+                font-size: 11px;
+            }
+
+            th,
+            td {
+                padding: 6px;
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 12px 16px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .success-message {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 12px 16px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+    </style>
+    <script src="componentes/selector-sucursal.js"></script>
+    <script src="/static/js/sucursal_selector.js"></script>
+</head>
+
+<body>
+    <div class="top-bar">
+        <div style="display:flex;align-items:center;gap:12px">
+            <h1>📋 ARQUEOS DE CAJA</h1>
+            <span class="sucursal-badge" id="sucursalBadge">Sucursal</span>
+        </div>
+        <div class="top-bar-actions">
+            <button class="btn btn-primary" onclick="abrirNuevoArqueo()">+ Nuevo Arqueo</button>
+            <button class="btn btn-secondary" onclick="volverAlMenu()">Volver</button>
+        </div>
+    </div>
+
+    <div class="main">
+        <!-- Mensajes -->
+        <div id="message" style="display:none;"></div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="mostrarTab('listar')">Listar Arqueos</button>
+            <button class="tab" onclick="mostrarTab('nuevo')">Nuevo Arqueo</button>
+            <button class="tab" onclick="mostrarTab('reporte')">Reportes</button>
+        </div>
+
+        <!-- TAB: Listar Arqueos -->
+        <div id="listar" class="tab-content active">
+            <div class="filter-box">
+                <div class="field" style="flex: 1; min-width: 150px;">
+                    <label>Caja</label>
+                    <select id="filterCaja">
+                        <option value="">Todas las cajas</option>
+                        <option value="Caja 1">Caja 1</option>
+                        <option value="Caja 2">Caja 2</option>
+                        <option value="Caja 3">Caja 3</option>
+                    </select>
+                </div>
+                <div class="field" style="flex: 1; min-width: 150px;">
+                    <label>Local</label>
+                    <select id="filterLocal">
+                        <option value="">Todos los locales</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" onclick="cargarArqueos()">Filtrar</button>
+            </div>
+
+            <div class="card">
+                <div class="card-header">Arqueos Registrados</div>
+                <div class="card-body">
+                    <div id="arqueosList"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: Nuevo Arqueo -->
+        <div id="nuevo" class="tab-content">
+            <form id="formArqueo" onsubmit="guardarArqueo(event)">
+                <!-- Información General -->
+                <div class="card">
+                    <div class="card-header">Información General</div>
+                    <div class="card-body">
+                        <div class="grid-2">
+                            <div class="field">
+                                <label>Caja <span style="color:red;">*</span></label>
+                                <select id="caja" required>
+                                    <option value="">Seleccionar...</option>
+                                    <option value="Caja 1">Caja 1</option>
+                                    <option value="Caja 2">Caja 2</option>
+                                    <option value="Caja 3">Caja 3</option>
+                                </select>
+                            </div>
+                            <div class="field">
+                                <label>Local <span style="color:red;">*</span></label>
+                                <select id="local_id" required>
+                                    <option value="">Seleccionar...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid-2">
+                            <div class="field">
+                                <label>Turno</label>
+                                <select id="turno">
+                                    <option value="">Sin turno especificado</option>
+                                    <option value="Mañana">Mañana</option>
+                                    <option value="Tarde">Tarde</option>
+                                    <option value="Noche">Noche</option>
+                                </select>
+                            </div>
+                            <div class="field read-only">
+                                <label>Fecha/Hora Arqueo</label>
+                                <input type="datetime-local" id="fecha_arqueo" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dinero Declarado -->
+                <div class="card">
+                    <div class="card-header">Montos Declarados</div>
+                    <div class="card-body">
+                        <div class="grid-4">
+                            <div class="field">
+                                <label>Efectivo</label>
+                                <input type="number" id="efectivo_declarado" step="0.01" value="0"
+                                    onchange="calcularTotalesDeclarados()">
+                            </div>
+                            <div class="field">
+                                <label>Retiros</label>
+                                <input type="number" id="retiros_declarado" step="0.01" value="0"
+                                    onchange="calcularTotalesDeclarados()">
+                            </div>
+                            <div class="field">
+                                <label>Cheque</label>
+                                <input type="number" id="cheque_declarado" step="0.01" value="0"
+                                    onchange="calcularTotalesDeclarados()">
+                            </div>
+                            <div class="field">
+                                <label>Tarjeta</label>
+                                <input type="number" id="tarjeta_declarado" step="0.01" value="0"
+                                    onchange="calcularTotalesDeclarados()">
+                            </div>
+                        </div>
+                        <div class="grid-4">
+                            <div class="field">
+                                <label>Débito</label>
+                                <input type="number" id="debito_declarado" step="0.01" value="0"
+                                    onchange="calcularTotalesDeclarados()">
+                            </div>
+                            <div class="field">
+                                <label>Depósito</label>
+                                <input type="number" id="deposito_declarado" step="0.01" value="0"
+                                    onchange="calcularTotalesDeclarados()">
+                            </div>
+                            <div class="field">
+                                <label>Crédito</label>
+                                <input type="number" id="credito_declarado" step="0.01" value="0"
+                                    onchange="calcularTotalesDeclarados()">
+                            </div>
+                            <div class="field">
+                                <label>Vale</label>
+                                <input type="number" id="vale_declarado" step="0.01" value="0"
+                                    onchange="calcularTotalesDeclarados()">
+                            </div>
+                        </div>
+                        <div class="grid-4">
+                            <div class="field">
+                                <label>Lealtad</label>
+                                <input type="number" id="lealtad_declarado" step="0.01" value="0"
+                                    onchange="calcularTotalesDeclarados()">
+                            </div>
+                        </div>
+                        <div class="summary-box">
+                            <h3>Total Declarado</h3>
+                            <div style="font-size: 20px; font-weight: 700; color: var(--primary-red);">
+                                $<span id="totalDeclarado">0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dinero Contado -->
+                <div class="card">
+                    <div class="card-header">Montos Contados (Verificados Físicamente)</div>
+                    <div class="card-body">
+                        <div class="grid-4">
+                            <div class="field">
+                                <label>Efectivo</label>
+                                <input type="number" id="efectivo_contado" step="0.01" value="0"
+                                    onchange="calcularDiferencias()">
+                            </div>
+                            <div class="field">
+                                <label>Retiros</label>
+                                <input type="number" id="retiros_contado" step="0.01" value="0"
+                                    onchange="calcularDiferencias()">
+                            </div>
+                            <div class="field">
+                                <label>Cheque</label>
+                                <input type="number" id="cheque_contado" step="0.01" value="0"
+                                    onchange="calcularDiferencias()">
+                            </div>
+                            <div class="field">
+                                <label>Tarjeta</label>
+                                <input type="number" id="tarjeta_contado" step="0.01" value="0"
+                                    onchange="calcularDiferencias()">
+                            </div>
+                        </div>
+                        <div class="grid-4">
+                            <div class="field">
+                                <label>Débito</label>
+                                <input type="number" id="debito_contado" step="0.01" value="0"
+                                    onchange="calcularDiferencias()">
+                            </div>
+                            <div class="field">
+                                <label>Depósito</label>
+                                <input type="number" id="deposito_contado" step="0.01" value="0"
+                                    onchange="calcularDiferencias()">
+                            </div>
+                            <div class="field">
+                                <label>Crédito</label>
+                                <input type="number" id="credito_contado" step="0.01" value="0"
+                                    onchange="calcularDiferencias()">
+                            </div>
+                            <div class="field">
+                                <label>Vale</label>
+                                <input type="number" id="vale_contado" step="0.01" value="0"
+                                    onchange="calcularDiferencias()">
+                            </div>
+                        </div>
+                        <div class="grid-4">
+                            <div class="field">
+                                <label>Lealtad</label>
+                                <input type="number" id="lealtad_contado" step="0.01" value="0"
+                                    onchange="calcularDiferencias()">
+                            </div>
+                        </div>
+                        <div class="summary-box">
+                            <h3>Total Contado</h3>
+                            <div style="font-size: 20px; font-weight: 700; color: var(--primary-red);">
+                                $<span id="totalContado">0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Diferencias -->
+                <div class="card">
+                    <div class="card-header">Diferencias (Contado - Declarado)</div>
+                    <div class="card-body">
+                        <div class="summary-grid">
+                            <div class="summary-item">
+                                <label>Efectivo</label>
+                                <div class="value" id="dif_efectivo">$0.00</div>
+                            </div>
+                            <div class="summary-item">
+                                <label>Retiros</label>
+                                <div class="value" id="dif_retiros">$0.00</div>
+                            </div>
+                            <div class="summary-item">
+                                <label>Cheque</label>
+                                <div class="value" id="dif_cheque">$0.00</div>
+                            </div>
+                            <div class="summary-item">
+                                <label>Tarjeta</label>
+                                <div class="value" id="dif_tarjeta">$0.00</div>
+                            </div>
+                            <div class="summary-item">
+                                <label>Débito</label>
+                                <div class="value" id="dif_debito">$0.00</div>
+                            </div>
+                            <div class="summary-item">
+                                <label>Depósito</label>
+                                <div class="value" id="dif_deposito">$0.00</div>
+                            </div>
+                            <div class="summary-item">
+                                <label>Crédito</label>
+                                <div class="value" id="dif_credito">$0.00</div>
+                            </div>
+                            <div class="summary-item">
+                                <label>Vale</label>
+                                <div class="value" id="dif_vale">$0.00</div>
+                            </div>
+                            <div class="summary-item">
+                                <label>Lealtad</label>
+                                <div class="value" id="dif_lealtad">$0.00</div>
+                            </div>
+                        </div>
+
+                        <div class="summary-box"
+                            style="margin-top: 20px; background: linear-gradient(135deg, #fff3cd 0%, #fffacd 100%); border-color: #ffc107;">
+                            <h3 style="color: #856404;">Diferencia Total</h3>
+                            <div style="font-size: 24px; font-weight: 700; color: #856404;">
+                                $<span id="difTotal">0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Observaciones -->
+                <div class="card">
+                    <div class="card-header">Observaciones</div>
+                    <div class="card-body">
+                        <div class="field">
+                            <label>Notas (opcional)</label>
+                            <textarea id="observaciones" rows="4"
+                                placeholder="Ingrese cualquier observación relevante sobre el arqueo..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botones -->
+                <div class="card">
+                    <div class="card-body" style="display: flex; gap: 10px; justify-content: flex-end;">
+                        <button type="button" class="btn btn-secondary" onclick="limpiarFormulario()">Limpiar</button>
+                        <button type="submit" class="btn btn-primary">Guardar Arqueo</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- TAB: Reportes -->
+        <div id="reporte" class="tab-content">
+            <div class="card">
+                <div class="card-header">Resumen de Arqueos</div>
+                <div class="card-body">
+                    <div id="reporteContent">
+                        <p class="no-data">Cargando datos...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api/v1';
+        let usuarioId = null;
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function () {
+            inicializar();
+        });
+
+        async function inicializar() {
+            // Obtener ID de usuario (puede venir de sessionStorage o similar)
+            usuarioId = sessionStorage.getItem('usuarioId') || 2;
+            // Convertir a número entero si es string
+            usuarioId = parseInt(usuarioId);
+
+            await cargarLocales();
+            setearFechaActual();
+            cargarArqueos();
+        }
+
+        async function cargarLocales() {
+            try {
+                const response = await fetch(`${API_BASE}/locales/listar`);
+                const locales = await response.json();
+                const select = document.getElementById('local_id');
+                const filterSelect = document.getElementById('filterLocal');
+
+                locales.forEach(local => {
+                    const option = document.createElement('option');
+                    option.value = local.id;
+                    option.textContent = local.nombre;
+                    select.appendChild(option);
+
+                    const filterOption = document.createElement('option');
+                    filterOption.value = local.id;
+                    filterOption.textContent = local.nombre;
+                    filterSelect.appendChild(filterOption);
+                });
+            } catch (error) {
+                console.error('Error al cargar locales:', error);
+            }
+        }
+
+        function setearFechaActual() {
+            const ahora = new Date();
+            const fecha = ahora.toISOString().slice(0, 16);
+            document.getElementById('fecha_arqueo').value = fecha;
+        }
+
+        function mostrarTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+            document.getElementById(tab).classList.add('active');
+            document.querySelector(`[onclick="mostrarTab('${tab}')"]`).classList.add('active');
+        }
+
+        function calcularTotalesDeclarados() {
+            const efectivo = parseFloat(document.getElementById('efectivo_declarado').value) || 0;
+            const retiros = parseFloat(document.getElementById('retiros_declarado').value) || 0;
+            const cheque = parseFloat(document.getElementById('cheque_declarado').value) || 0;
+            const tarjeta = parseFloat(document.getElementById('tarjeta_declarado').value) || 0;
+            const debito = parseFloat(document.getElementById('debito_declarado').value) || 0;
+            const deposito = parseFloat(document.getElementById('deposito_declarado').value) || 0;
+            const credito = parseFloat(document.getElementById('credito_declarado').value) || 0;
+            const vale = parseFloat(document.getElementById('vale_declarado').value) || 0;
+            const lealtad = parseFloat(document.getElementById('lealtad_declarado').value) || 0;
+
+            const total = efectivo + retiros + cheque + tarjeta + debito + deposito + credito + vale + lealtad;
+            document.getElementById('totalDeclarado').textContent = total.toFixed(2);
+
+            calcularDiferencias();
+        }
+
+        function calcularDiferencias() {
+            const conceptos = ['efectivo', 'retiros', 'cheque', 'tarjeta', 'debito', 'deposito', 'credito', 'vale', 'lealtad'];
+            let totalContado = 0;
+            let totalDeclarado = 0;
+
+            conceptos.forEach(concepto => {
+                const declarado = parseFloat(document.getElementById(`${concepto}_declarado`).value) || 0;
+                const contado = parseFloat(document.getElementById(`${concepto}_contado`).value) || 0;
+                const diferencia = contado - declarado;
+
+                const elem = document.getElementById(`dif_${concepto}`);
+                elem.textContent = `$${diferencia.toFixed(2)}`;
+                elem.className = 'value';
+                if (diferencia > 0) elem.classList.add('difference-positive');
+                else if (diferencia < 0) elem.classList.add('difference-negative');
+                else elem.classList.add('difference-zero');
+
+                totalContado += contado;
+                totalDeclarado += declarado;
+            });
+
+            const difTotal = totalContado - totalDeclarado;
+            document.getElementById('totalContado').textContent = totalContado.toFixed(2);
+            document.getElementById('difTotal').textContent = difTotal.toFixed(2);
+        }
+
+        async function guardarArqueo(event) {
+            event.preventDefault();
+
+            const caja = document.getElementById('caja').value;
+            const local_id = parseInt(document.getElementById('local_id').value);
+
+            if (!caja || !local_id) {
+                mostrarMensaje('Por favor complete los campos requeridos', 'error');
+                return;
+            }
+
+            const payload = {
+                caja,
+                local_id,
+                usuario_id: usuarioId,
+                turno: document.getElementById('turno').value || null,
+                efectivo_declarado: parseFloat(document.getElementById('efectivo_declarado').value) || 0,
+                retiros_declarado: parseFloat(document.getElementById('retiros_declarado').value) || 0,
+                cheque_declarado: parseFloat(document.getElementById('cheque_declarado').value) || 0,
+                tarjeta_declarado: parseFloat(document.getElementById('tarjeta_declarado').value) || 0,
+                debito_declarado: parseFloat(document.getElementById('debito_declarado').value) || 0,
+                deposito_declarado: parseFloat(document.getElementById('deposito_declarado').value) || 0,
+                credito_declarado: parseFloat(document.getElementById('credito_declarado').value) || 0,
+                vale_declarado: parseFloat(document.getElementById('vale_declarado').value) || 0,
+                lealtad_declarado: parseFloat(document.getElementById('lealtad_declarado').value) || 0,
+                efectivo_contado: parseFloat(document.getElementById('efectivo_contado').value) || 0,
+                retiros_contado: parseFloat(document.getElementById('retiros_contado').value) || 0,
+                cheque_contado: parseFloat(document.getElementById('cheque_contado').value) || 0,
+                tarjeta_contado: parseFloat(document.getElementById('tarjeta_contado').value) || 0,
+                debito_contado: parseFloat(document.getElementById('debito_contado').value) || 0,
+                deposito_contado: parseFloat(document.getElementById('deposito_contado').value) || 0,
+                credito_contado: parseFloat(document.getElementById('credito_contado').value) || 0,
+                vale_contado: parseFloat(document.getElementById('vale_contado').value) || 0,
+                lealtad_contado: parseFloat(document.getElementById('lealtad_contado').value) || 0,
+                observaciones: document.getElementById('observaciones').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/arqueos/caja`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    mostrarMensaje('Arqueo guardado exitosamente', 'success');
+                    limpiarFormulario();
+                    await cargarArqueos();
+                    setTimeout(() => mostrarTab('listar'), 2000);
+                } else {
+                    const error = await response.json();
+                    mostrarMensaje(error.detail || 'Error al guardar el arqueo', 'error');
+                }
+            } catch (error) {
+                mostrarMensaje('Error al conectar con el servidor', 'error');
+                console.error(error);
+            }
+        }
+
+        async function cargarArqueos() {
+            const caja = document.getElementById('filterCaja').value;
+            const local_id = document.getElementById('filterLocal').value;
+
+            try {
+                let url = `${API_BASE}/arqueos/listar`;
+                const params = new URLSearchParams();
+                if (caja) params.append('caja', caja);
+                if (local_id) params.append('local_id', local_id);
+                if (params.toString()) url += '?' + params.toString();
+
+                const response = await fetch(url);
+                const arqueos = await response.json();
+
+                const container = document.getElementById('arqueosList');
+                if (arqueos.length === 0) {
+                    container.innerHTML = '<p class="no-data">No hay arqueos registrados</p>';
+                    return;
+                }
+
+                let html = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Caja</th>
+                                <th>Turno</th>
+                                <th>Total Declarado</th>
+                                <th>Total Contado</th>
+                                <th>Diferencia</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                arqueos.forEach(arqueo => {
+                    const fecha = new Date(arqueo.fecha_arqueo).toLocaleString('es-ES');
+                    const difTotal = parseFloat(arqueo.diferencia_total);
+                    const estado = arqueo.reconciliado ? 'Reconciliado' : (difTotal === 0 ? 'Equilibrado' : 'Discrepancia');
+                    const claseDif = difTotal > 0 ? 'difference-positive' : (difTotal < 0 ? 'difference-negative' : 'difference-zero');
+                    const claseBadge = arqueo.reconciliado ? 'reconciliado' : (difTotal === 0 ? 'reconciliado' : 'discrepancia');
+
+                    html += `
+                        <tr>
+                            <td>${fecha}</td>
+                            <td>${arqueo.caja}</td>
+                            <td>${arqueo.turno || '-'}</td>
+                            <td class="text-right">$${parseFloat(arqueo.total_declarado).toFixed(2)}</td>
+                            <td class="text-right">$${parseFloat(arqueo.total_contado).toFixed(2)}</td>
+                            <td class="text-right ${claseDif}">$${difTotal.toFixed(2)}</td>
+                            <td><span class="status-badge ${claseBadge}">${estado}</span></td>
+                            <td>
+                                <button class="btn btn-primary" onclick="verArqueo(${arqueo.id})">📋 Detalles</button>
+                                <button class="btn btn-danger" onclick="eliminarArqueo(${arqueo.id})">🗑️ Eliminar</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                html += '</tbody></table>';
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Error al cargar arqueos:', error);
+                document.getElementById('arqueosList').innerHTML = '<p class="no-data">Error al cargar los datos</p>';
+            }
+        }
+
+        async function verArqueo(id) {
+            // Redirigir a la página de detalle
+            window.location.href = `/static/arqueo_detalle.html?id=${id}`;
+        }
+
+        async function eliminarArqueo(id) {
+            if (confirm('¿Está seguro de que desea eliminar este arqueo?')) {
+                try {
+                    const response = await fetch(`${API_BASE}/arqueos/caja/${id}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (response.ok) {
+                        mostrarMensaje('Arqueo eliminado exitosamente', 'success');
+                        cargarArqueos();
+                    } else {
+                        mostrarMensaje('Error al eliminar el arqueo', 'error');
+                    }
+                } catch (error) {
+                    mostrarMensaje('Error al conectar con el servidor', 'error');
+                    console.error(error);
+                }
+            }
+        }
+
+        function limpiarFormulario() {
+            document.getElementById('formArqueo').reset();
+            setearFechaActual();
+            calcularDiferencias();
+        }
+
+        function mostrarMensaje(mensaje, tipo) {
+            const container = document.getElementById('message');
+            container.style.display = 'block';
+            container.className = `${tipo}-message`;
+            container.textContent = mensaje;
+            setTimeout(() => {
+                container.style.display = 'none';
+            }, 5000);
+        }
+
+        function abrirNuevoArqueo() {
+            limpiarFormulario();
+            mostrarTab('nuevo');
+        }
+
+        function volverAlMenu() {
+            window.location.href = '/static/cajas.html';
+        }
+
+        // Mostrar sucursal
+        const sucursalNombre = localStorage.getItem('sucursal_nombre');
+        if (sucursalNombre) {
+            document.getElementById('sucursalBadge').textContent = sucursalNombre;
+        }
+    </script>
+</body>
+
+</html>

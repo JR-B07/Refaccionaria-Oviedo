@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REFACCIONARIA - Vales de Venta</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-red: #c41e3a;
+            --dark-red: #8b1428;
+            --light-bg: #f5f5f5;
+            --white: #ffffff;
+            --text-dark: #333333;
+            --border-color: #d4a574;
+            --sidebar-bg: #2c2c2c;
+            --section-blue: #1a237e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-bg);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background-color: var(--white);
+            padding: 15px 30px;
+            border-bottom: 1px solid #e0e0e0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .back-btn {
+            background-color: var(--primary-red);
+            color: var(--white);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.3s;
+        }
+
+        .back-btn:hover {
+            background-color: var(--dark-red);
+        }
+
+        .header-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .quick-access {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .quick-access span {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .menu-btn {
+            background-color: var(--primary-red);
+            color: var(--white);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .menu-btn:hover {
+            background-color: var(--dark-red);
+        }
+
+        .filters-section {
+            background-color: var(--white);
+            padding: 20px 30px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .section-title {
+            color: var(--section-blue);
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            font-size: 12px;
+            color: #555;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .filter-group input,
+        .filter-group select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .filter-group input:focus,
+        .filter-group select:focus {
+            outline: none;
+            border-color: var(--primary-red);
+        }
+
+        .date-range {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .date-input {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .date-input input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 20px 30px;
+            overflow-y: auto;
+            background-color: var(--white);
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        thead {
+            background-color: #f8f9fa;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        th {
+            padding: 12px 10px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-dark);
+            border-bottom: 2px solid #e0e0e0;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #f0f0f0;
+            color: #555;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tbody tr:hover {
+            background-color: #f0f0f0;
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge-si {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .badge-no {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .badge-usado {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .footer {
+            background-color: var(--white);
+            padding: 15px 30px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .results-count {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: var(--white);
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 6px 12px;
+        }
+
+        .search-box input {
+            border: none;
+            outline: none;
+            font-size: 14px;
+            width: 200px;
+        }
+
+        .search-box i {
+            color: #777;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            display: none;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px;
+            color: #999;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #ccc;
+        }
+
+        .btn-print {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .btn-print:hover {
+            background-color: #218838;
+        }
+
+        .btn-delete {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 5px;
+        }
+
+        .btn-delete:hover {
+            background-color: #c82333;
+        }
+
+        .disponible-toggle {
+            cursor: pointer;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .disponible-toggle.si {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .disponible-toggle.no {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+
+            #printArea,
+            #printArea * {
+                visibility: visible;
+            }
+
+            #printArea {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: var(--white);
+            padding: 30px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .modal-header h2 {
+            color: var(--section-blue);
+            font-size: 18px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .close-btn:hover {
+            color: var(--primary-red);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-group-full {
+            grid-column: 1 / -1;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        @media (max-width: 768px) {
+            .filters-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-top">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <button class="back-btn" onclick="window.location.href='/admin'">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </button>
+                    <div class="header-title">REFACCIONARIA ERP - INFORMACIÓN DE VALES DE VENTAS</div>
+                </div>
+                <div class="quick-access">
+                    <span>ACCESO RAPIDO</span>
+                    <button class="menu-btn" onclick="abrirModalNuevo()" style="background-color: #28a745;">
+                        <i class="fas fa-plus"></i> Nuevo
+                    </button>
+                    <button class="menu-btn" onclick="window.location.href='/dashboard'">
+                        <i class="fas fa-bars"></i> Menú
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters Section -->
+        <div class="filters-section">
+            <h2 class="section-title">Vales de canje</h2>
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label>Folio o Descripción</label>
+                    <input type="text" id="filterFolio" placeholder="Buscar...">
+                </div>
+                <div class="filter-group">
+                    <label>Vendedor</label>
+                    <select id="filterVendedor">
+                        <option value="">Todos</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Monto Aproximado: $</label>
+                    <input type="number" id="filterMonto" step="0.01" placeholder="0.00">
+                </div>
+                <div class="filter-group">
+                    <label>Sucursal</label>
+                    <select id="filterSucursal">
+                        <option value="">Todas</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Venta/Devolucion</label>
+                    <select id="filterTipo">
+                        <option value="">Todos</option>
+                        <option value="venta">Venta</option>
+                        <option value="devolucion">Devolución</option>
+                    </select>
+                </div>
+            </div>
+            <div class="date-range">
+                <label style="font-weight: 600; margin-right: 10px;">Fechas de:</label>
+                <div class="date-input">
+                    <input type="date" id="fechaInicio">
+                </div>
+                <span>a:</span>
+                <div class="date-input">
+                    <input type="date" id="fechaFin">
+                </div>
+                <button class="menu-btn" onclick="aplicarFiltros()" style="margin-left: 20px;">
+                    <i class="fas fa-search"></i> Buscar
+                </button>
+                <button class="menu-btn" onclick="limpiarFiltros()" style="background-color: #6c757d;">
+                    <i class="fas fa-times"></i> Limpiar
+                </button>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <div class="loading" id="loading">
+                <i class="fas fa-spinner fa-spin" style="font-size: 48px; color: var(--primary-red);"></i>
+                <p>Cargando vales...</p>
+            </div>
+
+            <div class="table-container" id="tableContainer" style="display: none;">
+                <table id="valesTable">
+                    <thead>
+                        <tr>
+                            <th>Folio</th>
+                            <th>Monto</th>
+                            <th>Concepto</th>
+                            <th>Fecha</th>
+                            <th>Vendedor</th>
+                            <th>Fecha de uso</th>
+                            <th>Destino</th>
+                            <th>Devolución</th>
+                            <th>Sucursal</th>
+                            <th>Descripción</th>
+                            <th>Disponible</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <i class="fas fa-inbox"></i>
+                <p>No se encontraron vales de venta</p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-left">
+                <span class="results-count" id="resultsCount">0 resultados.</span>
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Buscar en resultados...">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para crear nuevo vale -->
+    <div class="modal" id="modalNuevo">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Nuevo Vale de Venta</h2>
+                <button class="close-btn" onclick="cerrarModal()">&times;</button>
+            </div>
+            <form id="formNuevoVale" onsubmit="guardarVale(event)">
+                <div class="form-row">
+                    <div class="filter-group">
+                        <label>Folio *</label>
+                        <input type="text" id="nuevoFolio" required>
+                    </div>
+                    <div class="filter-group">
+                        <label>Monto *</label>
+                        <input type="number" id="nuevoMonto" step="0.01" min="0" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="filter-group">
+                        <label>Concepto</label>
+                        <input type="text" id="nuevoConcepto" placeholder="POR ANTICIPO">
+                    </div>
+                    <div class="filter-group">
+                        <label>Fecha *</label>
+                        <input type="date" id="nuevoFecha" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="filter-group">
+                        <label>Vendedor *</label>
+                        <select id="nuevoVendedor" required>
+                            <option value="">Seleccionar...</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Sucursal *</label>
+                        <select id="nuevoSucursal" required>
+                            <option value="">Seleccionar...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="filter-group">
+                        <label>Tipo</label>
+                        <select id="nuevoTipo">
+                            <option value="venta">Venta</option>
+                            <option value="devolucion">Devolución</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Disponible</label>
+                        <select id="nuevoDisponible">
+                            <option value="true">Sí</option>
+                            <option value="false">No</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="filter-group form-group-full">
+                        <label>Descripción</label>
+                        <textarea id="nuevoDescripcion" rows="3" placeholder="Descripción del vale..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="menu-btn" style="background-color: #6c757d;" onclick="cerrarModal()">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="menu-btn" style="background-color: #28a745;">
+                        <i class="fas fa-save"></i> Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let valesData = [];
+        let vendedoresList = [];
+        let localesList = [];
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', async function () {
+            console.log('Inicializando página de vales...');
+
+            // Establecer fechas por defecto (último mes)
+            const hoy = new Date();
+            const haceUnMes = new Date();
+            haceUnMes.setMonth(haceUnMes.getMonth() - 1);
+
+            document.getElementById('fechaInicio').value = haceUnMes.toISOString().split('T')[0];
+            document.getElementById('fechaFin').value = hoy.toISOString().split('T')[0];
+
+            // Verificar sesión (opcional, no bloquear si no hay token)
+            const token = localStorage.getItem('access_token');
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            if (!token) {
+                console.warn('Sin token, continuando con funcionalidad limitada');
+            }
+
+            await cargarVendedores();
+            await cargarLocales();
+            llenarSelectsModal();
+            await cargarVales();
+
+            // Establecer fecha actual por defecto en el modal
+            document.getElementById('nuevoFecha').value = new Date().toISOString().split('T')[0];
+
+            // Búsqueda en tiempo real
+            document.getElementById('searchInput').addEventListener('input', filtrarTabla);
+
+            console.log('Página inicializada correctamente');
+        });
+
+        function llenarSelectsModal() {
+            const selectVendedor = document.getElementById('nuevoVendedor');
+            const selectSucursal = document.getElementById('nuevoSucursal');
+
+            if (!selectVendedor || !selectSucursal) {
+                console.warn('No se encontraron los selects del modal');
+                return;
+            }
+
+            // Limpiar opciones existentes (excepto la primera)
+            selectVendedor.innerHTML = '<option value="">Seleccionar...</option>';
+            selectSucursal.innerHTML = '<option value="">Seleccionar...</option>';
+
+            // Asegurar que vendedoresList tiene datos
+            if (!Array.isArray(vendedoresList) || vendedoresList.length === 0) {
+                console.warn('vendedoresList vacía, usando fallback');
+                vendedoresList = [
+                    { id: 4, nombre: 'Vendedor 1' },
+                    { id: 5, nombre: 'Vendedor 2' },
+                    { id: 6, nombre: 'Reinaldo Oviedo' }
+                ];
+            }
+
+            // Llenar vendedores
+            vendedoresList.forEach(v => {
+                const option = document.createElement('option');
+                option.value = v.id;
+                option.textContent = v.nombre_completo || v.nombre || v.nombre_usuario;
+                selectVendedor.appendChild(option);
+            });
+            console.log('Select vendedor llenado con ' + vendedoresList.length + ' opciones');
+
+            // Seleccionar por defecto el usuario actual si existe
+            try {
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                if (user && user.id) {
+                    selectVendedor.value = String(user.id);
+                }
+            } catch (_) { }
+
+            // Llenar sucursales
+            if (!Array.isArray(localesList) || localesList.length === 0) {
+                localesList = [
+                    { id: 1, nombre: 'Local Principal' },
+                    { id: 2, nombre: 'REFACCIONARIA OVIEDO' },
+                    { id: 3, nombre: 'REFACCIÓN PARA OVIEDO' }
+                ];
+            }
+            localesList.forEach(s => {
+                const option = document.createElement('option');
+                option.value = s.id;
+                option.textContent = s.nombre;
+                selectSucursal.appendChild(option);
+            });
+            console.log('Select sucursal llenado');
+        }
+
+        function abrirModalNuevo() {
+            console.log('Abriendo modal...');
+            try {
+                // Asegurar que los selects del modal estén sincronizados
+                llenarSelectsModal();
+                const modal = document.getElementById('modalNuevo');
+                modal.classList.add('active');
+                // Limpiar formulario
+                document.getElementById('formNuevoVale').reset();
+                document.getElementById('nuevoFecha').value = new Date().toISOString().split('T')[0];
+                document.getElementById('nuevoConcepto').value = 'POR ANTICIPO';
+                console.log('Modal abierto exitosamente');
+            } catch (error) {
+                console.error('Error abriendo modal:', error);
+            }
+        }
+
+        function cerrarModal() {
+            console.log('Cerrando modal...');
+            const modal = document.getElementById('modalNuevo');
+            if (modal) {
+                modal.classList.remove('active');
+            }
+        }
+
+        async function guardarVale(event) {
+            event.preventDefault();
+
+            const valeData = {
+                folio: document.getElementById('nuevoFolio').value.trim(),
+                monto: parseFloat(document.getElementById('nuevoMonto').value),
+                concepto: document.getElementById('nuevoConcepto').value.trim() || 'POR ANTICIPO',
+                fecha: document.getElementById('nuevoFecha').value + 'T00:00:00',
+                vendedor_id: parseInt(document.getElementById('nuevoVendedor').value),
+                local_id: parseInt(document.getElementById('nuevoSucursal').value),
+                tipo: document.getElementById('nuevoTipo').value,
+                disponible: document.getElementById('nuevoDisponible').value === 'true',
+                descripcion: document.getElementById('nuevoDescripcion').value.trim()
+            };
+
+            console.log('Datos a enviar:', valeData);
+
+            try {
+                const response = await fetch('/api/v1/vales-venta', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(valeData)
+                });
+
+                if (response.ok) {
+                    cerrarModal();
+                    await cargarVales();
+                    alert('Vale creado exitosamente');
+                } else {
+                    let errorMsg = '';
+                    const contentType = response.headers.get('content-type') || '';
+                    try {
+                        if (contentType.includes('application/json')) {
+                            const error = await response.json();
+                            errorMsg = typeof error.detail === 'string' ? error.detail : JSON.stringify(error.detail || error);
+                            console.error('Error response (JSON):', error);
+                        } else {
+                            const text = await response.text();
+                            errorMsg = text || 'Error interno del servidor';
+                            console.error('Error response (texto):', text);
+                        }
+                    } catch (parseErr) {
+                        console.error('Error parseando respuesta:', parseErr);
+                        errorMsg = 'No se pudo interpretar el error del servidor';
+                    }
+                    alert('Error al crear el vale: ' + errorMsg);
+                }
+            } catch (error) {
+                alert('Error al crear el vale: ' + error.message);
+                console.error('Error:', error);
+            }
+        }
+
+        async function cargarVendedores() {
+            const fallbackVendedores = [
+                { id: 4, nombre: 'Vendedor 1' },
+                { id: 5, nombre: 'Vendedor 2' },
+                { id: 6, nombre: 'Reinaldo Oviedo' }
+            ];
+
+            try {
+                const response = await fetch('/api/v1/usuarios/?skip=0&limit=100', {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (response.ok) {
+                    vendedoresList = await response.json();
+                    console.log('Vendedores cargados:', vendedoresList.length);
+                } else {
+                    console.warn('Fallo cargar vendedores, usando lista estática');
+                    vendedoresList = fallbackVendedores;
+                }
+            } catch (error) {
+                console.warn('Error al cargar vendedores, usando lista estática:', error);
+                vendedoresList = fallbackVendedores;
+            }
+
+            if (!Array.isArray(vendedoresList) || vendedoresList.length === 0) {
+                vendedoresList = fallbackVendedores;
+            }
+
+            const select = document.getElementById('filterVendedor');
+            select.innerHTML = '<option value="">Todos</option>';
+            vendedoresList.forEach(v => {
+                const option = document.createElement('option');
+                option.value = v.id;
+                option.textContent = v.nombre_completo || v.nombre || v.nombre_usuario;
+                select.appendChild(option);
+            });
+        }
+
+        async function cargarLocales() {
+            try {
+                const response = await fetch('/api/v1/locales/', {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (response.ok) {
+                    localesList = await response.json();
+                    console.log('Locales cargados:', localesList.length);
+                } else {
+                    console.warn('Fallo cargar locales, usando lista estática');
+                    localesList = [
+                        { id: 1, nombre: 'Local Principal' },
+                        { id: 2, nombre: 'REFACCIONARIA OVIEDO' },
+                        { id: 3, nombre: 'REFACCIÓN PARA OVIEDO' }
+                    ];
+                }
+            } catch (error) {
+                console.warn('Error al cargar locales, usando lista estática:', error);
+                localesList = [
+                    { id: 1, nombre: 'Local Principal' },
+                    { id: 2, nombre: 'REFACCIONARIA OVIEDO' },
+                    { id: 3, nombre: 'REFACCIÓN PARA OVIEDO' }
+                ];
+            }
+
+            if (!Array.isArray(localesList) || localesList.length === 0) {
+                localesList = [
+                    { id: 1, nombre: 'Local Principal' },
+                    { id: 2, nombre: 'REFACCIONARIA OVIEDO' },
+                    { id: 3, nombre: 'REFACCIÓN PARA OVIEDO' }
+                ];
+            }
+
+            const select = document.getElementById('filterSucursal');
+            select.innerHTML = '<option value="">Todas</option>';
+            localesList.forEach(local => {
+                const option = document.createElement('option');
+                option.value = local.id;
+                option.textContent = local.nombre;
+                select.appendChild(option);
+            });
+        }
+
+        async function cargarVales() {
+            document.getElementById('loading').classList.add('active');
+            document.getElementById('tableContainer').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'none';
+
+            try {
+                // Construir URL con parámetros
+                const params = new URLSearchParams();
+                const folio = document.getElementById('filterFolio').value;
+                const vendedor = document.getElementById('filterVendedor').value;
+                const monto = document.getElementById('filterMonto').value;
+                const sucursal = document.getElementById('filterSucursal').value;
+                const tipo = document.getElementById('filterTipo').value;
+                const fechaInicio = document.getElementById('fechaInicio').value;
+                const fechaFin = document.getElementById('fechaFin').value;
+
+                if (folio) params.append('folio', folio);
+                if (vendedor) params.append('vendedor_id', vendedor);
+                if (monto) params.append('monto_aproximado', monto);
+                if (sucursal) params.append('local_id', sucursal);
+                if (tipo) params.append('tipo', tipo);
+                if (fechaInicio) params.append('fecha_inicio', fechaInicio);
+                if (fechaFin) params.append('fecha_fin', fechaFin);
+
+                const url = `/api/v1/vales-venta?${params.toString()}`;
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (response.ok) {
+                    valesData = await response.json();
+                    renderizarTabla(valesData);
+                    document.getElementById('resultsCount').textContent = `${valesData.length} resultados.`;
+                } else {
+                    console.error('Error al cargar vales');
+                    mostrarVacio();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarVacio();
+            } finally {
+                document.getElementById('loading').classList.remove('active');
+            }
+        }
+
+        function renderizarTabla(vales) {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            if (vales.length === 0) {
+                mostrarVacio();
+                return;
+            }
+
+            document.getElementById('tableContainer').style.display = 'block';
+            document.getElementById('emptyState').style.display = 'none';
+
+            vales.forEach(vale => {
+                const tr = document.createElement('tr');
+                const fecha = new Date(vale.fecha).toLocaleDateString('es-MX');
+                const monto = parseFloat(vale.monto || 0).toFixed(2);
+                const concepto = vale.concepto || 'POR ANTICIPO';
+                const vendedor = vale.vendedor_nombre || '-';
+                const fechaUso = vale.fecha_uso ? new Date(vale.fecha_uso).toLocaleDateString('es-MX') : '-';
+                const destino = vale.destino || '-';
+                const devolucion = vale.tipo === 'devolucion' ? 'SI' : 'NO';
+                const sucursal = vale.local_nombre || '-';
+                const descripcion = vale.descripcion || '-';
+                const disponible = vale.disponible ? 'SI' : 'NO';
+
+                tr.innerHTML = `
+                    <td>${vale.folio}</td>
+                    <td>$${monto}</td>
+                    <td>${concepto}</td>
+                    <td>${fecha}</td>
+                    <td>${vendedor}</td>
+                    <td>${fechaUso}</td>
+                    <td>${destino}</td>
+                    <td>${devolucion}</td>
+                    <td>${sucursal}</td>
+                    <td>${descripcion}</td>
+                    <td><span class="disponible-toggle ${vale.disponible ? 'si' : 'no'}" onclick="event.stopPropagation(); toggleDisponible(${vale.id}, ${!vale.disponible});">${disponible}</span></td>
+                    <td>
+                        <button class="btn-print" onclick="event.stopPropagation(); imprimirVale(${JSON.stringify(vale).replace(/"/g, '&quot;')});">🖨️ Imprimir</button>
+                        <button class="btn-delete" onclick="event.stopPropagation(); eliminarVale(${vale.id});">🗑️ Eliminar</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function mostrarVacio() {
+            document.getElementById('tableContainer').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'block';
+            document.getElementById('resultsCount').textContent = '0 resultados.';
+        }
+
+        function filtrarTabla() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#tableBody tr');
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            document.getElementById('resultsCount').textContent = `${visibleCount} resultados.`;
+        }
+
+        function aplicarFiltros() {
+            cargarVales();
+        }
+
+        function limpiarFiltros() {
+            document.getElementById('filterFolio').value = '';
+            document.getElementById('filterVendedor').value = '';
+            document.getElementById('filterMonto').value = '';
+            document.getElementById('filterSucursal').value = '';
+            document.getElementById('filterTipo').value = '';
+
+            const hoy = new Date();
+            const haceUnMes = new Date();
+            haceUnMes.setMonth(haceUnMes.getMonth() - 1);
+
+            document.getElementById('fechaInicio').value = haceUnMes.toISOString().split('T')[0];
+            document.getElementById('fechaFin').value = hoy.toISOString().split('T')[0];
+
+            document.getElementById('searchInput').value = '';
+
+            cargarVales();
+        }
+
+        async function toggleDisponible(valeId, nuevoDisponible) {
+            try {
+                const response = await fetch(`/api/v1/vales-venta/${valeId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ disponible: nuevoDisponible })
+                });
+
+                if (response.ok) {
+                    // Recargar la lista de vales
+                    await cargarVales();
+                } else {
+                    alert('Error al actualizar la disponibilidad del vale');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al actualizar la disponibilidad');
+            }
+        }
+
+        async function eliminarVale(valeId) {
+            if (!confirm('¿Estás seguro de que deseas eliminar este vale?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/v1/vales-venta/${valeId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok || response.status === 204) {
+                    alert('Vale eliminado exitosamente');
+                    await cargarVales();
+                } else {
+                    alert('Error al eliminar el vale');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al eliminar el vale');
+            }
+        }
+
+        function imprimirVale(vale) {
+            const printWindow = window.open('', '_blank', 'width=800,height=600');
+            const fecha = new Date(vale.fecha).toLocaleDateString('es-MX');
+            const monto = parseFloat(vale.monto || 0).toFixed(2);
+            const folio = vale.folio || 'VZ000';
+
+            // Generar código de barras numérico basado en el folio
+            const numericCode = folio.replace(/[^\d]/g, '').padEnd(12, '0').substring(0, 12);
+
+            const contenido = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Vale de Canje - ` + folio + `</title>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>
+    <style>
+        @page {
+            size: 80mm auto;
+            margin: 5mm;
+        }
+        body {
+            font-family: 'Courier New', monospace;
+            width: 80mm;
+            margin: 0 auto;
+            padding: 5px;
+            font-size: 11px;
+            line-height: 1.2;
+        }
+        .header {
+            text-align: center;
+            font-weight: bold;
+            font-size: 13px;
+            margin-bottom: 5px;
+            padding-bottom: 5px;
+        }
+        .header-line1 {
+            font-size: 12px;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+        .header-line2 {
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .info-text {
+            font-size: 9px;
+            text-align: center;
+            margin: 3px 0;
+            line-height: 1.3;
+        }
+        .info-box {
+            padding: 0;
+            margin: 2px 0;
+            text-align: center;
+        }
+        .barcode-container {
+            text-align: center;
+            margin: 1px 0;
+        }
+        .barcode-container svg {
+            max-width: 100%;
+            height: auto;
+            max-height: 25px;
+        }
+        .box-row {
+            margin: 2px 0;
+            display: flex;
+            justify-content: space-around;
+            font-size: 8px;
+        }
+        .box-item {
+            text-align: center;
+        }
+        .box-label {
+            font-weight: bold;
+            font-size: 7px;
+        }
+        .box-value {
+            font-weight: bold;
+            font-size: 12px;
+            margin-top: 0px;
+        }
+        .monto-value {
+            font-size: 14px;
+            font-weight: bold;
+            color: #000;
+        }
+        .vendedor-section {
+            margin-top: 8px;
+            text-align: center;
+        }
+        .vendedor-label {
+            font-weight: bold;
+            font-size: 10px;
+        }
+        .vendedor-name {
+            font-weight: bold;
+            font-size: 11px;
+            margin-top: 2px;
+        }
+        .logo-container {
+            text-align: center;
+            margin: 10px 0;
+        }
+        .logo-container img {
+            width: 120px;
+            height: auto;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 5px;
+        }
+        .slogan {
+            text-align: center;
+            font-style: italic;
+            font-size: 9px;
+            margin-top: 5px;
+            line-height: 1.3;
+        }
+        .no-print {
+            text-align: center;
+            margin-top: 15px;
+            display: none;
+        }
+        .no-print button {
+            padding: 8px 15px;
+            font-size: 12px;
+            cursor: pointer;
+            margin: 0 5px;
+        }
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-line1">VALE DE CANJE</div>
+        <div class="header-line2">REFACCIONARIA OVIEDO</div>
+    </div>
+    
+    <div class="info-text">
+        LIBRAMIENTO SUR #717-B COL.<br>
+        MAGISTERIAL, C.P. 37900.<br>
+        SAN LUIS DE LA PAZ, GTO.<br>
+        <strong>WhatsApp: 468 113 2367</strong>
+    </div>
+    
+    <div class="info-box">
+        <div style="text-align: center; margin: 1px 0; font-size: 8px;">
+            <strong>FECHA: ` + fecha + `</strong>
+        </div>
+        
+        <div class="barcode-container">
+            <svg id="barcode"><\/svg>
+        </div>
+        
+        <div class="box-row">
+            <div class="box-item">
+                <div class="box-label">FOLIO:</div>
+                <div class="box-value">` + folio + `</div>
+            </div>
+            <div class="box-item">
+                <div class="box-label">MONTO:</div>
+                <div class="box-value monto-value">$` + monto + `</div>
+            </div>
+        </div>
+    </div>
+    </div>
+    
+    <div class="vendedor-section">
+        <div class="vendedor-label">Vendedor</div>
+        <div class="vendedor-name">` + (vale.vendedor_nombre ? vale.vendedor_nombre.toUpperCase() : 'REFACCIONARIA') + `</div>
+    </div>
+    
+    <div class="logo-container">
+        <img src="/static/images/logo_blanconegro.png" alt="Refaccionaria Oviedo">
+    </div>
+    
+    <div class="footer">
+        <strong>*REFACCIONARIA*</strong><br>
+        <strong>OVIEDO</strong>
+    </div>
+    
+    <div class="slogan">
+        "NUESTRA EXPERIENCIA<br>
+        MARCA LA DIFERENCIA"
+    </div>
+    
+    <div class="no-print">
+        <button onclick="window.print()">🖨️ Imprimir</button>
+        <button onclick="window.close()">❌ Cerrar</button>
+    </div>
+    
+    <script>
+        window.onload = function() {
+            // Generar código de barras
+            JsBarcode("#barcode", "` + numericCode + `", {
+                format: "CODE128",
+                width: 1.2,
+                height: 22,
+                displayValue: false,
+                margin: 0
+            });
+            
+            setTimeout(function() {
+                window.print();
+            }, 250);
+        };
+    <\/script>
+</body>
+</html>
+            `;
+
+            printWindow.document.write(contenido);
+            printWindow.document.close();
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Clientes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f5f5 0%, #fff 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: linear-gradient(135deg, #c41e3a 0%, #a01729 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 32px;
+            margin-bottom: 5px;
+        }
+
+        .breadcrumb {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            padding: 10px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-1px);
+        }
+
+        .sucursal-badge {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sucursal-badge::before {
+            content: "📍";
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .tab-btn {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .tab-btn.active {
+            color: #c41e3a;
+            border-bottom-color: #c41e3a;
+        }
+
+        .tab-btn:hover {
+            color: #c41e3a;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #c41e3a;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #a01729;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="number"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #c41e3a;
+            box-shadow: 0 0 5px rgba(196, 30, 58, 0.3);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #c41e3a 0%, #a01729 100%);
+            color: white;
+            padding: 15px;
+            margin: -20px -20px 15px -20px;
+            border-radius: 8px 8px 0 0;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        thead {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+
+        th {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 2px solid #ddd;
+            font-size: 14px;
+            color: #333;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            font-size: 14px;
+        }
+
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+
+        .search-box button {
+            padding: 10px 20px;
+        }
+
+        .alert {
+            padding: 12px 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #c41e3a;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #c41e3a 0%, #a01729 100%);
+            color: white;
+            padding: 20px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-footer {
+            padding: 20px;
+            border-top: 1px solid #ddd;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+    </style>
+    <script src="/static/js/sucursal_selector.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <div>
+                <h1>🏢 Gestión de Clientes</h1>
+                <div class="breadcrumb">Punto de Venta &gt; Clientes</div>
+            </div>
+            <div style="display:flex;gap:12px;align-items:center">
+                <span class="sucursal-badge" id="sucursalBadge">Sucursal</span>
+                <button class="back-btn" onclick="volverAnterior()">← VOLVER</button>
+            </div>
+        </header>
+
+        <div id="alertBox" class="alert"></div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="mostrarTab('listar')">📋 Listar Clientes</button>
+            <button class="tab-btn" onclick="mostrarTab('nuevo')">➕ Nuevo Cliente</button>
+            <button class="tab-btn" onclick="mostrarTab('reportes')">📊 Reportes</button>
+        </div>
+
+        <!-- TAB: LISTAR CLIENTES -->
+        <div id="listar" class="tab-content active">
+            <div class="card">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Buscar por nombre, email, RFC o teléfono..."
+                        onkeyup="filtrarClientes()">
+                    <button class="btn btn-primary" onclick="cargarClientes()">🔍 Buscar</button>
+                </div>
+
+                <div id="tablaCientes"></div>
+            </div>
+        </div>
+
+        <!-- TAB: NUEVO CLIENTE -->
+        <div id="nuevo" class="tab-content">
+            <div class="card">
+                <div class="card-header">Agregar Nuevo Cliente</div>
+
+                <form onsubmit="guardarCliente(event)">
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>Alias</label>
+                            <input type="text" id="alias">
+                        </div>
+                        <div class="form-group">
+                            <label>RFC</label>
+                            <input type="text" id="rfc" placeholder="Ej: ABC123456XYZ">
+                        </div>
+                    </div>
+
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>Nombre *</label>
+                            <input type="text" id="nombre" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Tipo Figura</label>
+                            <select id="tipo_figura">
+                                <option value="Persona Física">Persona Física</option>
+                                <option value="Persona Moral">Persona Moral</option>
+                                <option value="Empresa">Empresa</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>Teléfono</label>
+                            <input type="tel" id="telefono">
+                        </div>
+                        <div class="form-group">
+                            <label>Correo</label>
+                            <input type="email" id="email">
+                        </div>
+                    </div>
+
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>Apellido Paterno</label>
+                            <input type="text" id="apellido_paterno">
+                        </div>
+                        <div class="form-group">
+                            <label>Apellido Materno</label>
+                            <input type="text" id="apellido_materno">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Razón Social</label>
+                        <input type="text" id="razon_social">
+                    </div>
+
+                    <div class="grid-3">
+                        <div class="form-group">
+                            <label>Calle</label>
+                            <input type="text" id="calle">
+                        </div>
+                        <div class="form-group">
+                            <label>Número</label>
+                            <input type="text" id="numero">
+                        </div>
+                        <div class="form-group">
+                            <label>Colonia</label>
+                            <input type="text" id="colonia">
+                        </div>
+                    </div>
+
+                    <div class="grid-3">
+                        <div class="form-group">
+                            <label>Ciudad</label>
+                            <input type="text" id="ciudad">
+                        </div>
+                        <div class="form-group">
+                            <label>Estado</label>
+                            <input type="text" id="estado">
+                        </div>
+                        <div class="form-group">
+                            <label>Código Postal</label>
+                            <input type="text" id="codigo_postal">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="activo" checked> Activo
+                        </label>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-success">✅ Guardar Cliente</button>
+                        <button type="button" class="btn btn-secondary" onclick="limpiarFormulario()">🔄
+                            Limpiar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- TAB: REPORTES -->
+        <div id="reportes" class="tab-content">
+            <div class="card">
+                <div class="card-header">Reportes de Clientes</div>
+
+                <div style="padding: 20px;">
+                    <div class="grid-3">
+                        <div class="card"
+                            style="text-align: center; background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);">
+                            <div style="font-size: 36px; font-weight: bold; color: #2e7d32;">-</div>
+                            <div style="color: #558b2f; margin-top: 10px;">Total de Clientes</div>
+                        </div>
+                        <div class="card"
+                            style="text-align: center; background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);">
+                            <div style="font-size: 36px; font-weight: bold; color: #1565c0;">-</div>
+                            <div style="color: #0d47a1; margin-top: 10px;">Clientes Activos</div>
+                        </div>
+                        <div class="card"
+                            style="text-align: center; background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);">
+                            <div style="font-size: 36px; font-weight: bold; color: #e65100;">-</div>
+                            <div style="color: #bf360c; margin-top: 10px;">Clientes Inactivos</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE EDICIÓN -->
+    <div id="modalEditar" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <span>Editar Cliente</span>
+                <button class="modal-close" onclick="cerrarModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form onsubmit="guardarCliente(event, true)">
+                    <input type="hidden" id="modalClienteId">
+
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>Alias</label>
+                            <input type="text" id="modalAlias">
+                        </div>
+                        <div class="form-group">
+                            <label>RFC</label>
+                            <input type="text" id="modalRfc">
+                        </div>
+                    </div>
+
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>Nombre *</label>
+                            <input type="text" id="modalNombre" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Tipo Figura</label>
+                            <select id="modalTipoFigura">
+                                <option value="Persona Física">Persona Física</option>
+                                <option value="Persona Moral">Persona Moral</option>
+                                <option value="Empresa">Empresa</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>Teléfono</label>
+                            <input type="tel" id="modalTelefono">
+                        </div>
+                        <div class="form-group">
+                            <label>Correo</label>
+                            <input type="email" id="modalEmail">
+                        </div>
+                    </div>
+
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>Apellido Paterno</label>
+                            <input type="text" id="modalApellidoPaterno">
+                        </div>
+                        <div class="form-group">
+                            <label>Apellido Materno</label>
+                            <input type="text" id="modalApellidoMaterno">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="modalActivo"> Activo
+                        </label>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="cerrarModal()">Cancelar</button>
+                        <button type="submit" class="btn btn-success">✅ Actualizar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api/v1';
+        let clientesGlobal = [];
+        let clientesFiltrados = [];
+
+        document.addEventListener('DOMContentLoaded', function () {
+            cargarClientes();
+
+            // Mostrar sucursal
+            const sucursalNombre = localStorage.getItem('sucursal_nombre');
+            if (sucursalNombre) {
+                document.getElementById('sucursalBadge').textContent = sucursalNombre;
+            }
+        });
+
+        function volverAnterior() {
+            const destino = '/ventas';
+            if (document.referrer && document.referrer !== window.location.href) {
+                window.history.back();
+                setTimeout(() => {
+                    if (window.location.pathname.includes('clientes')) {
+                        window.location.href = destino;
+                    }
+                }, 150);
+            } else {
+                window.location.href = destino;
+            }
+        }
+
+        function mostrarTab(tabName) {
+            const tabs = document.querySelectorAll('.tab-content');
+            const btns = document.querySelectorAll('.tab-btn');
+
+            tabs.forEach(tab => tab.classList.remove('active'));
+            btns.forEach(btn => btn.classList.remove('active'));
+
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            if (tabName === 'reportes') {
+                cargarReportes();
+            }
+        }
+
+        function mostrarMensaje(mensaje, tipo = 'info') {
+            const alertBox = document.getElementById('alertBox');
+            alertBox.textContent = mensaje;
+            alertBox.className = `alert show alert-${tipo}`;
+            setTimeout(() => alertBox.classList.remove('show'), 3000);
+        }
+
+        async function cargarClientes() {
+            try {
+                const response = await fetch(`${API_BASE}/clientes/?activo=true`);
+                if (!response.ok) throw new Error('Error al cargar clientes');
+
+                clientesGlobal = await response.json();
+                clientesFiltrados = clientesGlobal;
+                renderizarTablaClientes();
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarMensaje('Error al cargar clientes', 'error');
+            }
+        }
+
+        function filtrarClientes() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            clientesFiltrados = clientesGlobal.filter(cliente => {
+                const nombre = `${cliente.nombre} ${cliente.apellido_paterno || ''} ${cliente.apellido_materno || ''}`.toLowerCase();
+                const email = (cliente.email || '').toLowerCase();
+                const rfc = (cliente.rfc || '').toLowerCase();
+                const telefono = (cliente.telefono || '').toLowerCase();
+
+                return nombre.includes(searchTerm) || email.includes(searchTerm) ||
+                    rfc.includes(searchTerm) || telefono.includes(searchTerm);
+            });
+            renderizarTablaClientes();
+        }
+
+        function renderizarTablaClientes() {
+            const tabla = document.getElementById('tablaCientes');
+
+            if (clientesFiltrados.length === 0) {
+                tabla.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📭</div>
+                        <p>No hay clientes registrados</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Alias</th>
+                            <th>RFC</th>
+                            <th>Nombre</th>
+                            <th>Tipo Figura</th>
+                            <th>Teléfono</th>
+                            <th>Correo</th>
+                            <th>Activo</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            clientesFiltrados.forEach(cliente => {
+                const nombreCompleto = `${cliente.nombre} ${cliente.apellido_paterno || ''} ${cliente.apellido_materno || ''}`.trim();
+                const estado = cliente.activo ? 'Sí' : 'No';
+                const claseBadge = cliente.activo ? 'status-active' : 'status-inactive';
+
+                html += `
+                    <tr>
+                        <td>${cliente.alias || '-'}</td>
+                        <td>${cliente.rfc || '-'}</td>
+                        <td>${nombreCompleto}</td>
+                        <td>${cliente.tipo_figura || 'Persona Física'}</td>
+                        <td>${cliente.telefono || '-'}</td>
+                        <td>${cliente.email || '-'}</td>
+                        <td><span class="status-badge ${claseBadge}">${estado}</span></td>
+                        <td>
+                            <button class="btn btn-primary" onclick="abrirModalEditar(${cliente.id})">✏️ Editar</button>
+                            <button class="btn btn-danger" onclick="eliminarCliente(${cliente.id})">🗑️ Eliminar</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table>';
+            tabla.innerHTML = html;
+        }
+
+        async function guardarCliente(event, esEdicion = false) {
+            event.preventDefault();
+
+            let clienteId, alias, nombre, email, apellidoPaterno, apellidoMaterno, rfc, tipoFigura, telefono, razonSocial,
+                calle, numero, colonia, ciudad, estado, codigoPostal, activo;
+
+            if (esEdicion) {
+                clienteId = document.getElementById('modalClienteId').value;
+                alias = document.getElementById('modalAlias').value;
+                rfc = document.getElementById('modalRfc').value;
+                nombre = document.getElementById('modalNombre').value;
+                tipoFigura = document.getElementById('modalTipoFigura').value;
+                telefono = document.getElementById('modalTelefono').value;
+                email = document.getElementById('modalEmail').value;
+                apellidoPaterno = document.getElementById('modalApellidoPaterno').value;
+                apellidoMaterno = document.getElementById('modalApellidoMaterno').value;
+                activo = document.getElementById('modalActivo').checked;
+            } else {
+                alias = document.getElementById('alias').value;
+                rfc = document.getElementById('rfc').value;
+                nombre = document.getElementById('nombre').value;
+                tipoFigura = document.getElementById('tipo_figura').value;
+                telefono = document.getElementById('telefono').value;
+                email = document.getElementById('email').value;
+                apellidoPaterno = document.getElementById('apellido_paterno').value;
+                apellidoMaterno = document.getElementById('apellido_materno').value;
+                razonSocial = document.getElementById('razon_social').value;
+                calle = document.getElementById('calle').value;
+                numero = document.getElementById('numero').value;
+                colonia = document.getElementById('colonia').value;
+                ciudad = document.getElementById('ciudad').value;
+                estado = document.getElementById('estado').value;
+                codigoPostal = document.getElementById('codigo_postal').value;
+                activo = document.getElementById('activo').checked;
+            }
+
+            if (!nombre) {
+                mostrarMensaje('El nombre es obligatorio', 'error');
+                return;
+            }
+
+            const payload = esEdicion ? {
+                alias: alias || null,
+                rfc: rfc || null,
+                nombre,
+                tipo_figura: tipoFigura,
+                telefono: telefono || null,
+                email: email || null,
+                apellido_paterno: apellidoPaterno || null,
+                apellido_materno: apellidoMaterno || null,
+                activo
+            } : {
+                alias: alias || null,
+                rfc: rfc || null,
+                nombre,
+                tipo_figura: tipoFigura,
+                telefono: telefono || null,
+                email: email || null,
+                apellido_paterno: apellidoPaterno || null,
+                apellido_materno: apellidoMaterno || null,
+                razon_social: razonSocial || null,
+                calle: calle || null,
+                numero: numero || null,
+                colonia: colonia || null,
+                ciudad: ciudad || null,
+                estado: estado || null,
+                codigo_postal: codigoPostal || null,
+                activo,
+                local_id: 1
+            };
+
+            try {
+                const method = esEdicion ? 'PUT' : 'POST';
+                const endpoint = esEdicion ? `${API_BASE}/clientes/${clienteId}` : `${API_BASE}/clientes/`;
+
+                const response = await fetch(endpoint, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    mostrarMensaje(esEdicion ? 'Cliente actualizado exitosamente' : 'Cliente guardado exitosamente', 'success');
+                    if (esEdicion) {
+                        cerrarModal();
+                    } else {
+                        limpiarFormulario();
+                    }
+                    await cargarClientes();
+                    if (!esEdicion) {
+                        setTimeout(() => mostrarTab('listar'), 1500);
+                    }
+                } else {
+                    const error = await response.json();
+                    mostrarMensaje(error.detail || 'Error al guardar cliente', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarMensaje('Error al guardar cliente', 'error');
+            }
+        }
+
+        function limpiarFormulario() {
+            document.getElementById('alias').value = '';
+            document.getElementById('rfc').value = '';
+            document.getElementById('nombre').value = '';
+            document.getElementById('tipo_figura').value = 'Persona Física';
+            document.getElementById('telefono').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('apellido_paterno').value = '';
+            document.getElementById('apellido_materno').value = '';
+            document.getElementById('razon_social').value = '';
+            document.getElementById('calle').value = '';
+            document.getElementById('numero').value = '';
+            document.getElementById('colonia').value = '';
+            document.getElementById('ciudad').value = '';
+            document.getElementById('estado').value = '';
+            document.getElementById('codigo_postal').value = '';
+            document.getElementById('activo').checked = true;
+        }
+
+        async function abrirModalEditar(clienteId) {
+            const cliente = clientesGlobal.find(c => c.id === clienteId);
+            if (!cliente) return;
+
+            document.getElementById('modalClienteId').value = cliente.id;
+            document.getElementById('modalAlias').value = cliente.alias || '';
+            document.getElementById('modalRfc').value = cliente.rfc || '';
+            document.getElementById('modalNombre').value = cliente.nombre;
+            document.getElementById('modalTipoFigura').value = cliente.tipo_figura || 'Persona Física';
+            document.getElementById('modalTelefono').value = cliente.telefono || '';
+            document.getElementById('modalEmail').value = cliente.email || '';
+            document.getElementById('modalApellidoPaterno').value = cliente.apellido_paterno || '';
+            document.getElementById('modalApellidoMaterno').value = cliente.apellido_materno || '';
+            document.getElementById('modalActivo').checked = cliente.activo;
+
+            document.getElementById('modalEditar').classList.add('show');
+        }
+
+        function cerrarModal() {
+            document.getElementById('modalEditar').classList.remove('show');
+        }
+
+        async function eliminarCliente(clienteId) {
+            if (!confirm('¿Está seguro de que desea eliminar (desactivar) este cliente?')) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/clientes/${clienteId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    mostrarMensaje('Cliente eliminado (desactivado) exitosamente', 'success');
+                    await cargarClientes();
+                } else {
+                    const error = await response.json().catch(() => ({}));
+                    mostrarMensaje(error.detail || 'Error al eliminar cliente', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarMensaje('Error al eliminar cliente', 'error');
+            }
+        }
+
+        async function cargarReportes() {
+            try {
+                const total = clientesGlobal.length;
+                const activos = clientesGlobal.filter(c => c.activo).length;
+                const inactivos = total - activos;
+
+                document.querySelectorAll('.card')[1].innerHTML = `
+                    <div style="padding: 20px;">
+                        <div class="grid-3">
+                            <div class="card" style="text-align: center; background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);">
+                                <div style="font-size: 36px; font-weight: bold; color: #2e7d32;">${total}</div>
+                                <div style="color: #558b2f; margin-top: 10px;">Total de Clientes</div>
+                            </div>
+                            <div class="card" style="text-align: center; background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);">
+                                <div style="font-size: 36px; font-weight: bold; color: #1565c0;">${activos}</div>
+                                <div style="color: #0d47a1; margin-top: 10px;">Clientes Activos</div>
+                            </div>
+                            <div class="card" style="text-align: center; background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);">
+                                <div style="font-size: 36px; font-weight: bold; color: #e65100;">${inactivos}</div>
+                                <div style="color: #bf360c; margin-top: 10px;">Clientes Inactivos</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+    </script>
+</body>
+
+</html>

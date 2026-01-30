@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REFACCIONARIA - Detalle de Venta</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "Tahoma", sans-serif;
+            background: #f0f0f0;
+            color: #1f1f1f;
+        }
+
+        .container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: #c41e3a;
+            border-bottom: 2px solid #8b1428;
+            padding: 4px 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .btn-volver-header {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 12px;
+            border-radius: 3px;
+            margin-right: 10px;
+        }
+
+        .btn-volver-header:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .header-title {
+            flex: 1;
+            text-align: center;
+            font-weight: bold;
+            color: white;
+        }
+
+        .header-status {
+            background: #c41e3a;
+            padding: 2px 6px;
+            border: 1px solid #8b1428;
+            font-size: 12px;
+            color: white;
+        }
+
+        .sucursal-badge {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sucursal-badge::before {
+            content: "📍";
+        }
+
+        .toolbar {
+            background: #f5f5f5;
+            border-bottom: 1px solid #ddd;
+            padding: 6px 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+        }
+
+        .toolbar label {
+            font-weight: bold;
+            font-size: 11px;
+        }
+
+        .toolbar button {
+            padding: 4px 10px;
+            border: 1px solid #ddd;
+            background: white;
+            font-size: 11px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .toolbar button:hover {
+            background: #f0f0f0;
+        }
+
+        .toolbar input[type="text"] {
+            height: 20px;
+            padding: 2px 4px;
+            border: 1px solid #888;
+            font-size: 11px;
+        }
+
+        .content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: auto;
+            background: #f5f5f5;
+            padding: 8px;
+        }
+
+        .add-product-section {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 6px;
+            margin-bottom: 8px;
+            flex-shrink: 0;
+        }
+
+        .add-product-section label {
+            display: block;
+            font-size: 11px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .add-product-row {
+            display: grid;
+            grid-template-columns: 100px 60px auto;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .add-product-row input,
+        .add-product-row button {
+            height: 22px;
+            padding: 2px 4px;
+            border: 1px solid #ddd;
+            font-size: 11px;
+        }
+
+        .add-product-row input {
+            background: white;
+        }
+
+        .add-product-row button {
+            background: #c41e3a;
+            color: white;
+            cursor: pointer;
+            border-color: #8b1428;
+            grid-column: 3;
+        }
+
+        .add-product-row button:hover {
+            background: #b01830;
+        }
+
+        .table-wrapper {
+            flex: 1;
+            background: white;
+            border: 1px solid #ddd;
+            overflow: auto;
+            margin-bottom: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+        }
+
+        th {
+            background: #c41e3a;
+            color: white;
+            border: 1px solid #8b1428;
+            padding: 4px;
+            text-align: left;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        td {
+            border: 1px solid #ddd;
+            padding: 4px;
+            text-align: left;
+        }
+
+        td.num {
+            text-align: right;
+        }
+
+        tr:nth-child(even) {
+            background: #f5f5f5;
+        }
+
+        tr:hover {
+            background: #fffacd;
+        }
+
+        .footer {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .left-footer {
+            display: flex;
+            gap: 8px;
+        }
+
+        .discount-panel {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 6px;
+            flex: 1;
+        }
+
+        .discount-panel label {
+            font-size: 11px;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .discount-options {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+        }
+
+        .discount-options input[type="radio"],
+        .discount-options input[type="checkbox"] {
+            margin: 0;
+        }
+
+        .discount-options input[type="number"] {
+            width: 60px;
+            height: 20px;
+            padding: 2px;
+            border: 1px solid #888;
+            font-size: 11px;
+        }
+
+        .summary-panel {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 6px;
+            flex: 1;
+        }
+
+        .summary-panel label {
+            font-size: 11px;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            margin-bottom: 2px;
+        }
+
+        .totals-panel {
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        .totals-panel .row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            padding: 2px 0;
+        }
+
+        .totals-panel .row.label {
+            font-weight: bold;
+        }
+
+        .total-large {
+            font-size: 14px;
+            font-weight: bold;
+            color: #c41e3a;
+            border-top: 1px solid #999;
+            padding-top: 4px;
+            margin-top: 4px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.45);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 80px auto;
+            padding: 0;
+            border: 2px solid #666;
+            width: 90%;
+            max-width: 480px;
+        }
+
+        .modal-header {
+            background: #c41e3a;
+            color: white;
+            padding: 8px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #8b1428;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .close {
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #f0f0f0;
+        }
+
+        .modal-body {
+            padding: 12px;
+            font-size: 11px;
+        }
+
+        .isr-detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .isr-detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .isr-detail-row.highlight {
+            background: #f0f0f0;
+            padding: 4px;
+            margin: 4px -4px;
+            font-weight: bold;
+            color: #c41e3a;
+        }
+
+        .search-modal-content {
+            background-color: white;
+            margin: 40px auto;
+            padding: 0;
+            border: 2px solid #666;
+            width: 90%;
+            max-width: 900px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .search-modal-header {
+            background: #c41e3a;
+            color: white;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #999;
+            flex-shrink: 0;
+        }
+
+        .search-modal-header h3 {
+            margin: 0;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .search-filters {
+            background: #f5f5f5;
+            padding: 8px 12px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+        }
+
+        .search-filters input {
+            height: 24px;
+            padding: 2px 6px;
+            border: 1px solid #ddd;
+            font-size: 11px;
+        }
+
+        .search-filters button {
+            height: 24px;
+            padding: 2px 10px;
+            border: 1px solid #ddd;
+            background: white;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .search-filters button:hover {
+            background: #f0f0f0;
+        }
+
+        .search-results {
+            flex: 1;
+            overflow: auto;
+            background: white;
+        }
+
+        .search-results table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+        }
+
+        .search-results th {
+            background: #c5d9e7;
+            border: 1px solid #999;
+            padding: 4px;
+            text-align: left;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .search-results td {
+            border: 1px solid #ddd;
+            padding: 4px;
+        }
+
+        .search-results tr:nth-child(even) {
+            background: #f5f5f5;
+        }
+
+        .search-results tr:hover {
+            background: #fffacd;
+        }
+
+        .search-results button {
+            padding: 2px 8px;
+            border: 1px solid #888;
+            background: #e5e5e5;
+            font-size: 10px;
+            cursor: pointer;
+        }
+
+        .search-results button:hover {
+            background: #d8d8d8;
+        }
+
+        .search-footer {
+            background: #d0dce5;
+            padding: 8px 12px;
+            border-top: 1px solid #999;
+            display: flex;
+            justify-content: flex-end;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .search-footer button {
+            padding: 4px 12px;
+            border: 1px solid #888;
+            background: #e5e5e5;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .search-footer button:hover {
+            background: #d8d8d8;
+        }
+
+        .search-loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 12px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Scripts de componentes reutilizables -->
+    <script src="componentes/selector-sucursal.js"></script>
+    <div class="container">
+        <div class="header">
+            <button class="btn-volver-header" onclick="window.location.href='ventas.html'">← VOLVER</button>
+            <span class="sucursal-badge" id="sucursalBadge">Sucursal</span>
+            <div>REFACCIONARIA | DETALLE DE LA VENTA</div>
+            <div class="header-status">
+                Estado: <span id="estadoVenta">PENDIENTE</span> | Folio: <span id="folioDisplay">AV-76</span>
+            </div>
+        </div>
+
+        <div class="toolbar">
+            <label>SUCURSAL:</label>
+            <select id="sucursalSelect"
+                style="height: 22px; padding: 2px 4px; border: 1px solid #888; font-size: 11px; font-weight: bold;"
+                onchange="cambiarSucursal(this.value)"></select>
+            <span style="flex:1"></span>
+            <label>ACCESO RÁPIDO</label>
+            <button onclick="abrirPagos()">Pagar</button>
+            <button onclick="cancelarVenta()">Cancelar</button>
+            <span style="flex:1"></span>
+            <button onclick="abrirBuscadorProductos()" style="background:#e0f0ff; font-weight:bold;">🔍 Buscar
+                Productos</button>
+        </div>
+
+        <div class="content">
+            <div class="add-product-section">
+                <label>Agregar producto :</label>
+                <div class="add-product-row">
+                    <input id="claveInput" type="text" placeholder="Clave" />
+                    <input id="cantidadInput" type="number" min="1" value="1" placeholder="Cant." />
+                    <button onclick="agregarProducto()">Agregar</button>
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width:100px;">Clave</th>
+                            <th style="width:60px;">Cant.</th>
+                            <th style="width:200px;">Descripción</th>
+                            <th style="width:100px;">$ Unitario</th>
+                            <th style="width:100px;">$ Total</th>
+                            <th style="width:50px;">Acc.</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productosBody"></tbody>
+                </table>
+            </div>
+
+            <div class="footer">
+                <div class="left-footer">
+                    <div class="discount-panel">
+                        <label>Descuento</label>
+                        <div class="discount-options">
+                            <span>¿Aplicar?</span>
+                            <input type="radio" id="descSi" name="descuentoAplicar" value="si" checked
+                                onclick="toggleDescuento(true)" />
+                            <label for="descSi" style="margin:0;">Sí</label>
+                            <input type="radio" id="descNo" name="descuentoAplicar" value="no"
+                                onclick="toggleDescuento(false)" />
+                            <label for="descNo" style="margin:0;">No</label>
+                            <span style="margin-left:12px;">%</span>
+                            <input type="number" id="descuentoInput" step="0.01" min="0" value="0"
+                                oninput="recalcularTotales()" />
+                        </div>
+                    </div>
+
+                    <div class="summary-panel">
+                        <label>Resumen</label>
+                        <div class="summary-row">
+                            <span>Descuento: $</span>
+                            <span id="descuento">0.00</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Subtotal: $</span>
+                            <span id="subtotal">0.00</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Impuesto: $</span>
+                            <span id="impuesto">0.00</span>
+                        </div>
+                        <div class="summary-row label">
+                            <span>Acreedor: REFERENCIA</span>
+                            <span id="acreedor">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="totals-panel">
+                    <div class="row label">
+                        <span>Subtotal: $</span>
+                        <span id="subtotalPan">0.00</span>
+                    </div>
+                    <div class="row">
+                        <span>Total: $</span>
+                        <span id="totalPan" class="total-large">0.00</span>
+                    </div>
+                    <div class="row">
+                        <span id="productoCount">0 productos.</span>
+                        <span id="refDisplay">-</span>
+                    </div>
+                    <button onclick="mostrarDesgloceISR()"
+                        style="width:100%; margin-top:6px; padding:4px; font-size:11px; border:1px solid #8b1428; background:#c41e3a; color:white; cursor:pointer;">
+                        Desglosar ISR
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="searchProductModal" class="modal">
+        <div class="search-modal-content">
+            <div class="search-modal-header">
+                <h3>Buscar Productos y Paquetes</h3>
+                <span class="close" onclick="cerrarBuscadorProductos()">&times;</span>
+            </div>
+            <div style="display:flex; gap:0; background:#f5f5f5; border-bottom:1px solid #ddd;">
+                <button id="tabProductos" onclick="cambiarTabBuscador('productos')"
+                    style="flex:1; padding:8px; border:none; background:#c41e3a; color:white; border-bottom:3px solid #c41e3a; font-weight:bold; cursor:pointer;">Productos</button>
+                <button id="tabPaquetes" onclick="cambiarTabBuscador('paquetes')"
+                    style="flex:1; padding:8px; border:none; background:#e8e8e8; font-weight:bold; cursor:pointer;">Paquetes
+                    (Kits)</button>
+            </div>
+            <div class="search-filters">
+                <label style="margin:0;" id="labelBusqueda">Búsqueda:</label>
+                <input type="text" id="searchInput" placeholder="Nombre, código, marca..." />
+                <label style="margin:0;" id="labelCodigo">Código:</label>
+                <input type="text" id="searchCodigo" placeholder="Código" style="width:100px;" />
+                <label style="margin:0;" id="labelMarca">Marca:</label>
+                <input type="text" id="searchMarca" placeholder="Marca" style="width:100px;" />
+                <button onclick="buscarEnBuscador()">Buscar</button>
+                <button onclick="cerrarBuscadorProductos()"
+                    style="background:#c41e3a; color:white; border:1px solid #8b1428;">Cerrar</button>
+            </div>
+            <div class="search-results" id="searchResults">
+                <div class="search-loading">Ingresa criterios de búsqueda...</div>
+            </div>
+            <div class="search-footer">
+                <button onclick="cerrarBuscadorProductos()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="isrModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Desglose de ISR</h3>
+                <span class="close" onclick="cerrarModalISR()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="isr-detail-row">
+                    <span>Subtotal antes de impuestos:</span>
+                    <span id="isrSubtotal">$ 0.00</span>
+                </div>
+                <div class="isr-detail-row">
+                    <span>Base gravable (IVA 16%):</span>
+                    <span id="isrBaseIVA">$ 0.00</span>
+                </div>
+                <div class="isr-detail-row">
+                    <span>IVA (16%):</span>
+                    <span id="isrIVA">$ 0.00</span>
+                </div>
+                <div class="isr-detail-row highlight">
+                    <span>ISR Retenido (1.25%):</span>
+                    <span id="isrRetenido">$ 0.00</span>
+                </div>
+                <div class="isr-detail-row">
+                    <span>Total con IVA:</span>
+                    <span id="isrTotalIVA">$ 0.00</span>
+                </div>
+                <div class="isr-detail-row highlight">
+                    <span>Total después de ISR:</span>
+                    <span id="isrTotalFinal">$ 0.00</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ventaData = {
+            folio: 'AV-76',
+            subtotal: 0,
+            descuento: 0,
+            impuesto: 0,
+            total: 0,
+            pagado: 0,
+            metodoPago: null,
+            referencia: null,
+            tasaIVA: 0.16,
+            tasaISR: 0.0125
+        };
+
+        const productos = [];
+        let tabBuscadorActual = 'productos';
+
+        function abrirBuscadorProductos() {
+            tabBuscadorActual = 'productos';
+            cambiarTabBuscador('productos');
+            document.getElementById('searchProductModal').style.display = 'block';
+            document.getElementById('searchInput').focus();
+        }
+
+        function cerrarBuscadorProductos() {
+            document.getElementById('searchProductModal').style.display = 'none';
+            document.getElementById('searchResults').innerHTML = '<div class="search-loading">Ingresa criterios de búsqueda...</div>';
+        }
+
+        function cambiarTabBuscador(tab) {
+            tabBuscadorActual = tab;
+            const tabProductos = document.getElementById('tabProductos');
+            const tabPaquetes = document.getElementById('tabPaquetes');
+            const labelBusqueda = document.getElementById('labelBusqueda');
+            const labelCodigo = document.getElementById('labelCodigo');
+            const labelMarca = document.getElementById('labelMarca');
+            const searchCodigo = document.getElementById('searchCodigo');
+            const searchMarca = document.getElementById('searchMarca');
+
+            if (tab === 'productos') {
+                tabProductos.style.background = '#c41e3a';
+                tabProductos.style.color = 'white';
+                tabProductos.style.borderBottomColor = '#c41e3a';
+                tabPaquetes.style.background = '#e8e8e8';
+                tabPaquetes.style.color = 'black';
+                tabPaquetes.style.borderBottomColor = 'transparent';
+                labelBusqueda.textContent = 'Búsqueda:';
+                labelCodigo.style.display = 'inline';
+                labelMarca.style.display = 'inline';
+                searchCodigo.style.display = 'inline';
+                searchMarca.style.display = 'inline';
+            } else {
+                tabProductos.style.background = '#e8e8e8';
+                tabProductos.style.color = 'black';
+                tabProductos.style.borderBottomColor = 'transparent';
+                tabPaquetes.style.background = '#c41e3a';
+                tabPaquetes.style.color = 'white';
+                tabPaquetes.style.borderBottomColor = '#c41e3a';
+                labelBusqueda.textContent = 'Paquete:';
+                labelCodigo.style.display = 'none';
+                labelMarca.style.display = 'none';
+                searchCodigo.style.display = 'none';
+                searchMarca.style.display = 'none';
+            }
+            document.getElementById('searchResults').innerHTML = '<div class="search-loading">Ingresa criterios de búsqueda...</div>';
+        }
+
+        function buscarEnBuscador() {
+            if (tabBuscadorActual === 'productos') {
+                buscarProductos();
+            } else {
+                buscarPaquetes();
+            }
+        }
+
+
+        function agregarProducto() {
+            const claveInput = document.getElementById('claveInput');
+            const cantidadInput = document.getElementById('cantidadInput');
+            if (!claveInput || !cantidadInput) {
+                alert('No se encontró el campo de clave o cantidad.');
+                return;
+            }
+            const clave = claveInput.value.trim();
+            const cantidad = parseFloat(cantidadInput.value) || 0;
+            if (!clave || cantidad <= 0) {
+                alert('Completa la clave y una cantidad válida.');
+                return;
+            }
+            // Buscar producto por clave
+            fetch(`/api/v1/productos/?codigo=${encodeURIComponent(clave)}`)
+                .then(res => res.json())
+                .then(data => {
+                    let descripcion = '';
+                    let precio = 0;
+                    // El endpoint regresa { total, items: [...] }
+                    const items = Array.isArray(data.items) ? data.items : [];
+                    if (items.length > 0) {
+                        descripcion = items[0].nombre || items[0].descripcion || '';
+                        precio = items[0].precio_venta || 0;
+                    } else {
+                        alert('Producto no encontrado, se agregará sin descripción ni precio.');
+                    }
+                    productos.push({
+                        id: Date.now(),
+                        clave,
+                        descripcion,
+                        cantidad,
+                        precio
+                    });
+                    claveInput.value = '';
+                    cantidadInput.value = 1;
+                    renderTabla();
+                })
+                .catch(() => {
+                    alert('Error al buscar producto. Se agregará sin descripción ni precio.');
+                    productos.push({
+                        id: Date.now(),
+                        clave,
+                        descripcion: '',
+                        cantidad,
+                        precio: 0
+                    });
+                    claveInput.value = '';
+                    cantidadInput.value = 1;
+                    renderTabla();
+                });
+        }
+
+        function eliminarProducto(id) {
+            const index = productos.findIndex(p => p.id === id);
+            if (index >= 0) {
+                productos.splice(index, 1);
+                renderTabla();
+            }
+        }
+
+        function renderTabla() {
+            const tbody = document.getElementById('productosBody');
+            tbody.innerHTML = productos.map(p => {
+                const total = p.cantidad * p.precio;
+                return `
+                    <tr>
+                        <td>${p.clave}</td>
+                        <td class="num">${p.cantidad.toFixed(2)}</td>
+                        <td>${p.descripcion}</td>
+                        <td class="num">$ ${p.precio.toFixed(2)}</td>
+                        <td class="num">$ ${total.toFixed(2)}</td>
+                        <td><button onclick="eliminarProducto(${p.id})" style="padding:2px 6px; font-size:10px; background:#c41e3a; color:white; border:1px solid #8b1428; cursor:pointer;">Quitar</button></td>
+                    </tr>`;
+            }).join('');
+
+            recalcularTotales();
+            actualizarProductoCount();
+        }
+
+        function actualizarProductoCount() {
+            const count = productos.length;
+            document.getElementById('productoCount').textContent = count + ' ' + (count === 1 ? 'producto.' : 'productos.');
+        }
+
+        function toggleDescuento(activo) {
+            if (!activo) {
+                document.getElementById('descuentoInput').value = 0;
+            }
+            recalcularTotales();
+        }
+
+        function recalcularTotales() {
+            const subtotal = productos.reduce((acc, p) => acc + p.cantidad * p.precio, 0);
+            const descuentoPorcentaje = parseFloat(document.getElementById('descuentoInput').value) || 0;
+            const descuentoValor = subtotal * (descuentoPorcentaje / 100);
+            const base = Math.max(subtotal - descuentoValor, 0);
+            const iva = base * ventaData.tasaIVA;
+            const isr = base * ventaData.tasaISR;
+            const total = base + iva - isr;
+
+            ventaData.subtotal = subtotal;
+            ventaData.descuento = descuentoValor;
+            ventaData.impuesto = iva;
+            ventaData.total = total;
+
+            document.getElementById('subtotal').textContent = subtotal.toFixed(2);
+            document.getElementById('descuento').textContent = descuentoValor.toFixed(2);
+            document.getElementById('impuesto').textContent = iva.toFixed(2);
+            document.getElementById('subtotalPan').textContent = base.toFixed(2);
+            document.getElementById('totalPan').textContent = total.toFixed(2);
+        }
+
+        function abrirPagos() {
+            // Validar que haya productos
+            if (productos.length === 0) {
+                alert('Agrega al menos un producto a la venta');
+                return;
+            }
+
+            // Validar que el total sea mayor a 0
+            if (ventaData.total <= 0) {
+                alert('El total de la venta debe ser mayor a 0');
+                return;
+            }
+
+            // Guardar datos completos de la venta en localStorage
+            const datosVenta = {
+                folio: ventaData.folio,
+                estado: ventaData.estado,
+                subtotal: ventaData.subtotal,
+                descuentoPorcentaje: ventaData.descuentoPorcentaje,
+                descuentoMonto: ventaData.descuentoMonto,
+                impuesto: ventaData.impuesto,
+                total: ventaData.total,
+                productos: productos.map(p => ({
+                    id: p.id,
+                    clave: p.clave,
+                    descripcion: p.descripcion,
+                    cantidad: p.cantidad,
+                    precio: p.precio
+                })),
+                fecha: new Date().toISOString()
+            };
+
+            console.log('Guardando venta:', datosVenta);
+            console.log('Productos a guardar:', datosVenta.productos);
+            localStorage.setItem('ventaActual', JSON.stringify(datosVenta));
+
+            // Verificar que se guardó correctamente
+            const verificacion = localStorage.getItem('ventaActual');
+            console.log('Verificación de guardado:', JSON.parse(verificacion));
+
+            // Redirigir a la vista de pagos
+            window.location.href = 'pagar_venta.html';
+        }
+
+        function abrirBuscadorProductos() {
+            document.getElementById('searchProductModal').style.display = 'block';
+            document.getElementById('searchInput').focus();
+        }
+
+        function cerrarBuscadorProductos() {
+            document.getElementById('searchProductModal').style.display = 'none';
+            document.getElementById('searchResults').innerHTML = '<div class="search-loading">Ingresa criterios de búsqueda para ver productos...</div>';
+        }
+
+        async function buscarProductos() {
+            const q = document.getElementById('searchInput').value.trim();
+            const codigo = document.getElementById('searchCodigo').value.trim();
+            const marca = document.getElementById('searchMarca').value.trim();
+
+            if (!q && !codigo && !marca) {
+                alert('Ingresa al menos un criterio de búsqueda.');
+                return;
+            }
+
+            const searchResults = document.getElementById('searchResults');
+            searchResults.innerHTML = '<div class="search-loading">Buscando productos...</div>';
+
+            try {
+                const params = new URLSearchParams();
+                if (q) params.append('q', q);
+                if (codigo) params.append('codigo', codigo);
+                if (marca) params.append('marca', marca);
+                params.append('limit', 50);
+
+                const response = await fetch(`/api/v1/productos/?${params.toString()}`);
+                if (!response.ok) throw new Error('Error en la búsqueda');
+
+                const data = await response.json();
+                const items = Array.isArray(data) ? data : (data.items || []);
+
+                if (items.length === 0) {
+                    searchResults.innerHTML = '<div class="search-loading">No se encontraron productos.</div>';
+                    return;
+                }
+
+                let html = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width:80px;">Clave</th>
+                                <th style="width:80px;">Precio</th>
+                                <th style="width:60px;">Esc.</th>
+                                <th style="width:60px;">Tot.</th>
+                                <th>Nombre</th>
+                                <th style="width:60px;">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+
+                items.forEach(p => {
+                    html += `
+                        <tr>
+                            <td>${p.codigo}</td>
+                            <td>$ ${parseFloat(p.precio_venta || 0).toFixed(2)}</td>
+                            <td class="num">${p.stock_minimo || 0}</td>
+                            <td class="num">${p.stock_total || 0}</td>
+                            <td>${p.nombre} ${p.marca ? '(' + p.marca + ')' : ''}</td>
+                            <td><button onclick="agregarProductoDeBusqueda(${p.id}, '${p.codigo}', '${p.nombre}', ${p.precio_venta || 0})">Agregar</button></td>
+                        </tr>`;
+                });
+
+                html += '</tbody></table>';
+                searchResults.innerHTML = html;
+
+            } catch (error) {
+                console.error('Error:', error);
+                searchResults.innerHTML = '<div class="search-loading">Error en la búsqueda. Intenta de nuevo.</div>';
+            }
+        }
+
+        function agregarProductoDeBusqueda(id, codigo, nombre, precio) {
+            const cantidad = prompt('¿Cantidad?', '1');
+            if (!cantidad) return;
+
+            const cant = parseFloat(cantidad);
+            if (isNaN(cant) || cant <= 0) {
+                alert('Cantidad inválida.');
+                return;
+            }
+
+            productos.push({
+                id: Date.now(),
+                clave: codigo,
+                descripcion: nombre,
+                cantidad: cant,
+                precio: parseFloat(precio)
+            });
+
+            renderTabla();
+            alert('Producto agregado: ' + nombre);
+        }
+
+        async function buscarPaquetes() {
+            const q = document.getElementById('searchInput').value.trim();
+
+            if (!q) {
+                alert('Ingresa al menos un nombre de paquete.');
+                return;
+            }
+
+            const searchResults = document.getElementById('searchResults');
+            searchResults.innerHTML = '<div class="search-loading">Buscando paquetes...</div>';
+
+            try {
+                const params = new URLSearchParams();
+                params.append('q', q);
+                params.append('limit', 50);
+
+                const response = await fetch(`/api/v1/paquetes/?${params.toString()}`);
+                if (!response.ok) throw new Error('Error en la búsqueda');
+
+                const data = await response.json();
+                const items = Array.isArray(data) ? data : (data.items || []);
+
+                if (items.length === 0) {
+                    searchResults.innerHTML = '<div class="search-loading">No se encontraron paquetes.</div>';
+                    return;
+                }
+
+                let html = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width:80px;">Clase</th>
+                                <th style="width:80px;">Precio</th>
+                                <th style="width:80px;">Items</th>
+                                <th>Nombre</th>
+                                <th style="width:60px;">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+
+                items.forEach(p => {
+                    html += `
+                        <tr>
+                            <td>${p.clase || 'N/A'}</td>
+                            <td>$ ${parseFloat(p.precio_total || 0).toFixed(2)}</td>
+                            <td class="num">${p.total_items || 0}</td>
+                            <td>${p.nombre}</td>
+                            <td><button onclick="agregarPaqueteDeBusqueda(${p.id}, '${p.nombre}', ${p.precio_total || 0})">Agregar</button></td>
+                        </tr>`;
+                });
+
+                html += '</tbody></table>';
+                searchResults.innerHTML = html;
+
+            } catch (error) {
+                console.error('Error:', error);
+                searchResults.innerHTML = '<div class="search-loading">Error en la búsqueda. Intenta de nuevo.</div>';
+            }
+        }
+
+        function agregarPaqueteDeBusqueda(id, nombre, precio) {
+            const cantidad = prompt('¿Cantidad?', '1');
+            if (!cantidad) return;
+
+            const cant = parseFloat(cantidad);
+            if (isNaN(cant) || cant <= 0) {
+                alert('Cantidad inválida.');
+                return;
+            }
+
+            productos.push({
+                id: Date.now(),
+                clave: 'PKT-' + id,
+                descripcion: nombre + ' (Paquete)',
+                cantidad: cant,
+                precio: parseFloat(precio)
+            });
+
+            renderTabla();
+            alert('Paquete agregado: ' + nombre);
+        }
+
+        function mostrarDesgloceISR() {
+            const base = Math.max(ventaData.subtotal - ventaData.descuento, 0);
+            const iva = base * ventaData.tasaIVA;
+            const isr = base * ventaData.tasaISR;
+            const totalConIVA = base + iva;
+            const totalFinal = totalConIVA - isr;
+
+            document.getElementById('isrSubtotal').textContent = '$ ' + ventaData.subtotal.toFixed(2);
+            document.getElementById('isrBaseIVA').textContent = '$ ' + base.toFixed(2);
+            document.getElementById('isrIVA').textContent = '$ ' + iva.toFixed(2);
+            document.getElementById('isrRetenido').textContent = '$ ' + isr.toFixed(2);
+            document.getElementById('isrTotalIVA').textContent = '$ ' + totalConIVA.toFixed(2);
+            document.getElementById('isrTotalFinal').textContent = '$ ' + totalFinal.toFixed(2);
+
+            document.getElementById('isrModal').style.display = 'block';
+        }
+
+        function cerrarModalISR() {
+            document.getElementById('isrModal').style.display = 'none';
+        }
+
+        function procesarVenta() {
+            if (ventaData.total <= 0) {
+                alert('Agrega al menos un producto.');
+                return;
+            }
+            alert('Venta procesada. Folio: ' + ventaData.folio);
+        }
+
+        function imprimirTicket() {
+            alert('Imprimiendo ticket del folio: ' + ventaData.folio);
+        }
+
+        function cancelarVenta() {
+            if (confirm('¿Cancelar la venta actual?')) {
+                window.location.href = '/ventas';
+            }
+        }
+
+        function crearNuevaVenta() {
+            if (productos.length > 0 && !confirm('Tienes productos sin guardar. ¿Descartar y crear nueva venta?')) {
+                return;
+            }
+            reiniciarFormulario();
+            generarNuevoFolio();
+            alert('Nueva venta creada. Folio: ' + ventaData.folio);
+        }
+
+        function guardarVenta() {
+            if (productos.length === 0) {
+                alert('Agrega al menos un producto antes de guardar.');
+                return;
+            }
+
+            const localId = obtenerLocalIdSeleccionado('sucursalSelect');
+            const datosGuardar = {
+                folio: ventaData.folio,
+                fecha: new Date().toISOString(),
+                local_id: localId,
+                productos: productos,
+                subtotal: ventaData.subtotal,
+                descuento: ventaData.descuento,
+                impuesto: ventaData.impuesto,
+                total: ventaData.total,
+                pagado: ventaData.pagado,
+                referencia: ventaData.referencia,
+                estado: 'BORRADOR'
+            };
+
+            // Guardar en localStorage como respaldo
+            localStorage.setItem('ventaBorrador_' + ventaData.folio, JSON.stringify(datosGuardar));
+
+            // Aquí puedes integrar con tu API
+            // fetch('/api/v1/ventas', {
+            //     method: 'POST',
+            //     headers: { 'Content-Type': 'application/json' },
+            //     body: JSON.stringify(datosGuardar)
+            // }).then(res => res.json()).then(data => {
+            //     alert('Venta guardada con folio: ' + data.folio);
+            // });
+
+            alert('Venta guardada como BORRADOR.\nFolio: ' + ventaData.folio + '\n\nDatos salvados localmente.');
+            document.getElementById('estadoVenta').textContent = 'BORRADOR';
+        }
+
+        function reiniciarVenta() {
+            if (!confirm('¿Reiniciar toda la venta? Se perderán todos los datos actuales.')) {
+                return;
+            }
+            reiniciarFormulario();
+            generarNuevoFolio();
+            document.getElementById('estadoVenta').textContent = 'PENDIENTE';
+            alert('Venta reiniciada. Folio: ' + ventaData.folio);
+        }
+
+        function reiniciarFormulario() {
+            productos.length = 0;
+            document.getElementById('claveInput').value = '';
+            document.getElementById('cantidadInput').value = 1;
+            document.getElementById('descripcionInput').value = '';
+            document.getElementById('precioInput').value = '';
+            document.getElementById('descuentoInput').value = 0;
+            document.getElementById('buscarInput').value = '';
+            document.getElementById('refDisplay').textContent = '-';
+            ventaData.pagado = 0;
+            ventaData.referencia = null;
+            renderTabla();
+        }
+
+        function generarNuevoFolio() {
+            const timestamp = Date.now().toString().slice(-4);
+            const random = Math.floor(Math.random() * 100).toString().padStart(2, '0');
+            ventaData.folio = 'AV-' + timestamp + random;
+            document.getElementById('folioDisplay').textContent = ventaData.folio;
+        }
+
+        window.onclick = function (event) {
+            const isrModal = document.getElementById('isrModal');
+            const searchModal = document.getElementById('searchProductModal');
+            if (event.target === isrModal) {
+                cerrarModalISR();
+            }
+            if (event.target === searchModal) {
+                cerrarBuscadorProductos();
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            inicializarSelectorSucursal('sucursalSelect', cambiarSucursal);
+            generarNuevoFolio();
+
+            // Mostrar sucursal
+            const sucursalNombre = localStorage.getItem('sucursal_nombre');
+            if (sucursalNombre) {
+                document.getElementById('sucursalBadge').textContent = sucursalNombre;
+            }
+        });
+
+        function cambiarSucursal(localId) {
+            console.log('Sucursal cambiada a:', localId);
+            // Aquí puedes agregar lógica adicional si lo necesitas
+        }
+    </script>
+</body>
+
+</html>

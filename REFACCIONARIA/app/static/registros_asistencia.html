@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registros de Asistencia</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        body {
+            background: #fafafa;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 40px auto;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px #0001;
+            padding: 32px;
+        }
+
+        h2 {
+            color: #b71c3a;
+            margin-bottom: 24px;
+        }
+
+        .filters {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .filters label {
+            font-weight: 500;
+            margin-right: 6px;
+        }
+
+        .filters select,
+        .filters input {
+            padding: 6px 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .filters .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+
+        th,
+        td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #e0e0e0;
+            text-align: left;
+        }
+
+        th {
+            background: #f5f5f5;
+            color: #b71c3a;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .search-btn {
+            background: #b71c3a;
+            color: #fff;
+            border: none;
+            padding: 7px 18px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .search-btn:hover {
+            background: #a3152e;
+        }
+
+        .sucursal-badge {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            color: white;
+            padding: 8px 14px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sucursal-badge::before {
+            content: "📍";
+        }
+    </style>
+</head>
+
+<body>
+    <div
+        style="background: #b71c3a; color: white; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center;">
+        <button onclick="window.location.href='/rrhh'"
+            style="background: transparent; color: white; border: 1px solid white; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold;">←
+            VOLVER</button>
+        <span class="sucursal-badge" id="sucursalBadge">Sucursal</span>
+        <h1 style="margin: 0; font-size: 1.2rem;">Registros de Asistencia</h1>
+        <div></div>
+    </div>
+    <div class="container">
+        <h2 style="margin-top: 0;">Registro de Asistencia de Empleados</h2>
+        <form class="filters" id="filtrosForm">
+            <div class="filter-group">
+                <label for="sucursal">Sucursal:</label>
+                <select id="sucursal" name="sucursal">
+                    <option value="">Todas</option>
+                    <option value="Principal">Principal</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="nombre">Nombre / Apellido:</label>
+                <input type="text" id="nombre" name="nombre" placeholder="Buscar...">
+            </div>
+            <div class="filter-group">
+                <label for="fecha_inicio">Fecha:</label>
+                <input type="date" id="fecha_inicio" name="fecha_inicio">
+                <span>a</span>
+                <input type="date" id="fecha_fin" name="fecha_fin">
+            </div>
+            <button type="submit" class="search-btn">Buscar</button>
+        </form>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Fecha</th>
+                    <th>Entrada</th>
+                    <th>Comida</th>
+                    <th>Reg.</th>
+                    <th>Salida</th>
+                </tr>
+            </thead>
+            <tbody id="tablaBody">
+            </tbody>
+        </table>
+        <div id="resultCount" style="margin-top: 12px; color: #888; font-size: 0.95em;">0 resultados.</div>
+    </div>
+    <script>
+        function formToQuery() {
+            const sucursal = document.getElementById('sucursal').value;
+            const nombre = document.getElementById('nombre').value.trim();
+            const fi = document.getElementById('fecha_inicio').value;
+            const ff = document.getElementById('fecha_fin').value;
+            const params = new URLSearchParams();
+            if (sucursal) params.append('sucursal', sucursal);
+            if (nombre) params.append('nombre', nombre);
+            if (fi) params.append('fecha_inicio', fi);
+            if (ff) params.append('fecha_fin', ff);
+            return params.toString();
+        }
+
+        async function cargarRegistros() {
+            const tbody = document.getElementById('tablaBody');
+            const count = document.getElementById('resultCount');
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#666;">Cargando registros...</td></tr>';
+            try {
+                const qs = formToQuery();
+                const url = qs ? `/api/v1/asistencia?${qs}` : '/api/v1/asistencia';
+                const res = await fetch(url);
+                const data = await res.json();
+                const lista = Array.isArray(data) ? data : (data.data || []);
+                if (!lista.length) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#a33;">No hay registros.</td></tr>';
+                } else {
+                    tbody.innerHTML = lista.map(r => {
+                        const f = (r.fecha || '').split('-').reverse().join('/');
+                        return `<tr>
+                            <td>${r.nombre || ''}</td>
+                            <td>${f}</td>
+                            <td>${r.entrada || ''}</td>
+                            <td>${r.comida || ''}</td>
+                            <td>${r.regreso || ''}</td>
+                            <td>${r.salida || ''}</td>
+                        </tr>`;
+                    }).join('');
+                }
+                count.textContent = `${lista.length} resultados.`;
+            } catch (e) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#a33;">Error al cargar.</td></tr>';
+                count.textContent = `0 resultados.`;
+                console.error('Error asistencia:', e);
+            }
+        }
+
+        document.getElementById('filtrosForm').addEventListener('submit', (ev) => {
+            ev.preventDefault();
+            cargarRegistros();
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            cargarRegistros();
+
+            // Mostrar sucursal
+            const sucursalNombre = localStorage.getItem('sucursal_nombre');
+            if (sucursalNombre) {
+                document.getElementById('sucursalBadge').textContent = sucursalNombre;
+            }
+        });
+    </script>
+</body>
+
+</html>

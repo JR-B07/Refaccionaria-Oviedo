@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REFACCIONARIA - Estadísticas de Venta</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-red: #c41e3a;
+            --dark-red: #8b1428;
+            --light-bg: #f5f5f5;
+            --white: #ffffff;
+            --text-dark: #333333;
+            --border: #e0e0e0;
+            --success: #28a745;
+            --info: #17a2b8;
+            --warning: #ffc107;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-bg);
+            color: var(--text-dark);
+            min-height: 100vh;
+        }
+
+        .top-bar {
+            background-color: var(--primary-red);
+            color: var(--white);
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .top-bar h1 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .btn-back {
+            background: rgba(255, 255, 255, 0.2);
+            color: var(--white);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 8px 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 24px auto;
+            padding: 0 20px;
+        }
+
+        .header-section {
+            background: var(--white);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        }
+
+        .header-section h2 {
+            color: var(--primary-red);
+            font-size: 24px;
+            margin-bottom: 16px;
+        }
+
+        .filters {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filters label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .filters select,
+        .filters input {
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .btn-filter {
+            background: var(--primary-red);
+            color: var(--white);
+            border: none;
+            padding: 8px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-filter:hover {
+            background: var(--dark-red);
+        }
+
+        .sucursal-badge {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-left: auto;
+        }
+
+        .sucursal-badge::before {
+            content: "📍";
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--white);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+            border-left: 4px solid var(--primary-red);
+        }
+
+        .stat-card.blue {
+            border-left-color: var(--info);
+        }
+
+        .stat-card.green {
+            border-left-color: var(--success);
+        }
+
+        .stat-card.orange {
+            border-left-color: var(--warning);
+        }
+
+        .stat-card .label {
+            font-size: 14px;
+            color: #777;
+            margin-bottom: 8px;
+        }
+
+        .stat-card .value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .charts-section {
+            background: var(--white);
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+            margin-bottom: 20px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-bottom: 30px;
+        }
+
+        .chart-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary-red);
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary-red);
+        }
+
+        @media (max-width: 768px) {
+            .filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .chart-container {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="top-bar">
+        <button class="btn-back" onclick="goBack()">← Volver</button>
+        <h1>📊 ESTADÍSTICAS DE VENTA</h1>
+    </div>
+
+    <div class="container">
+        <!-- Filtros -->
+        <div class="header-section">
+            <h2>Tipo Gráfico: <span id="graphType">Anual (Gráficado)</span></h2>
+            <div class="filters">
+                <label for="viewType">Vista:</label>
+                <select id="viewType" onchange="cambiarVista()">
+                    <option value="anual">Anual</option>
+                    <option value="mensual">Mensual</option>
+                    <option value="diaria">Diaria</option>
+                </select>
+
+                <label for="yearFilter">Año:</label>
+                <select id="yearFilter" onchange="actualizarGraficas()">
+                    <option value="2026">2026</option>
+                    <option value="2025">2025</option>
+                    <option value="2024">2024</option>
+                </select>
+
+                <label for="monthFilter" style="display:none;">Mes:</label>
+                <select id="monthFilter" onchange="actualizarGraficas()" style="display:none;">
+                    <option value="1">Enero</option>
+                    <option value="2">Febrero</option>
+                    <option value="3">Marzo</option>
+                    <option value="4">Abril</option>
+                    <option value="5">Mayo</option>
+                    <option value="6">Junio</option>
+                    <option value="7">Julio</option>
+                    <option value="8">Agosto</option>
+                    <option value="9">Septiembre</option>
+                    <option value="10">Octubre</option>
+                    <option value="11">Noviembre</option>
+                    <option value="12">Diciembre</option>
+                </select>
+
+                <button class="btn-filter" onclick="actualizarGraficas()">🔄 Actualizar</button>
+            </div>
+        </div>
+
+        <!-- Resumen Estadístico -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="label">Total Vendido</div>
+                <div class="value" id="totalVendido">$83,264.58</div>
+            </div>
+            <div class="stat-card blue">
+                <div class="label">Devuelto</div>
+                <div class="value" id="totalDevuelto">$3,102.14</div>
+            </div>
+            <div class="stat-card green">
+                <div class="label">Neto</div>
+                <div class="value" id="totalNeto">$80,162.44</div>
+            </div>
+            <div class="stat-card orange">
+                <div class="label">Cantidad de Ventas</div>
+                <div class="value" id="cantidadVentas">127</div>
+            </div>
+        </div>
+
+        <!-- Gráficas -->
+        <div class="charts-section">
+            <h3 class="chart-title">Monto de Venta por Período</h3>
+            <div class="chart-container">
+                <canvas id="ventasChart"></canvas>
+            </div>
+
+            <h3 class="chart-title">Cantidad de Ventas</h3>
+            <div class="chart-container">
+                <canvas id="cantidadChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let ventasChart = null;
+        let cantidadChart = null;
+        let vistaActual = 'anual';
+
+        // Datos de ejemplo
+        const datosVentas = {
+            anual: {
+                labels: ['2020', '2021', '2022', '2023', '2024', '2025', '2026'],
+                ventas: [45000, 62000, 78000, 95000, 110000, 125000, 83264],
+                cantidad: [320, 410, 520, 630, 720, 810, 127]
+            },
+            mensual: {
+                labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+                ventas: [7200, 8100, 9500, 8700, 10200, 9800, 11500, 10800, 9200, 8500, 7800, 2064],
+                cantidad: [45, 52, 61, 58, 68, 65, 74, 70, 60, 55, 50, 12]
+            },
+            diaria: {
+                labels: Array.from({ length: 31 }, (_, i) => (i + 1).toString()),
+                ventas: [2800, 3200, 2900, 3500, 4100, 3800, 3600, 4200, 3900, 3700,
+                    4000, 3300, 3100, 3800, 4500, 4200, 3900, 3600, 3400, 3700,
+                    4100, 3800, 3500, 3200, 3900, 4300, 4000, 3700, 3400, 3600, 3800],
+                cantidad: [18, 22, 19, 24, 28, 26, 24, 29, 27, 25,
+                    27, 23, 21, 26, 31, 29, 27, 24, 23, 25,
+                    28, 26, 24, 22, 27, 29, 27, 25, 23, 24, 26]
+            }
+        };
+
+        function inicializarGraficas() {
+            const ctxVentas = document.getElementById('ventasChart').getContext('2d');
+            const ctxCantidad = document.getElementById('cantidadChart').getContext('2d');
+
+            ventasChart = new Chart(ctxVentas, {
+                type: 'bar',
+                data: {
+                    labels: datosVentas.anual.labels,
+                    datasets: [{
+                        label: 'Monto de Ventas',
+                        data: datosVentas.anual.ventas,
+                        backgroundColor: 'rgba(196, 30, 58, 0.7)',
+                        borderColor: 'rgba(196, 30, 58, 1)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    return 'Ventas: $' + context.parsed.y.toLocaleString('es-MX', { minimumFractionDigits: 2 });
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function (value) {
+                                    return '$' + value.toLocaleString('es-MX');
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            cantidadChart = new Chart(ctxCantidad, {
+                type: 'line',
+                data: {
+                    labels: datosVentas.anual.labels,
+                    datasets: [{
+                        label: 'Cantidad de Ventas',
+                        data: datosVentas.anual.cantidad,
+                        backgroundColor: 'rgba(23, 162, 184, 0.2)',
+                        borderColor: 'rgba(23, 162, 184, 1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function cambiarVista() {
+            vistaActual = document.getElementById('viewType').value;
+            const monthFilter = document.getElementById('monthFilter');
+            const monthLabel = monthFilter.previousElementSibling;
+
+            if (vistaActual === 'diaria') {
+                monthFilter.style.display = 'block';
+                monthLabel.style.display = 'block';
+            } else {
+                monthFilter.style.display = 'none';
+                monthLabel.style.display = 'none';
+            }
+
+            let titulo = '';
+            switch (vistaActual) {
+                case 'anual':
+                    titulo = 'Anual (Gráficado)';
+                    break;
+                case 'mensual':
+                    titulo = 'Mensual (Gráficado)';
+                    break;
+                case 'diaria':
+                    titulo = 'Diaria (Gráficado)';
+                    break;
+            }
+            document.getElementById('graphType').textContent = titulo;
+
+            actualizarGraficas();
+        }
+
+        function actualizarGraficas() {
+            const datos = datosVentas[vistaActual];
+
+            // Actualizar gráfica de ventas
+            ventasChart.data.labels = datos.labels;
+            ventasChart.data.datasets[0].data = datos.ventas;
+            ventasChart.update();
+
+            // Actualizar gráfica de cantidad
+            cantidadChart.data.labels = datos.labels;
+            cantidadChart.data.datasets[0].data = datos.cantidad;
+            cantidadChart.update();
+
+            // Actualizar estadísticas
+            const totalVentas = datos.ventas.reduce((a, b) => a + b, 0);
+            const totalCantidad = datos.cantidad.reduce((a, b) => a + b, 0);
+            const devuelto = totalVentas * 0.037; // ~3.7%
+            const neto = totalVentas - devuelto;
+
+            document.getElementById('totalVendido').textContent = '$' + totalVentas.toLocaleString('es-MX', { minimumFractionDigits: 2 });
+            document.getElementById('totalDevuelto').textContent = '$' + devuelto.toLocaleString('es-MX', { minimumFractionDigits: 2 });
+            document.getElementById('totalNeto').textContent = '$' + neto.toLocaleString('es-MX', { minimumFractionDigits: 2 });
+            document.getElementById('cantidadVentas').textContent = totalCantidad;
+        }
+
+        function goBack() {
+            window.location.href = '/reportes';
+        }
+
+        // Inicializar al cargar la página
+        document.addEventListener('DOMContentLoaded', () => {
+            // Mostrar sucursal
+            const sucursalNombre = localStorage.getItem('sucursal_nombre');
+            if (sucursalNombre) {
+                document.getElementById('sucursalBadge').textContent = sucursalNombre;
+            }
+
+            inicializarGraficas();
+        });
+    </script>
+</body>
+
+</html>

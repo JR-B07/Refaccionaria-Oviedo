@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Administrar Promociones</title>
+    <style>
+        .btn-back {
+            background: #c41e3a;
+            color: #fff;
+            border: 2px solid #fff;
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            margin-bottom: 18px;
+            margin-top: 0;
+            margin-left: 0;
+            box-shadow: none;
+            transition: background 0.2s, color 0.2s, border 0.2s;
+            letter-spacing: 1px;
+            display: inline-block;
+        }
+
+        .btn-back:hover {
+            background: #a81a32;
+            color: #fff;
+            border-color: #fff;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px #0001;
+            padding: 32px;
+        }
+
+        h2 {
+            color: #c41e3a;
+        }
+
+        .promo-list {
+            margin: 24px 0;
+        }
+
+        .promo-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 6px;
+            padding: 10px 16px;
+            margin-bottom: 10px;
+        }
+
+        .promo-desc {
+            flex: 1;
+        }
+
+        .promo-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 6px 14px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-add {
+            background: #c41e3a;
+            color: #fff;
+        }
+
+        .btn-toggle {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-delete {
+            background: #ffb3b3;
+            color: #a00;
+        }
+
+        .btn-toggle.active {
+            background: #4caf50;
+            color: #fff;
+        }
+
+        .add-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .add-form input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <div style="background:#c41e3a;padding:18px 0 10px 0;">
+        <button class="btn-back" onclick="goBack()">&#8592; <b>VOLVER</b></button>
+    </div>
+    <div class="container">
+        <h2>Administrar Promociones</h2>
+        <form class="add-form" id="addPromoForm">
+            <input type="text" id="promoDesc" placeholder="Nueva promoción..." maxlength="120" required>
+            <button type="submit" class="btn btn-add">Agregar</button>
+        </form>
+        <div class="promo-list" id="promoList"></div>
+    </div>
+    <script>
+        function goBack() {
+            window.location.href = '/static/ventas.html';
+        }
+        async function fetchPromos() {
+            const res = await fetch('/api/v1/promociones/promociones');
+            const promos = await res.json();
+            renderPromos(promos);
+        }
+
+        function renderPromos(promos) {
+            const list = document.getElementById('promoList');
+            list.innerHTML = '';
+            promos.forEach(promo => {
+                const div = document.createElement('div');
+                div.className = 'promo-item';
+                div.innerHTML = `
+            <span class="promo-desc">${promo.descripcion}</span>
+            <div class="promo-actions">
+                <button class="btn btn-toggle${promo.activa ? ' active' : ''}" onclick="togglePromo(${promo.id}, ${promo.activa})">${promo.activa ? 'Activo' : 'Inactivo'}</button>
+                <button class="btn btn-delete" onclick="deletePromo(${promo.id})">Eliminar</button>
+            </div>
+        `;
+                list.appendChild(div);
+            });
+        }
+
+        document.getElementById('addPromoForm').onsubmit = async function (e) {
+            e.preventDefault();
+            const desc = document.getElementById('promoDesc').value.trim();
+            if (!desc) return;
+            await fetch('/api/v1/promociones/promociones', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ descripcion: desc })
+            });
+            document.getElementById('promoDesc').value = '';
+            fetchPromos();
+        };
+
+        window.togglePromo = async function (id, activa) {
+            await fetch(`/api/v1/promociones/promociones/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ activa: !activa })
+            });
+            fetchPromos();
+        };
+
+        window.deletePromo = async function (id) {
+            if (!confirm('¿Eliminar esta promoción?')) return;
+            await fetch(`/api/v1/promociones/promociones/${id}`, { method: 'DELETE' });
+            fetchPromos();
+        };
+
+        fetchPromos();
+    </script>
+</body>
+
+</html>

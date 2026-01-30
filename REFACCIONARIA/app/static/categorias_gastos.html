@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo de Categorías de Gastos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #b8092f;
+            --primary-dark: #930725;
+            --accent: #0f9d58;
+            --card: #ffffff;
+            --bg: #f5f6fb;
+            --border: #e4e6ef;
+            --text: #1f2933;
+            --muted: #6b7280;
+            --shadow: 0 12px 30px rgba(0, 0, 0, 0.05);
+            --radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Manrope', 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .topbar {
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+            color: #fff;
+            padding: 14px 22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand {
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+
+        .back-btn,
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: #fff;
+            padding: 8px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.15s ease, background 0.2s ease;
+        }
+
+        .back-btn:hover,
+        .logout-btn:hover {
+            transform: translateY(-1px);
+            background: rgba(255, 255, 255, 0.22);
+        }
+
+        .page {
+            max-width: 1400px;
+            margin: 24px auto 40px;
+            padding: 0 18px;
+        }
+
+        .breadcrumb {
+            color: var(--muted);
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+
+        .title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .title {
+            font-size: 26px;
+            margin: 0;
+        }
+
+        .subtitle {
+            color: var(--muted);
+            margin: 4px 0 0;
+        }
+
+        .panel {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 18px;
+            margin-bottom: 18px;
+        }
+
+        .toolbar {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr auto;
+            gap: 12px;
+            margin-bottom: 18px;
+            align-items: end;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .field label {
+            font-size: 13px;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        .field input {
+            height: 42px;
+            padding: 0 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: #fdfdfd;
+            font-size: 14px;
+            transition: border 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .field input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(184, 9, 47, 0.15);
+        }
+
+        .btn {
+            border: 1px solid var(--border);
+            background: #fff;
+            color: var(--text);
+            height: 42px;
+            padding: 0 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            transition: transform 0.12s ease, box-shadow 0.15s ease, border 0.15s ease;
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+            border-color: #d2d5e0;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            border-color: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
+        .btn-secondary:hover {
+            background: #068d4a;
+            border-color: #068d4a;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+
+        th,
+        td {
+            padding: 14px 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+        }
+
+        th {
+            color: var(--muted);
+            font-weight: 700;
+            background: #f9fafc;
+        }
+
+        tbody tr:hover {
+            background: #f9fafc;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-administrativa {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-general {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .actions-cell {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-icon {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: background 0.15s ease;
+        }
+
+        .btn-icon:hover {
+            background: #f4f6fb;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.2s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: var(--card);
+            padding: 28px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 12px;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--muted);
+        }
+
+        .close-modal:hover {
+            color: var(--text);
+        }
+
+        .modal-body {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        @media (max-width: 900px) {
+            .toolbar {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th,
+            td {
+                padding: 10px 8px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="topbar">
+        <div class="topbar-left">
+            <button class="back-btn" onclick="window.location.href='/static/gastos.html'">← Volver</button>
+            <div class="brand">Catálogo de Categorías de Gastos</div>
+        </div>
+        <div class="topbar-left">
+            <span id="userName">Usuario</span>
+            <button class="logout-btn" onclick="logout()">Cerrar sesión</button>
+        </div>
+    </div>
+
+    <div class="page">
+        <div class="breadcrumb">Menú Principal / Administración / Gestión de Gastos / Catálogo de Categorías</div>
+        <div class="title-row">
+            <div>
+                <h1 class="title">Listado de Categorías de Gastos</h1>
+                <p class="subtitle">Gestiona las categorías disponibles para clasificar tus gastos.</p>
+            </div>
+            <button class="btn btn-secondary" onclick="abrirModalAgregar()">➕ Nueva Categoría</button>
+        </div>
+
+        <div class="panel">
+            <div class="toolbar">
+                <div class="field">
+                    <label>Categoría</label>
+                    <input type="text" id="filtroCat" placeholder="Buscar por categoría...">
+                </div>
+                <div class="field">
+                    <label>Tipo</label>
+                    <input type="text" id="filtroTipo" placeholder="Buscar por tipo...">
+                </div>
+                <div class="field">
+                    <label>Descripción</label>
+                    <input type="text" id="filtroDesc" placeholder="Buscar en descripción...">
+                </div>
+                <button class="btn btn-primary" onclick="buscarCategorias()">🔍 Buscar</button>
+            </div>
+
+            <table id="tablaCategorias">
+                <thead>
+                    <tr>
+                        <th>Categoría</th>
+                        <th>Clasificación</th>
+                        <th>Descripción</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="categoriasList">
+                    <tr data-id="1">
+                        <td>ARRENDAMIENTO</td>
+                        <td><span class="badge badge-administrativa">ADMINISTRATIVA</span></td>
+                        <td></td>
+                        <td>
+                            <div class="actions-cell">
+                                <button class="btn-icon" onclick="editarCategoria(1)" title="Editar">✏️</button>
+                                <button class="btn-icon" onclick="eliminarCategoria(1)" title="Eliminar">🗑️</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr data-id="2">
+                        <td>CASETAS</td>
+                        <td><span class="badge badge-administrativa">ADMINISTRATIVA</span></td>
+                        <td>CASETAS</td>
+                        <td>
+                            <div class="actions-cell">
+                                <button class="btn-icon" onclick="editarCategoria(2)" title="Editar">✏️</button>
+                                <button class="btn-icon" onclick="eliminarCategoria(2)" title="Eliminar">🗑️</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr data-id="3">
+                        <td>COMBUSTIBLE</td>
+                        <td><span class="badge badge-general">GENERAL</span></td>
+                        <td></td>
+                        <td>
+                            <div class="actions-cell">
+                                <button class="btn-icon" onclick="editarCategoria(3)" title="Editar">✏️</button>
+                                <button class="btn-icon" onclick="eliminarCategoria(3)" title="Eliminar">🗑️</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr data-id="4">
+                        <td>COMPRA EMERGENTE</td>
+                        <td><span class="badge badge-administrativa">ADMINISTRATIVA</span></td>
+                        <td>COMPRA DE MERCANCIA</td>
+                        <td>
+                            <div class="actions-cell">
+                                <button class="btn-icon" onclick="editarCategoria(4)" title="Editar">✏️</button>
+                                <button class="btn-icon" onclick="eliminarCategoria(4)" title="Eliminar">🗑️</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr data-id="5">
+                        <td>CONSUMO</td>
+                        <td><span class="badge badge-administrativa">ADMINISTRATIVA</span></td>
+                        <td>AGUA</td>
+                        <td>
+                            <div class="actions-cell">
+                                <button class="btn-icon" onclick="editarCategoria(5)" title="Editar">✏️</button>
+                                <button class="btn-icon" onclick="eliminarCategoria(5)" title="Eliminar">🗑️</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr data-id="6">
+                        <td>ESTACIONAMIENTO</td>
+                        <td><span class="badge badge-administrativa">ADMINISTRATIVA</span></td>
+                        <td></td>
+                        <td>
+                            <div class="actions-cell">
+                                <button class="btn-icon" onclick="editarCategoria(6)" title="Editar">✏️</button>
+                                <button class="btn-icon" onclick="eliminarCategoria(6)" title="Eliminar">🗑️</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr data-id="7">
+                        <td>HONORARIOS</td>
+                        <td><span class="badge badge-administrativa">ADMINISTRATIVA</span></td>
+                        <td></td>
+                        <td>
+                            <div class="actions-cell">
+                                <button class="btn-icon" onclick="editarCategoria(7)" title="Editar">✏️</button>
+                                <button class="btn-icon" onclick="eliminarCategoria(7)" title="Eliminar">🗑️</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr data-id="8">
+                        <td>IMPUESTOS</td>
+                        <td><span class="badge badge-administrativa">ADMINISTRATIVA</span></td>
+                        <td></td>
+                        <td>
+                            <div class="actions-cell">
+                                <button class="btn-icon" onclick="editarCategoria(8)" title="Editar">✏️</button>
+                                <button class="btn-icon" onclick="eliminarCategoria(8)" title="Eliminar">🗑️</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr data-id="9">
+                        <td>MANTENIMIENTO MOTOS</td>
+                        <td><span class="badge badge-administrativa">ADMINISTRATIVA</span></td>
+                        <td></td>
+                        <td>
+                            <div class="actions-cell">
+                                <button class="btn-icon" onclick="editarCategoria(9)" title="Editar">✏️</button>
+                                <button class="btn-icon" onclick="eliminarCategoria(9)" title="Eliminar">🗑️</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr data-id="10">
+                        <td>MANTENIMIENTO OFICINAS</td>
+                        <td><span class="badge badge-administrativa">ADMINISTRATIVA</span></td>
+                        <td>MANTENIMIENTO OFICINAS</td>
+                        <td>
+                            <div class="actions-cell">
+                                <button class="btn-icon" onclick="editarCategoria(10)" title="Editar">✏️</button>
+                                <button class="btn-icon" onclick="eliminarCategoria(10)" title="Eliminar">🗑️</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr data-id="11">
+                        <td>MATERIAL DE LIMPIEZA</td>
+                        <td><span class="badge badge-general">GENERAL</span></td>
+                        <td>LIMPIEZA</td>
+                        <td>
+                            <div class="actions-cell">
+                                <button class="btn-icon" onclick="editarCategoria(11)" title="Editar">✏️</button>
+                                <button class="btn-icon" onclick="eliminarCategoria(11)" title="Eliminar">🗑️</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr data-id="12">
+                        <td>MERCANCIA</td>
+                        <td><span class="badge badge-administrativa">ADMINISTRATIVA</span></td>
+                        <td>PIEZAS LOCALES</td>
+                        <td>
+                            <div class="actions-cell">
+                                <button class="btn-icon" onclick="editarCategoria(12)" title="Editar">✏️</button>
+                                <button class="btn-icon" onclick="eliminarCategoria(12)" title="Eliminar">🗑️</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr data-id="13">
+                        <td>PAGO A PROVEEDOR</td>
+                        <td><span class="badge badge-administrativa">ADMINISTRATIVA</span></td>
+                        <td></td>
+                        <td>
+                            <div class="actions-cell">
+                                <button class="btn-icon" onclick="editarCategoria(13)" title="Editar">✏️</button>
+                                <button class="btn-icon" onclick="eliminarCategoria(13)" title="Eliminar">🗑️</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr data-id="14">
+                        <td>PAGO DE BURO</td>
+                        <td><span class="badge badge-administrativa">ADMINISTRATIVA</span></td>
+                        <td></td>
+                        <td>
+                            <div class="actions-cell">
+                                <button class="btn-icon" onclick="editarCategoria(14)" title="Editar">✏️</button>
+                                <button class="btn-icon" onclick="eliminarCategoria(14)" title="Eliminar">🗑️</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr data-id="15">
+                        <td>PAGO DE PREDUTO</td>
+                        <td><span class="badge badge-administrativa">ADMINISTRATIVA</span></td>
+                        <td></td>
+                        <td>
+                            <div class="actions-cell">
+                                <button class="btn-icon" onclick="editarCategoria(15)" title="Editar">✏️</button>
+                                <button class="btn-icon" onclick="eliminarCategoria(15)" title="Eliminar">🗑️</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr data-id="16">
+                        <td>PAGO DE NOMINA</td>
+                        <td><span class="badge badge-administrativa">ADMINISTRATIVA</span></td>
+                        <td>PAGO DE EMPLEADO</td>
+                        <td>
+                            <div class="actions-cell">
+                                <button class="btn-icon" onclick="editarCategoria(16)" title="Editar">✏️</button>
+                                <button class="btn-icon" onclick="eliminarCategoria(16)" title="Eliminar">🗑️</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr data-id="17">
+                        <td>PAPELERIA</td>
+                        <td><span class="badge badge-general">GENERAL</span></td>
+                        <td></td>
+                        <td>
+                            <div class="actions-cell">
+                                <button class="btn-icon" onclick="editarCategoria(17)" title="Editar">✏️</button>
+                                <button class="btn-icon" onclick="eliminarCategoria(17)" title="Eliminar">🗑️</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr data-id="18">
+                        <td>PAQUETE</td>
+                        <td><span class="badge badge-administrativa">ADMINISTRATIVA</span></td>
+                        <td></td>
+                        <td>
+                            <div class="actions-cell">
+                                <button class="btn-icon" onclick="editarCategoria(18)" title="Editar">✏️</button>
+                                <button class="btn-icon" onclick="eliminarCategoria(18)" title="Eliminar">🗑️</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr data-id="19">
+                        <td>PRESTAMO</td>
+                        <td><span class="badge badge-administrativa">ADMINISTRATIVA</span></td>
+                        <td></td>
+                        <td>
+                            <div class="actions-cell">
+                                <button class="btn-icon" onclick="editarCategoria(19)" title="Editar">✏️</button>
+                                <button class="btn-icon" onclick="eliminarCategoria(19)" title="Eliminar">🗑️</button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal para agregar/editar categoría -->
+    <div id="modalCategoria" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitulo">Nueva Categoría</h2>
+                <button class="close-modal" onclick="cerrarModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="field">
+                    <label>Categoría*</label>
+                    <input type="text" id="inputCategoria" placeholder="Ej. SERVICIOS">
+                </div>
+                <div class="field">
+                    <label>Clasificación*</label>
+                    <input type="text" id="inputClasificacion" placeholder="Ej. ADMINISTRATIVA o GENERAL">
+                </div>
+                <div class="field">
+                    <label>Descripción</label>
+                    <input type="text" id="inputDescripcion" placeholder="Descripción opcional">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="cerrarModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="guardarCategoria()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Verificar autenticación
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+            window.location.href = '/static/login.html';
+        }
+
+        // Cargar nombre de usuario
+        const nombreUsuario = localStorage.getItem('nombre_usuario');
+        if (nombreUsuario) {
+            document.getElementById('userName').textContent = nombreUsuario;
+        }
+
+        // Variable para saber si estamos editando
+        let categoriaEditando = null;
+        let contadorCategorias = 19; // Contador para IDs únicos
+
+        function logout() {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('nombre_usuario');
+            window.location.href = '/static/login.html';
+        }
+
+        function abrirModalAgregar() {
+            categoriaEditando = null;
+            document.getElementById('modalTitulo').textContent = 'Nueva Categoría';
+            document.getElementById('inputCategoria').value = '';
+            document.getElementById('inputClasificacion').value = '';
+            document.getElementById('inputDescripcion').value = '';
+            document.getElementById('modalCategoria').classList.add('show');
+        }
+
+        function editarCategoria(id) {
+            categoriaEditando = id;
+            document.getElementById('modalTitulo').textContent = 'Editar Categoría';
+
+            // Buscar la fila correspondiente
+            const row = document.querySelector(`#categoriasList tr[data-id="${id}"]`);
+            if (row) {
+                document.getElementById('inputCategoria').value = row.cells[0].textContent;
+                document.getElementById('inputClasificacion').value = row.cells[1].textContent.trim();
+                document.getElementById('inputDescripcion').value = row.cells[2].textContent;
+            }
+
+            document.getElementById('modalCategoria').classList.add('show');
+        }
+
+        function cerrarModal() {
+            document.getElementById('modalCategoria').classList.remove('show');
+        }
+
+        function guardarCategoria() {
+            const categoria = document.getElementById('inputCategoria').value.trim().toUpperCase();
+            const clasificacion = document.getElementById('inputClasificacion').value.trim().toUpperCase();
+            const descripcion = document.getElementById('inputDescripcion').value.trim();
+
+            if (!categoria || !clasificacion) {
+                alert('Por favor, completa los campos obligatorios (Categoría y Clasificación).');
+                return;
+            }
+
+            if (categoriaEditando) {
+                // Modo edición: actualizar fila existente
+                const row = document.querySelector(`#categoriasList tr[data-id="${categoriaEditando}"]`);
+                if (row) {
+                    row.cells[0].textContent = categoria;
+
+                    const badgeClass = clasificacion === 'ADMINISTRATIVA' ? 'badge-administrativa' : 'badge-general';
+                    row.cells[1].innerHTML = `<span class="badge ${badgeClass}">${clasificacion}</span>`;
+
+                    row.cells[2].textContent = descripcion;
+
+                    alert('Categoría actualizada exitosamente');
+                }
+            } else {
+                // Modo agregar: crear nueva fila
+                contadorCategorias++;
+                const tbody = document.getElementById('categoriasList');
+                const newRow = tbody.insertRow(0); // Insertar al inicio
+                newRow.setAttribute('data-id', contadorCategorias);
+
+                const badgeClass = clasificacion === 'ADMINISTRATIVA' ? 'badge-administrativa' : 'badge-general';
+
+                newRow.innerHTML = `
+                    <td>${categoria}</td>
+                    <td><span class="badge ${badgeClass}">${clasificacion}</span></td>
+                    <td>${descripcion}</td>
+                    <td>
+                        <div class="actions-cell">
+                            <button class="btn-icon" onclick="editarCategoria(${contadorCategorias})" title="Editar">✏️</button>
+                            <button class="btn-icon" onclick="eliminarCategoria(${contadorCategorias})" title="Eliminar">🗑️</button>
+                        </div>
+                    </td>
+                `;
+
+                alert('Categoría agregada exitosamente');
+            }
+
+            cerrarModal();
+        }
+
+        function eliminarCategoria(id) {
+            if (confirm('¿Estás seguro de que deseas eliminar esta categoría?')) {
+                const row = document.querySelector(`#categoriasList tr[data-id="${id}"]`);
+                if (row) {
+                    row.remove();
+                    alert('Categoría eliminada exitosamente');
+                }
+            }
+        }
+
+        function buscarCategorias() {
+            const cat = document.getElementById('filtroCat').value.toLowerCase();
+            const tipo = document.getElementById('filtroTipo').value.toLowerCase();
+            const desc = document.getElementById('filtroDesc').value.toLowerCase();
+
+            const rows = document.querySelectorAll('#categoriasList tr');
+
+            rows.forEach(row => {
+                const categoria = row.cells[0].textContent.toLowerCase();
+                const clasificacion = row.cells[1].textContent.toLowerCase();
+                const descripcion = row.cells[2].textContent.toLowerCase();
+
+                const coincide =
+                    categoria.includes(cat) &&
+                    clasificacion.includes(tipo) &&
+                    descripcion.includes(desc);
+
+                row.style.display = coincide ? '' : 'none';
+            });
+        }
+
+        // Cerrar modal al hacer clic fuera
+        window.onclick = function (event) {
+            const modal = document.getElementById('modalCategoria');
+            if (event.target == modal) {
+                cerrarModal();
+            }
+        }
+    </script>
+</body>
+
+</html>

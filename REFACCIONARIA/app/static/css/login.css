@@ -1,0 +1,323 @@
+/* Login Styles - FALAF ERP */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary-red: #d32f2f;
+    --dark-red: #b71c1c;
+    --light-bg: #fafafa;
+    --white: #ffffff;
+    --text-dark: #1a1a1a;
+    --text-light: #555555;
+    --border-color: #e0e0e0;
+    --error-color: #d32f2f;
+    --success-color: #388e3c;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, var(--primary-red) 0%, var(--dark-red) 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.login-container {
+    /* Ventana de escritorio fija: ancho x alto (20cm x 15cm) centrada */
+    width: 20cm;
+    height: 15cm;
+    max-width: calc(100vw - 40px);
+    max-height: calc(100vh - 40px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    perspective: 1000px;
+    margin: 0 auto;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Logo Section */
+.logo-section {
+    text-align: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 3px solid var(--primary-red);
+}
+
+.logo-section h1 {
+    font-size: 36px;
+    color: var(--primary-red);
+    font-weight: 700;
+    letter-spacing: 1px;
+    line-height: 1.2;
+    margin-bottom: 0;
+}
+
+.logo-section .subtitle {
+    display: none;
+}
+
+/* Form Styles */
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.form-group input {
+    padding: 12px 15px;
+    border: 2px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: inherit;
+    transition: all 0.3s ease;
+    background: var(--light-bg);
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--primary-red);
+    background: var(--white);
+    box-shadow: 0 0 0 3px rgba(196, 30, 58, 0.1);
+}
+
+.form-group input::placeholder {
+    color: #999;
+}
+
+/* Message Alerts */
+.message {
+    padding: 12px 15px;
+    border-radius: 4px;
+    font-size: 14px;
+    text-align: center;
+    display: none;
+    animation: slideDown 0.3s ease-out;
+}
+
+.message.show {
+    display: block;
+}
+
+.message.hidden {
+    display: none;
+}
+
+.message.error {
+    background-color: #ffebee;
+    color: var(--error-color);
+    border-left: 4px solid var(--error-color);
+}
+
+.message.success {
+    background-color: #e8f5e9;
+    color: var(--success-color);
+    border-left: 4px solid var(--success-color);
+}
+
+.message.info {
+    background-color: #e3f2fd;
+    color: #1976d2;
+    border-left: 4px solid #1976d2;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Buttons */
+.button-group {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.btn {
+    flex: 1;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: inherit;
+    text-align: center;
+}
+
+.btn-enter {
+    background-color: var(--primary-red);
+    color: var(--white);
+}
+
+.btn-enter:hover:not(:disabled) {
+    background-color: var(--dark-red);
+    box-shadow: 0 4px 12px rgba(196, 30, 58, 0.4);
+    transform: translateY(-2px);
+}
+
+.btn-enter:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.btn-enter:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-exit {
+    background-color: var(--border-color);
+    color: var(--text-dark);
+}
+
+.btn-exit:hover {
+    background-color: #999;
+    color: var(--white);
+}
+
+/* Header / Layout */
+.header-row {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.logo-area {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.logo-img {
+    max-width: 240px;
+    width: 40%;
+    height: auto;
+    display: block;
+}
+
+
+.content-row {
+    display: block;
+}
+
+.form-column {
+    width: 100%;
+}
+
+.button-group {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    margin-top: 16px;
+}
+
+.button-group .btn {
+    min-width: 140px;
+    padding: 12px 18px;
+}
+
+
+.login-box {
+    width: calc(20cm - 2rem);
+    height: calc(15cm - 2rem);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.96));
+    border-radius: 8px;
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.25);
+    padding: 18px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow: hidden;
+}
+
+/* Loading State */
+.btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .login-box {
+        padding: 20px;
+    }
+
+    .header-row {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 12px;
+    }
+
+    .logo-img {
+        max-width: 160px;
+        width: 50%;
+    }
+
+    .content-row {
+        display: block;
+    }
+
+    .button-group {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .button-group .btn {
+        width: 100%;
+        min-width: 0;
+    }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

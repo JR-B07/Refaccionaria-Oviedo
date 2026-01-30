@@ -1,0 +1,2833 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REFACCIONARIA - Productos y Servicios</title>
+    <link rel="stylesheet" href="/static/css/login.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .top-bar {
+            background: #c41e3a;
+            color: #fff;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .top-bar h1 {
+            font-size: 18px
+        }
+
+        .top-bar .user-info {}
+
+        .sucursal-badge {
+            background: rgba(196, 30, 58, 0.15);
+            border: 1px solid #c41e3a;
+            color: #c41e3a;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sucursal-badge::before {
+            content: "📍";
+        }
+
+        .main {
+            max-width: 1200px;
+            margin: 100px auto;
+            padding: 20px
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .controls input,
+        .controls select {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc
+        }
+
+        .btn {
+            background: #c41e3a;
+            color: #fff;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: #a01729;
+            transform: translateY(-1px);
+        }
+
+        .table-wrap {
+            background: #fff;
+            border-radius: 8px;
+            padding: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05)
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse
+        }
+
+        th,
+        td {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+            font-size: 14px
+        }
+
+        th {
+            background: #fafafa
+        }
+
+        .muted {
+            color: #777;
+            font-size: 13px
+        }
+
+        .pagination {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-top: 12px
+        }
+
+        .page-btn {
+            padding: 6px 10px;
+            border-radius: 4px;
+            background: #c41e3a;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .page-btn:hover {
+            background: #a01729;
+        }
+
+        .btn-edit {
+            background: #007bff;
+            color: #fff;
+            padding: 6px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-right: 4px;
+        }
+
+        .btn-edit:hover {
+            background: #0056b3;
+        }
+
+        .btn-delete {
+            background: #dc3545;
+            color: #fff;
+            padding: 6px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .btn-delete:hover {
+            background: #c82333;
+        }
+
+        .empty {
+            text-align: center;
+            color: #999;
+            padding: 20px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1500;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-content {
+            background: #fff;
+            margin: 50px auto;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #c41e3a;
+        }
+
+        .modal-header h3 {
+            color: #c41e3a;
+            margin: 0;
+        }
+
+        .close {
+            font-size: 28px;
+            font-weight: bold;
+            color: #999;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .btn-primary {
+            background: #c41e3a;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background: #a01830;
+        }
+
+        .btn-cancel {
+            background: #6c757d;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-left: 10px;
+        }
+
+        .btn-cancel:hover {
+            background: #5a6268;
+        }
+
+        .alert {
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* Estilos para Modal de Búsqueda Avanzada */
+        .advanced-search-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .advanced-search-content {
+            background: #fff;
+            margin: 40px auto;
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 950px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .advanced-search-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #c41e3a;
+        }
+
+        .advanced-search-header h2 {
+            color: #c41e3a;
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .close-advanced {
+            font-size: 28px;
+            font-weight: bold;
+            color: #999;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .close-advanced:hover {
+            color: #333;
+        }
+
+        .advanced-filters {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .filter-group-advanced {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group-advanced label {
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #333;
+            font-size: 13px;
+        }
+
+        .filter-group-advanced input,
+        .filter-group-advanced select {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 13px;
+            transition: border-color 0.3s;
+        }
+
+        .filter-group-advanced input:focus,
+        .filter-group-advanced select:focus {
+            outline: none;
+            border-color: #c41e3a;
+            box-shadow: 0 0 5px rgba(196, 30, 58, 0.2);
+        }
+
+        .filter-full-width {
+            grid-column: 1 / -1;
+        }
+
+        .advanced-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: flex-end;
+        }
+
+        .btn-search-advanced {
+            background: #c41e3a;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .btn-search-advanced:hover {
+            background: #a01729;
+            transform: translateY(-1px);
+        }
+
+        .btn-reset-advanced {
+            background: #e0e0e0;
+            color: #333;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .btn-reset-advanced:hover {
+            background: #d0d0d0;
+        }
+
+        .advanced-results {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .advanced-results-header {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .advanced-products-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .product-item-advanced {
+            background: #f8f9fa;
+            border-left: 4px solid #c41e3a;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .product-item-advanced:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .product-info-advanced {
+            flex: 1;
+        }
+
+        .product-code-advanced {
+            font-weight: 600;
+            color: #c41e3a;
+            font-size: 13px;
+        }
+
+        .product-name-advanced {
+            font-weight: 600;
+            color: #333;
+            margin: 3px 0;
+        }
+
+        .product-meta-advanced {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .product-price-advanced {
+            font-weight: 700;
+            color: #c41e3a;
+            font-size: 16px;
+        }
+
+        .loading-advanced {
+            text-align: center;
+            padding: 20px;
+            color: #c41e3a;
+            font-weight: 600;
+        }
+
+        .no-results-advanced {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+            font-style: italic;
+        }
+
+        .tabs-container {
+            background: #fff;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #e0e0e0;
+            gap: 5px;
+            padding: 10px 15px 0;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+        }
+
+        .tab:hover {
+            color: #c41e3a;
+            background: #f9f9f9;
+        }
+
+        .tab.active {
+            color: #c41e3a;
+            border-bottom-color: #c41e3a;
+            background: #fff;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .section-header {
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .section-header h3 {
+            margin: 0 0 5px 0;
+            color: #c41e3a;
+            font-size: 16px;
+        }
+
+        .section-header p {
+            margin: 0;
+            color: #666;
+            font-size: 13px;
+        }
+    </style>
+    <script src="/static/js/sucursal_selector.js"></script>
+</head>
+
+<body>
+    <div class="top-bar">
+        <div style="display:flex;align-items:center;gap:12px">
+            <button class="btn" onclick="goBack()">← VOLVER</button>
+            <h1>📦 Productos y Servicios</h1>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px">
+            <span class="sucursal-badge" id="sucursalBadge">Sucursal</span>
+            <div class="muted">Usuario: <strong id="userName">Usuario</strong></div>
+        </div>
+    </div>
+
+    <div class="main">
+        <!-- Pestañas de navegación -->
+        <div class="tabs-container">
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('productos')">📦 Listado de Productos</button>
+                <button class="tab" onclick="switchTab('lineas')">📋 Líneas de Producto</button>
+                <button class="tab" onclick="switchTab('marcas')">🏷️ Marcas de Producto</button>
+                <button class="tab" onclick="switchTab('grupos')">🔗 Grupos Relaciones</button>
+                <button class="tab" onclick="switchTab('paquetes')">📦 Paquetes (kits)</button>
+            </div>
+        </div>
+
+        <!-- Tab: Listado de Productos -->
+        <div id="tab-productos" class="tab-content active">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+                <div>
+                    <h2 style="margin:0;color:#c41e3a">Listado de Productos</h2>
+                    <div class="muted">Busca, filtra y administra tus productos</div>
+                </div>
+                <div style="display:flex;gap:10px">
+                    <button class="btn" onclick="openAdvancedSearch()">🔍 Búsqueda Avanzada</button>
+                    <button class="btn" onclick="openCreate()">+ Nuevo Producto</button>
+                </div>
+            </div>
+
+            <div class="controls">
+                <input id="q" placeholder="Buscar por código, nombre o marca"
+                    onkeydown="if(event.key==='Enter') loadProducts()" style="flex:1">
+                <select id="limit" onchange="loadProducts()">
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+                <button class="btn" onclick="loadProducts()">Buscar</button>
+            </div>
+
+            <div class="table-wrap">
+                <table id="productsTable">
+                    <thead>
+                        <tr>
+                            <th>Clave</th>
+                            <th>Nombre / Descripción</th>
+                            <th>Marca</th>
+                            <th>Modelo</th>
+                            <th>Categoría</th>
+                            <th>Precio</th>
+                            <th>Stock</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productsTbody">
+                        <tr>
+                            <td colspan="8" class="empty">Cargando...</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="pagination">
+                    <button class="page-btn" onclick="prevPage()">Anterior</button>
+                    <div id="pageInfo" class="muted">Página 1</div>
+                    <button class="page-btn" onclick="nextPage()">Siguiente</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Líneas de Producto -->
+        <div id="tab-lineas" class="tab-content">
+            <div class="section-header">
+                <h3>Líneas de Producto</h3>
+                <p>Gestiona las líneas o categorías principales de productos</p>
+            </div>
+            <div style="padding:20px">
+                <div style="margin-bottom:15px">
+                    <button class="btn" onclick="openLineaModal()">+ Nueva Línea</button>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre Línea</th>
+                                <th>Descripción</th>
+                                <th>Productos</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lineasTbody">
+                            <tr>
+                                <td colspan="5" style="text-align:center;padding:20px">Cargando líneas...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Marcas de Producto -->
+        <div id="tab-marcas" class="tab-content">
+            <div class="section-header">
+                <h3>Marcas de Producto</h3>
+                <p>Administra las marcas de los productos en tu inventario</p>
+            </div>
+            <div style="padding:20px">
+                <div style="margin-bottom:15px">
+                    <button class="btn" onclick="openMarcaModal()">+ Nueva Marca</button>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Marca</th>
+                                <th>País/Origen</th>
+                                <th>Productos</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="marcasTbody">
+                            <tr>
+                                <td colspan="5" style="text-align:center;padding:20px">Cargando marcas...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Grupos Relaciones -->
+        <div id="tab-grupos" class="tab-content">
+            <div style="display:flex;flex-direction:column;height:100%;padding:0">
+
+                <!-- PANEL SUPERIOR: Selección de Grupo -->
+                <div style="background:#fff;border-bottom:1px solid #ddd;padding:12px;flex-shrink:0">
+                    <h3 style="margin:0 0 12px 0;font-size:13px;font-weight:600">📋 Registro de Grupos Relacionados de
+                        Productos</h3>
+                    <div style="display:grid;grid-template-columns:200px 200px 1fr;gap:12px;margin-bottom:12px">
+                        <div>
+                            <label style="font-size:11px;color:#666;font-weight:600">Grupo:</label>
+                            <select id="grupoSelect"
+                                style="width:100%;padding:8px;border:1px solid #ddd;border-radius:4px;font-size:12px"
+                                onchange="grupoSeleccionarPorSelect()">
+                                <option value="">-- Seleccionar Grupo --</option>
+                                <option value="1">Kit Suspensión Delantera</option>
+                                <option value="2">Sistema Frenos Completo</option>
+                                <option value="3">Filtros Motor Diesel</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size:11px;color:#666;font-weight:600">Línea:</label>
+                            <select id="grupoLineaSelect"
+                                style="width:100%;padding:8px;border:1px solid #ddd;border-radius:4px;font-size:12px"
+                                onchange="grupoCargar()">
+                                <option value="">-- Seleccionar Línea --</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size:11px;color:#666;font-weight:600">Búsqueda:</label>
+                            <input type="text" id="grupoSearch" placeholder="Buscar por nombre o características..."
+                                style="width:100%;padding:8px;border:1px solid #ddd;border-radius:4px;font-size:12px"
+                                oninput="grupoCargar()">
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:8px">
+                        <button onclick="grupoNuevo()"
+                            style="background:#c41e3a;color:white;padding:8px 16px;border:none;border-radius:4px;font-size:12px;font-weight:600;cursor:pointer">+
+                            NUEVO GRUPO</button>
+                        <button onclick="grupoEditar()"
+                            style="background:#ff9800;color:white;padding:8px 16px;border:none;border-radius:4px;font-size:12px;font-weight:600;cursor:pointer">✏️
+                            EDITAR</button>
+                        <button onclick="grupoEliminar()"
+                            style="background:#d9534f;color:white;padding:8px 16px;border:none;border-radius:4px;font-size:12px;font-weight:600;cursor:pointer">🗑️
+                            ELIMINAR</button>
+                    </div>
+                </div>
+
+                <!-- PANEL CENTRAL: Productos del Grupo -->
+                <div
+                    style="background:#fff;border-bottom:1px solid #ddd;flex:1;overflow:hidden;display:flex;flex-direction:column">
+                    <div
+                        style="padding:10px 12px;background:#f9f9f9;border-bottom:1px solid #ddd;flex-shrink:0;display:flex;align-items:center;gap:8px">
+                        <h4 style="margin:0;font-size:12px;font-weight:600;flex:1">Productos Principales</h4>
+                        <button class="btn" onclick="grupoProdNuevo()" style="background:#c41e3a">AGREGAR</button>
+                        <button class="btn" onclick="grupoProdEditar()" style="background:#ff9800">EDITAR</button>
+                        <button class="btn" onclick="grupoProdEliminar()" style="background:#d9534f">ELIMINAR</button>
+                    </div>
+                    <div style="flex:1;overflow-y:auto">
+                        <table style="width:100%;border-collapse:collapse;font-size:11px">
+                            <thead>
+                                <tr style="background:#f5f5f5;border-bottom:1px solid #ddd;position:sticky;top:0">
+                                    <th style="padding:8px;text-align:left;border-right:1px solid #eee;font-weight:600">
+                                        Línea</th>
+                                    <th style="padding:8px;text-align:left;border-right:1px solid #eee;font-weight:600">
+                                        Marca</th>
+                                    <th style="padding:8px;text-align:left;border-right:1px solid #eee;font-weight:600">
+                                        Característica</th>
+                                    <th style="padding:8px;text-align:left;border-right:1px solid #eee;font-weight:600">
+                                        Característica</th>
+                                    <th style="padding:8px;text-align:left;border-right:1px solid #eee;font-weight:600">
+                                        Característica</th>
+                                    <th style="padding:8px;text-align:left;font-weight:600">Clave</th>
+                                </tr>
+                            </thead>
+                            <tbody id="grupoProductosTbody" style="font-size:10px">
+                                <tr>
+                                    <td colspan="6" style="padding:20px;text-align:center;color:#999">Selecciona un
+                                        grupo para ver productos</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div style="padding:8px;background:#f9f9f9;border-top:1px solid #ddd;font-size:10px;color:#666;flex-shrink:0"
+                        id="gruposProductosCount">0 registros</div>
+                </div>
+
+                <!-- PANEL INFERIOR: Aplicaciones Relacionadas -->
+                <div style="background:#fff;flex:0.6;overflow:hidden;display:flex;flex-direction:column">
+                    <div
+                        style="padding:10px 12px;background:#f9f9f9;border-bottom:1px solid #ddd;flex-shrink:0;display:flex;align-items:center;gap:8px">
+                        <h4 style="margin:0;font-size:12px;font-weight:600;flex:1">Aplicaciones Relacionadas</h4>
+                        <button class="btn" onclick="grupoAppNueva()" style="background:#c41e3a">AGREGAR</button>
+                        <button class="btn" onclick="grupoAppEditar()" style="background:#ff9800">EDITAR</button>
+                        <button class="btn" onclick="grupoAppEliminar()" style="background:#d9534f">ELIMINAR</button>
+                    </div>
+                    <div style="flex:1;overflow-y:auto">
+                        <table style="width:100%;border-collapse:collapse;font-size:11px">
+                            <thead>
+                                <tr style="background:#f5f5f5;border-bottom:1px solid #ddd;position:sticky;top:0">
+                                    <th style="padding:8px;text-align:left;border-right:1px solid #eee;font-weight:600">
+                                        Marca</th>
+                                    <th style="padding:8px;text-align:left;border-right:1px solid #eee;font-weight:600">
+                                        Modelo</th>
+                                    <th style="padding:8px;text-align:left;border-right:1px solid #eee;font-weight:600">
+                                        Motor</th>
+                                    <th style="padding:8px;text-align:left;border-right:1px solid #eee;font-weight:600">
+                                        Desde</th>
+                                    <th style="padding:8px;text-align:left;font-weight:600">Hasta</th>
+                                </tr>
+                            </thead>
+                            <tbody id="grupoAplicacionesTbody" style="font-size:10px">
+                                <tr>
+                                    <td colspan="5" style="padding:15px;text-align:center;color:#999">Selecciona un
+                                        grupo para ver aplicaciones</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div style="padding:8px;background:#f9f9f9;border-top:1px solid #ddd;font-size:10px;color:#666;flex-shrink:0"
+                        id="gruposAplicacionesCount">0 registros</div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Tab: Paquetes (kits) - Vista 2 Columnas -->
+        <div id="tab-paquetes" class="tab-content">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;height:100%">
+
+                <!-- COLUMNA IZQUIERDA: Listado de Paquetes -->
+                <div
+                    style="background:#fff;border-radius:6px;box-shadow:0 1px 2px rgba(0,0,0,.05);display:flex;flex-direction:column">
+                    <div style="padding:12px;border-bottom:1px solid #eee">
+                        <h3 style="margin:0 0 12px 0;font-size:14px">Listado de paquetes</h3>
+                        <div style="display:flex;gap:8px;margin-bottom:8px">
+                            <button class="btn" onclick="paqNuevo()" style="background:#c41e3a;flex:1">NUEVO</button>
+                            <button class="btn" onclick="paqEditar()" style="background:#c41e3a;flex:1">EDITAR</button>
+                            <button class="btn" onclick="paqEliminar()"
+                                style="background:#d9534f;flex:1">ELIMINAR</button>
+                        </div>
+                        <input type="text" id="paqSearch" placeholder="BUSCAR..."
+                            style="width:100%;padding:8px;border:1px solid #ddd;border-radius:4px;font-size:12px"
+                            oninput="paqCargar()">
+                    </div>
+                    <div style="flex:1;overflow-y:auto">
+                        <table id="paqTable" style="width:100%;border-collapse:collapse">
+                            <thead>
+                                <tr style="background:#f9f9f9;border-bottom:1px solid #ddd;position:sticky;top:0">
+                                    <th style="padding:8px;text-align:left;font-size:12px;font-weight:600">Nombre /
+                                        Descripción</th>
+                                    <th style="padding:8px;text-align:left;font-size:12px;font-weight:600">Clase</th>
+                                    <th style="padding:8px;text-align:center;font-size:12px;font-weight:600;width:50px">
+                                        Items</th>
+                                    <th style="padding:8px;text-align:right;font-size:12px;font-weight:600;width:80px">
+                                        Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="paqTableBody" style="font-size:13px"></tbody>
+                        </table>
+                        <div id="paqMsg" style="text-align:center;padding:40px 20px;color:#999;font-size:13px">Cargando
+                            paquetes...</div>
+                    </div>
+                    <div style="padding:8px;background:#f9f9f9;border-top:1px solid #eee;font-size:12px;color:#666"
+                        id="paqCount">0 registros</div>
+                </div>
+
+                <!-- COLUMNA DERECHA: Productos dentro del Paquete -->
+                <div
+                    style="background:#fff;border-radius:6px;box-shadow:0 1px 2px rgba(0,0,0,.05);display:flex;flex-direction:column">
+                    <div style="padding:12px;border-bottom:1px solid #eee">
+                        <h3 style="margin:0 0 12px 0;font-size:14px">Productos dentro del Paquete</h3>
+                        <div style="display:flex;gap:8px">
+                            <button class="btn" onclick="paqItemNuevo()" style="background:#c41e3a;flex:1">AGREGAR
+                                PRODUCTO</button>
+                            <button class="btn" onclick="paqItemEditar()" style="background:#c41e3a;flex:1">EDITAR
+                                ITEM</button>
+                            <button class="btn" onclick="paqItemEliminar()" style="background:#d9534f;flex:1">ELIMINAR
+                                ITEM</button>
+                            <div style="margin-left:auto;color:#999;font-size:13px;padding-top:8px" id="paqPrecio">
+                                Precio: $0.00</div>
+                        </div>
+                    </div>
+                    <div style="flex:1;overflow-y:auto">
+                        <table style="width:100%;border-collapse:collapse">
+                            <thead>
+                                <tr style="background:#f9f9f9;border-bottom:1px solid #ddd;position:sticky;top:0">
+                                    <th style="padding:8px;text-align:left;font-size:12px;font-weight:600">Producto</th>
+                                    <th style="padding:8px;text-align:center;font-size:12px;font-weight:600;width:60px">
+                                        Cant.</th>
+                                    <th style="padding:8px;text-align:right;font-size:12px;font-weight:600;width:70px">
+                                        Precio</th>
+                                    <th style="padding:8px;text-align:right;font-size:12px;font-weight:600;width:70px">
+                                        Total</th>
+                                    <th style="padding:8px;text-align:left;font-size:12px;font-weight:600">Descripción
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="paqItemsTableBody" style="font-size:13px"></tbody>
+                        </table>
+                        <div id="paqItemsMsg" style="text-align:center;padding:40px 20px;color:#999;font-size:13px">
+                            Selecciona un paquete</div>
+                    </div>
+                    <div style="padding:8px;background:#f9f9f9;border-top:1px solid #eee;font-size:12px;color:#666"
+                        id="paqItemCount">0 registros</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Nuevo/Editar Paquete -->
+        <div id="paqModal"
+            style="position:fixed;inset:0;display:none;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center">
+            <div
+                style="background:white;border-radius:8px;width:500px;max-height:90vh;overflow:auto;box-shadow:0 4px 20px rgba(0,0,0,.3)">
+                <div style="padding:16px;border-bottom:1px solid #eee">
+                    <h3 id="paqModalTitle" style="margin:0;font-size:16px">Nuevo Paquete</h3>
+                </div>
+                <div style="padding:16px">
+                    <div style="margin-bottom:12px">
+                        <label style="display:block;margin-bottom:4px;font-weight:bold">Nombre *</label>
+                        <input id="paqModalNombre" type="text"
+                            style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box"
+                            placeholder="Ej: Kit Frenos">
+                    </div>
+                    <div style="margin-bottom:12px">
+                        <label style="display:block;margin-bottom:4px;font-weight:bold">Clase</label>
+                        <input id="paqModalClase" type="text"
+                            style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box"
+                            placeholder="Ej: Frenos">
+                    </div>
+                    <div style="margin-bottom:12px">
+                        <label style="display:block;margin-bottom:4px;font-weight:bold">Descripción</label>
+                        <textarea id="paqModalDesc"
+                            style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;height:80px"
+                            placeholder="Descripción del paquete..."></textarea>
+                    </div>
+                </div>
+                <div style="padding:16px;border-top:1px solid #eee;display:flex;gap:8px;justify-content:flex-end">
+                    <button onclick="paqGuardar()" class="btn" style="background:#c41e3a;flex:1">GUARDAR</button>
+                    <button onclick="paqCerrarModal()" class="btn" style="background:#999;flex:1">CANCELAR</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Nuevo/Editar Item del Paquete -->
+        <div id="paqItemModal"
+            style="position:fixed;inset:0;display:none;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center">
+            <div
+                style="background:white;border-radius:8px;width:500px;max-height:90vh;overflow:auto;box-shadow:0 4px 20px rgba(0,0,0,.3)">
+                <div style="padding:16px;border-bottom:1px solid #eee">
+                    <h3 id="paqItemModalTitle" style="margin:0;font-size:16px">Agregar Producto</h3>
+                </div>
+                <div style="padding:16px">
+                    <div style="margin-bottom:12px">
+                        <label style="display:block;margin-bottom:4px;font-weight:bold">Producto *</label>
+                        <input id="paqItemBusc" type="text"
+                            style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box"
+                            placeholder="Buscar producto..." oninput="paqBuscarProducto()">
+                        <div id="paqItemRes"
+                            style="position:absolute;border:1px solid #ccc;border-radius:4px;background:white;width:calc(500px - 32px);margin-top:4px;max-height:150px;overflow-y:auto;z-index:1001">
+                        </div>
+                    </div>
+                    <input id="paqItemProdId" type="hidden">
+                    <div style="margin-bottom:12px">
+                        <label style="display:block;margin-bottom:4px;font-weight:bold">Cantidad *</label>
+                        <input id="paqItemCan" type="number" value="1"
+                            style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box">
+                    </div>
+                    <div style="margin-bottom:12px">
+                        <label style="display:block;margin-bottom:4px;font-weight:bold">Precio Unitario *</label>
+                        <input id="paqItemPre" type="number" step="0.01"
+                            style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box">
+                    </div>
+                </div>
+                <div style="padding:16px;border-top:1px solid #eee;display:flex;gap:8px;justify-content:flex-end">
+                    <button onclick="paqItemGuardar()" class="btn" style="background:#c41e3a;flex:1">GUARDAR</button>
+                    <button onclick="paqItemCerrarModal()" class="btn" style="background:#999;flex:1">CANCELAR</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Nuevo/Editar Grupo -->
+        <div id="grupoModalOverlay"
+            style="position:fixed;inset:0;display:none;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center">
+            <div
+                style="background:white;border-radius:8px;width:500px;max-height:90vh;overflow:auto;box-shadow:0 4px 20px rgba(0,0,0,.3)">
+                <div style="padding:16px;border-bottom:1px solid #eee">
+                    <h3 id="grupoModalTitle" style="margin:0;font-size:16px">Nuevo Grupo</h3>
+                </div>
+                <form id="grupoModalForm" onsubmit="event.preventDefault(); guardarGrupo();">
+                    <div style="padding:16px">
+                        <div style="margin-bottom:12px">
+                            <label style="display:block;margin-bottom:4px;font-weight:bold">Nombre del Grupo *</label>
+                            <input id="grupoNombre" type="text"
+                                style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box"
+                                placeholder="Ej: Kit Suspensión Delantera" required>
+                        </div>
+                        <div style="margin-bottom:12px">
+                            <label style="display:block;margin-bottom:4px;font-weight:bold">Tipo de Relación</label>
+                            <input id="grupoTipo" type="text"
+                                style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box"
+                                placeholder="Ej: Compatibilidad, Complementario">
+                        </div>
+                        <div style="margin-bottom:12px">
+                            <label style="display:block;margin-bottom:4px;font-weight:bold">Descripción</label>
+                            <textarea id="grupoDescripcion"
+                                style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;height:80px;resize:vertical"
+                                placeholder="Descripción del grupo..."></textarea>
+                        </div>
+                    </div>
+                    <div style="padding:16px;border-top:1px solid #eee;display:flex;gap:8px;justify-content:flex-end">
+                        <button type="submit" class="btn" style="background:#c41e3a;flex:1">GUARDAR</button>
+                        <button type="button" onclick="cerrarGrupoModal()" class="btn"
+                            style="background:#999;flex:1">CANCELAR</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal Producto del Grupo -->
+        <div id="grupoProdModal"
+            style="position:fixed;inset:0;display:none;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center">
+            <div
+                style="background:white;border-radius:8px;width:560px;max-height:90vh;overflow:auto;box-shadow:0 4px 20px rgba(0,0,0,.3)">
+                <div style="padding:16px;border-bottom:1px solid #eee">
+                    <h3 id="grupoProdModalTitle" style="margin:0;font-size:16px">Agregar Producto al Grupo</h3>
+                </div>
+                <div style="padding:16px;position:relative">
+                    <div style="margin-bottom:12px">
+                        <label style="display:block;margin-bottom:4px;font-weight:bold">Buscar Producto *</label>
+                        <input id="grupoProdBusc" type="text"
+                            style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box"
+                            placeholder="Buscar por código/nombre/marca" oninput="grupoBuscarProducto()">
+                        <div id="grupoProdRes"
+                            style="position:absolute;border:1px solid #ccc;border-radius:4px;background:white;width:calc(560px - 32px);margin-top:4px;max-height:150px;overflow-y:auto;z-index:1001">
+                        </div>
+                        <input id="grupoProdProductoId" type="hidden">
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                        <div>
+                            <label style="display:block;margin-bottom:4px;font-weight:bold">Línea</label>
+                            <input id="grupoProdLinea" type="text"
+                                style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box">
+                        </div>
+                        <div>
+                            <label style="display:block;margin-bottom:4px;font-weight:bold">Clave</label>
+                            <input id="grupoProdClave" type="text"
+                                style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box">
+                        </div>
+                        <div>
+                            <label style="display:block;margin-bottom:4px;font-weight:bold">Característica 1</label>
+                            <input id="grupoProdCar1" type="text"
+                                style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box">
+                        </div>
+                        <div>
+                            <label style="display:block;margin-bottom:4px;font-weight:bold">Característica 2</label>
+                            <input id="grupoProdCar2" type="text"
+                                style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box">
+                        </div>
+                    </div>
+                </div>
+                <div style="padding:16px;border-top:1px solid #eee;display:flex;gap:8px;justify-content:flex-end">
+                    <button onclick="grupoProdGuardar()" class="btn" style="background:#c41e3a;flex:1">GUARDAR</button>
+                    <button onclick="grupoProdCerrar()" class="btn" style="background:#999;flex:1">CANCELAR</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Aplicación del Grupo -->
+        <div id="grupoAppModal"
+            style="position:fixed;inset:0;display:none;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center">
+            <div
+                style="background:white;border-radius:8px;width:560px;max-height:90vh;overflow:auto;box-shadow:0 4px 20px rgba(0,0,0,.3)">
+                <div style="padding:16px;border-bottom:1px solid #eee">
+                    <h3 id="grupoAppModalTitle" style="margin:0;font-size:16px">Agregar Aplicación</h3>
+                </div>
+                <div style="padding:16px">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                        <div>
+                            <label style="display:block;margin-bottom:4px;font-weight:bold">Marca</label>
+                            <input id="grupoAppMarca" type="text"
+                                style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box">
+                        </div>
+                        <div>
+                            <label style="display:block;margin-bottom:4px;font-weight:bold">Modelo</label>
+                            <input id="grupoAppModelo" type="text"
+                                style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box">
+                        </div>
+                        <div>
+                            <label style="display:block;margin-bottom:4px;font-weight:bold">Motor</label>
+                            <input id="grupoAppMotor" type="text"
+                                style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box">
+                        </div>
+                        <div>
+                            <label style="display:block;margin-bottom:4px;font-weight:bold">Desde (año)</label>
+                            <input id="grupoAppDesde" type="number"
+                                style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box">
+                        </div>
+                        <div>
+                            <label style="display:block;margin-bottom:4px;font-weight:bold">Hasta (año)</label>
+                            <input id="grupoAppHasta" type="number"
+                                style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box">
+                        </div>
+                    </div>
+                </div>
+                <div style="padding:16px;border-top:1px solid #eee;display:flex;gap:8px;justify-content:flex-end">
+                    <button onclick="grupoAppGuardar()" class="btn" style="background:#c41e3a;flex:1">GUARDAR</button>
+                    <button onclick="grupoAppCerrar()" class="btn" style="background:#999;flex:1">CANCELAR</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal para crear/editar Línea -->
+        <div id="lineaModal"
+            style="position:fixed;inset:0;display:none;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center">
+            <div
+                style="background:white;border-radius:8px;width:500px;max-height:90vh;overflow:auto;box-shadow:0 4px 20px rgba(0,0,0,.3)">
+                <div
+                    style="padding:16px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;background:#c41e3a;color:white;border-radius:8px 8px 0 0">
+                    <h3 id="lineaModalTitle" style="margin:0;font-size:16px">LÍNEA_LÍNEA</h3>
+                    <button onclick="cerrarLineaModal()"
+                        style="background:transparent;border:none;color:white;font-size:24px;cursor:pointer;padding:0;width:30px;height:30px">&times;</button>
+                </div>
+                <div style="padding:16px">
+                    <div style="margin-bottom:12px">
+                        <label style="display:block;margin-bottom:4px;font-weight:bold">Línea:</label>
+                        <input id="lineaNombre" type="text"
+                            style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box"
+                            placeholder="Nombre de la línea">
+                    </div>
+                    <div style="margin-bottom:12px">
+                        <label style="display:block;margin-bottom:4px;font-weight:bold">Observación:</label>
+                        <textarea id="lineaObservacion"
+                            style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;resize:vertical;min-height:80px"
+                            placeholder="Descripción o notas"></textarea>
+                    </div>
+                    <div style="margin-bottom:12px">
+                        <label style="display:block;margin-bottom:4px;font-weight:bold">Clave SAT:</label>
+                        <input id="lineaClaveSat" type="text"
+                            style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box"
+                            placeholder="Código SAT">
+                    </div>
+                    <div style="margin-bottom:12px">
+                        <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+                            <input id="lineaActiva" type="checkbox" checked
+                                style="width:18px;height:18px;cursor:pointer">
+                            <span style="font-weight:bold">ACTIVA</span>
+                        </label>
+                    </div>
+                </div>
+                <div style="padding:16px;border-top:1px solid #eee;display:flex;gap:8px;justify-content:flex-end">
+                    <button onclick="guardarLinea()" class="btn"
+                        style="background:#28a745;flex:1;color:white">GUARDAR</button>
+                    <button onclick="cerrarLineaModal()" class="btn" style="background:#6c757d;flex:1">CANCELAR</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal para crear/editar Marca -->
+        <div id="marcaModal"
+            style="position:fixed;inset:0;display:none;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center">
+            <div
+                style="background:white;border-radius:8px;width:500px;max-height:90vh;overflow:auto;box-shadow:0 4px 20px rgba(0,0,0,.3)">
+                <div style="padding:16px;border-bottom:1px solid #eee">
+                    <h3 id="marcaModalTitle" style="margin:0;font-size:16px">Nueva Marca</h3>
+                </div>
+                <div style="padding:16px">
+                    <div style="margin-bottom:12px">
+                        <label style="display:block;margin-bottom:4px;font-weight:bold">Nombre de Marca *</label>
+                        <input id="marcaNombre" type="text"
+                            style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box"
+                            placeholder="Ej: BOSCH, MOOG">
+                    </div>
+                    <div style="margin-bottom:12px">
+                        <label style="display:block;margin-bottom:4px;font-weight:bold">País/Origen</label>
+                        <input id="marcaPais" type="text"
+                            style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box"
+                            placeholder="Ej: USA, Alemania">
+                    </div>
+                </div>
+                <div style="padding:16px;border-top:1px solid #eee;display:flex;gap:8px;justify-content:flex-end">
+                    <button onclick="guardarMarca()" class="btn" style="background:#c41e3a;flex:1">GUARDAR</button>
+                    <button onclick="cerrarMarcaModal()" class="btn" style="background:#999;flex:1">CANCELAR</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vista de Gestión de Etiquetas -->
+        <div id="vistaEtiquetas"
+            style="position:fixed;inset:0;display:none;background:#f5f5f5;z-index:2000;overflow:auto">
+            <div
+                style="background:#c41e3a;color:white;padding:15px 20px;display:flex;justify-content:space-between;align-items:center">
+                <h2 style="margin:0;font-size:20px">🏷️ Gestión de Etiquetas</h2>
+                <button onclick="cerrarVistaEtiquetas()"
+                    style="background:white;color:#c41e3a;border:none;padding:8px 16px;border-radius:4px;cursor:pointer;font-weight:bold">←
+                    VOLVER</button>
+            </div>
+
+            <div style="max-width:1200px;margin:20px auto;padding:20px">
+                <!-- Sección de administración de tipos de etiquetas -->
+                <div
+                    style="background:white;border-radius:8px;padding:20px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,0.1)">
+                    <h3 style="margin:0 0 15px 0;color:#c41e3a">Administrar Tipos de Etiquetas</h3>
+                    <div style="display:flex;gap:10px;margin-bottom:15px">
+                        <input id="etqNuevoNombre" type="text"
+                            placeholder="Nombre del tipo de etiqueta (ej: 82x80, B2800)"
+                            style="flex:1;padding:8px;border:1px solid #ccc;border-radius:4px">
+                        <input id="etqNuevoDescripcion" type="text" placeholder="Descripción"
+                            style="flex:2;padding:8px;border:1px solid #ccc;border-radius:4px">
+                        <button onclick="crearTipoEtiqueta()" class="btn" style="background:#28a745">+ Crear
+                            Tipo</button>
+                    </div>
+
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th>Descripción</th>
+                                    <th>Productos Asignados</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="etqTiposTabla">
+                                <tr>
+                                    <td colspan="5" style="text-align:center;padding:20px;color:#999">Cargando tipos de
+                                        etiquetas...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Sección de impresión de etiquetas -->
+                <div style="background:white;border-radius:8px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,0.1)">
+                    <h3 style="margin:0 0 15px 0;color:#c41e3a">Imprimir Etiquetas de Productos</h3>
+
+                    <div style="display:flex;gap:15px;margin-bottom:20px;align-items:end">
+                        <div style="flex:1">
+                            <label style="display:block;margin-bottom:5px;font-weight:bold">Tipo de Etiqueta:</label>
+                            <select id="etqTipoSelect" onchange="filtrarProductosEtiquetas()"
+                                style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px">
+                                <option value="">-- Todos --</option>
+                            </select>
+                        </div>
+                        <div style="flex:2">
+                            <label style="display:block;margin-bottom:5px;font-weight:bold">Buscar Producto:</label>
+                            <input id="etqBuscarProducto" type="text" placeholder="Código o nombre del producto"
+                                onkeyup="filtrarProductosEtiquetas()"
+                                style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px">
+                        </div>
+                        <button onclick="imprimirEtiquetasSeleccionadas()" class="btn" style="background:#007bff">🖨️
+                            Imprimir Seleccionadas</button>
+                    </div>
+
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox" id="etqSelectAll" onchange="seleccionarTodasEtiquetas()"
+                                            style="width:18px;height:18px;cursor:pointer"></th>
+                                    <th>Producto</th>
+                                    <th>UMedida</th>
+                                    <th>Descripción</th>
+                                    <th>Fecha</th>
+                                    <th>Ancho</th>
+                                    <th>Cantidad</th>
+                                    <th>Etiqueta</th>
+                                </tr>
+                            </thead>
+                            <tbody id="etqProductosTabla">
+                                <tr>
+                                    <td colspan="8" style="text-align:center;padding:20px;color:#999">Selecciona un tipo
+                                        de etiqueta o busca productos</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div
+                        style="margin-top:15px;padding:15px;background:#f8f9fa;border-radius:4px;display:flex;justify-content:space-between;align-items:center">
+                        <div style="font-weight:bold;color:#666">
+                            <span id="etqTotalSeleccionadas">0</span> etiquetas seleccionadas
+                        </div>
+                        <div style="display:flex;gap:10px">
+                            <button onclick="seleccionarImpresora()" class="btn" style="background:#6c757d">Seleccionar
+                                Impresora</button>
+                            <button onclick="imprimirEtiquetasSeleccionadas()" class="btn"
+                                style="background:#007bff">🖨️ Imprimir</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal para editar tipo de etiqueta -->
+        <div id="etqEditModal"
+            style="position:fixed;inset:0;display:none;background:rgba(0,0,0,.5);z-index:2100;align-items:center;justify-content:center">
+            <div style="background:white;border-radius:8px;width:500px;box-shadow:0 4px 20px rgba(0,0,0,.3)">
+                <div
+                    style="padding:16px;border-bottom:1px solid #eee;background:#c41e3a;color:white;border-radius:8px 8px 0 0">
+                    <h3 style="margin:0;font-size:16px">Editar Tipo de Etiqueta</h3>
+                </div>
+                <div style="padding:16px">
+                    <div style="margin-bottom:12px">
+                        <label style="display:block;margin-bottom:4px;font-weight:bold">Nombre:</label>
+                        <input id="etqEditNombre" type="text"
+                            style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box">
+                    </div>
+                    <div style="margin-bottom:12px">
+                        <label style="display:block;margin-bottom:4px;font-weight:bold">Descripción:</label>
+                        <input id="etqEditDescripcion" type="text"
+                            style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box">
+                    </div>
+                </div>
+                <div style="padding:16px;border-top:1px solid #eee;display:flex;gap:8px;justify-content:flex-end">
+                    <button onclick="guardarEditTipoEtiqueta()" class="btn"
+                        style="background:#28a745;flex:1">GUARDAR</button>
+                    <button onclick="cerrarEditTipoEtiqueta()" class="btn"
+                        style="background:#6c757d;flex:1">CANCELAR</button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // ========== VARIABLES GLOBALES ==========
+            let paqSeleccionado = null;
+            let marcaEditId = null;
+            let lineaEditId = null;
+            let paqLista = [];
+            let paqItemSeleccionado = null;
+
+            // Variables para etiquetas
+            let etqTiposCache = [];
+            let etqProductosCache = [];
+            let etqSeleccionadas = [];
+            let etqEditandoId = null;
+
+            // ========== CARGAR PAQUETES ==========
+            async function paqCargar() {
+                try {
+                    const search = (document.getElementById('paqSearch')?.value || '').trim();
+                    const url = search ? `/api/v1/paquetes/?q=${encodeURIComponent(search)}` : `/api/v1/paquetes/`;
+
+                    const resp = await fetch(url);
+                    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+
+                    const data = await resp.json();
+                    paqLista = data.items || [];
+                    paqItemSeleccionado = null;
+                    paqCargarItems();
+
+                    if (paqLista.length === 0) {
+                        document.getElementById('paqMsg').style.display = 'block';
+                        document.getElementById('paqMsg').innerText = 'Selecciona un paquete';
+                        document.getElementById('paqTableBody').innerHTML = '';
+                        document.getElementById('paqCount').innerText = '0 registros';
+                        return;
+                    }
+
+                    document.getElementById('paqMsg').style.display = 'none';
+                    document.getElementById('paqTableBody').innerHTML = paqLista.map((p, i) => `
+                        <tr onclick="paqSeleccionar(${i})" style="cursor:pointer;border-bottom:1px solid #ddd;background:${paqSeleccionado?.id === p.id ? '#fff3cd' : 'white'};hover:background:#f5f5f5">
+                            <td style="padding:8px;font-size:13px"><strong>${p.nombre}</strong><br><span style="color:#999;font-size:11px">${p.descripcion || ''}</span></td>
+                            <td style="padding:8px;font-size:13px">${p.clase || '-'}</td>
+                            <td style="padding:8px;text-align:center;font-size:13px">${p.total_items || 0}</td>
+                            <td style="padding:8px;text-align:right;font-size:13px;font-weight:bold">$${(p.precio_total || 0).toFixed(2)}</td>
+                        </tr>
+                    `).join('');
+
+                    document.getElementById('paqCount').innerText = `${paqLista.length} registro${paqLista.length !== 1 ? 's' : ''}`;
+                } catch (e) {
+                    console.error(e);
+                    document.getElementById('paqMsg').innerText = '❌ Error: ' + e.message;
+                    document.getElementById('paqMsg').style.display = 'block';
+                }
+            }
+
+            // ========== CARGAR ITEMS DEL PAQUETE ==========
+            async function paqCargarItems() {
+                try {
+                    if (!paqSeleccionado) {
+                        document.getElementById('paqItemsMsg').style.display = 'block';
+                        document.getElementById('paqItemsMsg').innerText = 'Selecciona un paquete';
+                        document.getElementById('paqItemsTableBody').innerHTML = '';
+                        document.getElementById('paqItemCount').innerText = '0 registros';
+                        document.getElementById('paqPrecio').innerText = 'Precio: $0.00';
+                        return;
+                    }
+
+                    const resp = await fetch(`/api/v1/paquetes/${paqSeleccionado.id}`);
+                    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+
+                    const p = await resp.json();
+                    paqSeleccionado = p;
+                    const items = p.items || [];
+
+                    if (items.length === 0) {
+                        document.getElementById('paqItemsMsg').style.display = 'block';
+                        document.getElementById('paqItemsMsg').innerText = 'Sin productos';
+                        document.getElementById('paqItemsTableBody').innerHTML = '';
+                        document.getElementById('paqItemCount').innerText = '0 registros';
+                        document.getElementById('paqPrecio').innerText = `Precio: $${(p.precio_total || 0).toFixed(2)}`;
+                        return;
+                    }
+
+                    document.getElementById('paqItemsMsg').style.display = 'none';
+                    document.getElementById('paqItemsTableBody').innerHTML = items.map((it, i) => `
+                        <tr onclick="paqItemSeleccionar(${i})" style="cursor:pointer;border-bottom:1px solid #ddd;background:${paqItemSeleccionado?.id === it.id ? '#fff3cd' : 'white'}">
+                            <td style="padding:8px;font-size:13px"><strong>${it.nombre || 'Sin nombre'}</strong><br><span style="color:#999;font-size:11px">${it.codigo || ''}</span></td>
+                            <td style="padding:8px;text-align:center;font-size:13px">${it.cantidad}</td>
+                            <td style="padding:8px;text-align:right;font-size:13px">$${(it.precio_unitario || 0).toFixed(2)}</td>
+                            <td style="padding:8px;text-align:right;font-size:13px;font-weight:bold">$${(it.total || 0).toFixed(2)}</td>
+                        </tr>
+                    `).join('');
+
+                    document.getElementById('paqItemCount').innerText = `${items.length} registro${items.length !== 1 ? 's' : ''}`;
+                    document.getElementById('paqPrecio').innerText = `Precio: $${(p.precio_total || 0).toFixed(2)}`;
+                } catch (e) {
+                    console.error(e);
+                    document.getElementById('paqItemsMsg').innerText = '❌ Error: ' + e.message;
+                    document.getElementById('paqItemsMsg').style.display = 'block';
+                }
+            }
+
+            // ========== SELECCIONAR PAQUETE ==========
+            function paqSeleccionar(index) {
+                paqSeleccionado = paqLista[index] || null;
+                paqItemSeleccionado = null;
+                paqCargar();
+                paqCargarItems();
+            }
+
+            // ========== SELECCIONAR ITEM ==========
+            function paqItemSeleccionar(index) {
+                if (!paqSeleccionado?.items) return;
+                paqItemSeleccionado = paqSeleccionado.items[index] || null;
+                paqCargarItems();
+            }
+
+            // ========== NUEVO PAQUETE ==========
+            function paqNuevo() {
+                paqSeleccionado = null;
+                document.getElementById('paqModalTitle').innerText = 'Nuevo Paquete';
+                document.getElementById('paqModalNombre').value = '';
+                document.getElementById('paqModalClase').value = '';
+                document.getElementById('paqModalDesc').value = '';
+                document.getElementById('paqModalNombre').focus();
+                document.getElementById('paqModal').style.display = 'flex';
+            }
+
+            // ========== EDITAR PAQUETE ==========
+            function paqEditar() {
+                if (!paqSeleccionado) {
+                    alert('Selecciona un paquete');
+                    return;
+                }
+                document.getElementById('paqModalTitle').innerText = 'Editar Paquete';
+                document.getElementById('paqModalNombre').value = paqSeleccionado.nombre;
+                document.getElementById('paqModalClase').value = paqSeleccionado.clase || '';
+                document.getElementById('paqModalDesc').value = paqSeleccionado.descripcion || '';
+                document.getElementById('paqModal').style.display = 'flex';
+            }
+
+            // ========== GUARDAR PAQUETE ==========
+            async function paqGuardar() {
+                const nombre = document.getElementById('paqModalNombre').value.trim();
+                const clase = document.getElementById('paqModalClase').value.trim();
+                const desc = document.getElementById('paqModalDesc').value.trim();
+
+                if (!nombre) {
+                    alert('El nombre es obligatorio');
+                    document.getElementById('paqModalNombre').focus();
+                    return;
+                }
+
+                try {
+                    const isNuevo = !paqSeleccionado;
+                    const url = isNuevo ? '/api/v1/paquetes/' : `/api/v1/paquetes/${paqSeleccionado.id}`;
+                    const method = isNuevo ? 'POST' : 'PUT';
+
+                    const resp = await fetch(url, {
+                        method,
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ nombre, clase, descripcion: desc })
+                    });
+
+                    if (!resp.ok) {
+                        const err = await resp.json();
+                        throw new Error(err.detail || 'Error desconocido');
+                    }
+
+                    paqCerrarModal();
+                    alert(isNuevo ? 'Paquete creado' : 'Paquete actualizado');
+                    paqCargar();
+                } catch (e) {
+                    alert('Error: ' + e.message);
+                    console.error(e);
+                }
+            }
+
+            // ========== ELIMINAR PAQUETE ==========
+            async function paqEliminar() {
+                if (!paqSeleccionado) {
+                    alert('Selecciona un paquete');
+                    return;
+                }
+
+                if (!confirm(`¿Eliminar "${paqSeleccionado.nombre}"?`)) return;
+
+                try {
+                    const resp = await fetch(`/api/v1/paquetes/${paqSeleccionado.id}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+
+                    paqSeleccionado = null;
+                    paqItemSeleccionado = null;
+                    alert('Paquete eliminado');
+                    paqCargar();
+                } catch (e) {
+                    alert('Error: ' + e.message);
+                    console.error(e);
+                }
+            }
+
+            // ========== NUEVO ITEM ==========
+            function paqItemNuevo() {
+                if (!paqSeleccionado) {
+                    alert('Selecciona un paquete primero');
+                    return;
+                }
+                paqItemSeleccionado = null;
+                document.getElementById('paqItemModalTitle').innerText = 'Agregar Producto';
+                document.getElementById('paqItemProdId').value = '';
+                document.getElementById('paqItemBusc').value = '';
+                document.getElementById('paqItemCan').value = '1';
+                document.getElementById('paqItemPre').value = '';
+                document.getElementById('paqItemRes').innerHTML = '';
+                document.getElementById('paqItemBusc').focus();
+                document.getElementById('paqItemModal').style.display = 'flex';
+            }
+
+            // ========== EDITAR ITEM ==========
+            function paqItemEditar() {
+                if (!paqSeleccionado || !paqItemSeleccionado) {
+                    alert('Selecciona un producto');
+                    return;
+                }
+                document.getElementById('paqItemModalTitle').innerText = 'Editar Producto';
+                document.getElementById('paqItemProdId').value = paqItemSeleccionado.producto_id;
+                document.getElementById('paqItemBusc').value = (paqItemSeleccionado.producto?.codigo || '') + ' - ' + (paqItemSeleccionado.producto?.nombre || '');
+                document.getElementById('paqItemCan').value = paqItemSeleccionado.cantidad;
+                document.getElementById('paqItemPre').value = paqItemSeleccionado.precio_unitario;
+                document.getElementById('paqItemRes').innerHTML = '';
+                document.getElementById('paqItemModal').style.display = 'flex';
+            }
+
+            // ========== GUARDAR ITEM ==========
+            async function paqItemGuardar() {
+                const producto_id = parseInt(document.getElementById('paqItemProdId').value);
+                const cantidad = parseInt(document.getElementById('paqItemCan').value);
+                const precio_unitario = parseFloat(document.getElementById('paqItemPre').value);
+
+                if (!producto_id || producto_id === 0) {
+                    alert('Selecciona un producto');
+                    return;
+                }
+                if (!cantidad || cantidad <= 0) {
+                    alert('Cantidad debe ser mayor a 0');
+                    return;
+                }
+                if (isNaN(precio_unitario) || precio_unitario < 0) {
+                    alert('Precio inválido');
+                    return;
+                }
+
+                try {
+                    const isNuevo = !paqItemSeleccionado;
+                    const url = isNuevo ? `/api/v1/paquetes/${paqSeleccionado.id}/items` : `/api/v1/paquetes/${paqSeleccionado.id}/items/${paqItemSeleccionado.id}`;
+                    const method = isNuevo ? 'POST' : 'PUT';
+
+                    const resp = await fetch(url, {
+                        method,
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ producto_id, cantidad, precio_unitario })
+                    });
+
+                    if (!resp.ok) {
+                        const err = await resp.json();
+                        throw new Error(err.detail || 'Error desconocido');
+                    }
+
+                    paqItemCerrarModal();
+                    alert(isNuevo ? 'Producto agregado' : 'Producto actualizado');
+                    paqCargarItems();
+                } catch (e) {
+                    alert('Error: ' + e.message);
+                    console.error(e);
+                }
+            }
+
+            // ========== ELIMINAR ITEM ==========
+            async function paqItemEliminar() {
+                if (!paqSeleccionado || !paqItemSeleccionado) {
+                    alert('Selecciona un producto');
+                    return;
+                }
+
+                if (!confirm(`¿Eliminar "${paqItemSeleccionado.producto?.nombre || 'producto'}"?`)) return;
+
+                try {
+                    const resp = await fetch(`/api/v1/paquetes/${paqSeleccionado.id}/items/${paqItemSeleccionado.id}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+
+                    paqItemSeleccionado = null;
+                    alert('Producto eliminado');
+                    paqCargarItems();
+                } catch (e) {
+                    alert('Error: ' + e.message);
+                    console.error(e);
+                }
+            }
+
+            // ========== BUSCAR PRODUCTO ==========
+            async function paqBuscarProducto() {
+                const q = document.getElementById('paqItemBusc').value.trim();
+                if (q.length < 2) {
+                    document.getElementById('paqItemRes').innerHTML = '';
+                    return;
+                }
+
+                try {
+                    const resp = await fetch(`/api/v1/productos?q=${encodeURIComponent(q)}&limit=10`);
+                    const data = await resp.json();
+                    const items = data.items || [];
+                    document.getElementById('paqItemRes').innerHTML = items.map(p => `
+                        <div style="padding:8px;border-bottom:1px solid #eee;cursor:pointer;background:white" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='white'" onclick="paqSeleccionarProducto(${p.id},'${p.codigo}','${p.nombre}',${p.precio_venta || 0})">
+                            <strong>${p.codigo}</strong> - ${p.nombre}
+                            <span style="float:right;color:#c41e3a;font-weight:bold">$${(p.precio_venta || 0).toFixed(2)}</span>
+                        </div>
+                    `).join('');
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+
+            // ========== SELECCIONAR PRODUCTO ==========
+            function paqSeleccionarProducto(id, codigo, nombre, precio) {
+                document.getElementById('paqItemProdId').value = id;
+                document.getElementById('paqItemBusc').value = `${codigo} - ${nombre}`;
+                if (!document.getElementById('paqItemPre').value) {
+                    document.getElementById('paqItemPre').value = precio;
+                }
+                document.getElementById('paqItemRes').innerHTML = '';
+            }
+
+            // ========== CERRAR MODALES ==========
+            function paqCerrarModal() {
+                document.getElementById('paqModal').style.display = 'none';
+            }
+
+            function paqItemCerrarModal() {
+                document.getElementById('paqItemModal').style.display = 'none';
+            }
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    paqCerrarModal();
+                    paqItemCerrarModal();
+                }
+            });
+        </script>
+    </div>
+    </div>
+
+    <!-- Modal para crear/editar producto -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Nuevo Producto</h3>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <div id="modalAlert"></div>
+            <form id="productForm" onsubmit="saveProduct(event)">
+                <input type="hidden" id="productId" name="productId">
+                <div class="form-group">
+                    <label>Código *</label>
+                    <input type="text" id="codigo" name="codigo" required>
+                </div>
+                <div class="form-group">
+                    <label>Código de Barras</label>
+                    <input type="text" id="codigo_barras" name="codigo_barras">
+                </div>
+                <div class="form-group">
+                    <label>Nombre *</label>
+                    <input type="text" id="nombre" name="nombre" required>
+                </div>
+                <div class="form-group">
+                    <label>Descripción</label>
+                    <textarea id="descripcion" name="descripcion"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Marca</label>
+                        <input type="text" id="marca" name="marca">
+                    </div>
+                    <div class="form-group">
+                        <label>Modelo</label>
+                        <input type="text" id="modelo" name="modelo">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Categoría</label>
+                    <input type="text" id="categoria" name="categoria">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Precio Compra *</label>
+                        <input type="number" id="precio_compra" name="precio_compra" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Precio Venta *</label>
+                        <input type="number" id="precio_venta" name="precio_venta" step="0.01" min="0" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Precio Venta Crédito</label>
+                        <input type="number" id="precio_venta_credito" name="precio_venta_credito" step="0.01" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Stock Mínimo</label>
+                        <input type="number" id="stock_minimo" name="stock_minimo" value="5" min="0">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Ubicación Estante</label>
+                        <input type="text" id="ubicacion_estante" name="ubicacion_estante">
+                    </div>
+                    <div class="form-group">
+                        <label>Fila - Columna</label>
+                        <div style="display:flex;gap:5px">
+                            <input type="text" id="ubicacion_fila" name="ubicacion_fila" placeholder="Fila"
+                                style="width:50%">
+                            <input type="text" id="ubicacion_columna" name="ubicacion_columna" placeholder="Col"
+                                style="width:50%">
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top:20px;text-align:right">
+                    <button type="submit" class="btn-primary">Guardar Producto</button>
+                    <button type="button" class="btn-cancel" onclick="closeModal()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para Búsqueda Avanzada -->
+    <div id="advancedSearchModal" class="advanced-search-modal">
+        <div class="advanced-search-content">
+            <div class="advanced-search-header">
+                <h2>🔍 Búsqueda Avanzada de Productos</h2>
+                <span class="close-advanced" onclick="closeAdvancedSearch()">&times;</span>
+            </div>
+
+            <div class="advanced-filters">
+                <div class="filter-group-advanced">
+                    <label>Código del Producto</label>
+                    <input type="text" id="advCodeFilter" placeholder="Ej: TR-5521">
+                </div>
+                <div class="filter-group-advanced">
+                    <label>Nombre/Descripción</label>
+                    <input type="text" id="advNameFilter" placeholder="Ej: Rótula suspension">
+                </div>
+                <div class="filter-group-advanced">
+                    <label>Marca</label>
+                    <input type="text" id="advBrandFilter" placeholder="Ej: MOOG, BOSCH">
+                </div>
+                <div class="filter-group-advanced">
+                    <label>Categoría</label>
+                    <select id="advCategoryFilter">
+                        <option value="">Todas</option>
+                        <option value="Filtros">Filtros</option>
+                        <option value="Sistema de Frenos">Sistema de Frenos</option>
+                        <option value="Suspensión">Suspensión</option>
+                        <option value="Motor">Motor</option>
+                        <option value="Transmisión">Transmisión</option>
+                        <option value="Sistemas Eléctricos">Sistemas Eléctricos</option>
+                        <option value="Combustible">Combustible</option>
+                        <option value="Lubricantes">Lubricantes</option>
+                        <option value="Correas y Bandas">Correas y Bandas</option>
+                        <option value="Tuercas y Tornillos">Tuercas y Tornillos</option>
+                        <option value="Sensores">Sensores</option>
+                        <option value="Mangueras">Mangueras</option>
+                        <option value="Accesorios">Accesorios</option>
+                        <option value="Universal">Universal</option>
+                    </select>
+                </div>
+                <div class="filter-group-advanced">
+                    <label>Precio Mínimo ($)</label>
+                    <input type="number" id="advMinPrice" min="0" step="0.01" placeholder="0.00">
+                </div>
+                <div class="filter-group-advanced">
+                    <label>Precio Máximo ($)</label>
+                    <input type="number" id="advMaxPrice" min="0" step="0.01" placeholder="10000.00">
+                </div>
+                <div class="filter-group-advanced filter-full-width">
+                    <label>Stock Mínimo Disponible</label>
+                    <input type="number" id="advMinStock" min="0" step="1" placeholder="0">
+                </div>
+            </div>
+
+            <div class="advanced-buttons">
+                <button class="btn-reset-advanced" onclick="clearAdvancedFilters()">↺ Limpiar</button>
+                <button class="btn-search-advanced" onclick="performAdvancedSearch()">🔍 Buscar</button>
+            </div>
+
+            <div id="advancedResults"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api/v1/productos';
+        let page = 0;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            document.getElementById('userName').textContent = user.name || user.username || 'Usuario';
+            loadProducts();
+            loadLineas();
+            loadMarcas();
+            loadGrupos();
+            loadPaquetes();
+        });
+
+        function switchTab(tabName) {
+            // Ocultar todos los tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Mostrar el tab seleccionado
+            document.getElementById('tab-' + tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            // Cargar datos específicos del tab
+            if (tabName === 'paquetes') {
+                loadPaquetes();
+            } else if (tabName === 'grupos') {
+                grupoCargar();
+            }
+        }
+
+        // Función loadPaquetes: Inicializa la pestaña de paquetes
+        async function loadPaquetes() {
+            try {
+                paqCargar();
+            } catch (e) {
+                console.error('Error en loadPaquetes:', e);
+            }
+        }
+
+        function goBack() {
+            window.location.href = '/almacen';
+        }
+
+        // Mostrar sucursal
+        const sucursalNombre = localStorage.getItem('sucursal_nombre');
+        if (sucursalNombre) {
+            document.getElementById('sucursalBadge').textContent = sucursalNombre;
+        }
+
+        function openAdvancedSearch() {
+            document.getElementById('advancedSearchModal').style.display = 'block';
+        }
+
+        function closeAdvancedSearch() {
+            document.getElementById('advancedSearchModal').style.display = 'none';
+        }
+
+        function openCreate() {
+            document.getElementById('modalTitle').textContent = 'Nuevo Producto';
+            document.getElementById('productModal').style.display = 'block';
+            document.getElementById('productForm').reset();
+            document.getElementById('productId').value = '';
+            document.getElementById('modalAlert').innerHTML = '';
+        }
+
+        function closeModal() {
+            document.getElementById('productModal').style.display = 'none';
+        }
+
+        async function saveProduct(event) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+            const data = {};
+            const productId = document.getElementById('productId').value;
+
+            formData.forEach((value, key) => {
+                if (value && key !== 'productId') data[key] = value;
+            });
+
+            if (data.precio_compra) data.precio_compra = parseFloat(data.precio_compra);
+            if (data.precio_venta) data.precio_venta = parseFloat(data.precio_venta);
+            if (data.precio_venta_credito) data.precio_venta_credito = parseFloat(data.precio_venta_credito);
+            if (data.stock_minimo) data.stock_minimo = parseInt(data.stock_minimo);
+
+            try {
+                const isEdit = productId !== '';
+                const url = isEdit ? `${API_BASE}/${productId}` : API_BASE;
+                const method = isEdit ? 'PUT' : 'POST';
+
+                const res = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'accept': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (!res.ok) {
+                    const error = await res.json();
+                    throw new Error(error.detail || `Error al ${isEdit ? 'actualizar' : 'crear'} el producto`);
+                }
+
+                const successMsg = isEdit ? 'actualizado' : 'creado';
+                document.getElementById('modalAlert').innerHTML = `<div class="alert alert-success">✓ Producto ${successMsg} exitosamente</div>`;
+
+                setTimeout(() => {
+                    closeModal();
+                    loadProducts();
+                }, 1500);
+            } catch (err) {
+                document.getElementById('modalAlert').innerHTML = `<div class="alert alert-error">✗ ${err.message}</div>`;
+                console.error(err);
+            }
+        }
+
+        window.onclick = function (event) {
+            const modal = document.getElementById('productModal');
+            const advModal = document.getElementById('advancedSearchModal');
+
+            if (event.target === modal) {
+                closeModal();
+            }
+            if (event.target === advModal) {
+                closeAdvancedSearch();
+            }
+        }
+
+        function buildRow(p) {
+            return `<tr>
+                <td>${escapeHtml(p.codigo || '')}</td>
+                <td><strong>${escapeHtml(p.nombre || '')}</strong><div class="muted">${escapeHtml((p.descripcion || '').slice(0, 120))}</div></td>
+                <td>${escapeHtml(p.marca || '')}</td>
+                <td>${escapeHtml(p.modelo || '')}</td>
+                <td>${escapeHtml(p.categoria || '')}</td>
+                <td>${p.precio_venta != null ? ('$' + Number(p.precio_venta).toFixed(2)) : '-'}</td>
+                <td>${p.stock_total != null ? p.stock_total : '-'}</td>
+                <td>
+                    <button class="btn-edit" onclick="editProduct(${p.id})">Editar</button>
+                    <button class="btn-delete" onclick="deleteProduct(${p.id}, '${escapeHtml(p.nombre || '')}')"  title="Eliminar producto">Eliminar</button>
+                </td>
+            </tr>`;
+        }
+
+        function escapeHtml(s) {
+            return String(s).replace(/[&<>"]+/g, c => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;'
+            }[c]));
+        }
+
+        async function loadProducts() {
+            const q = document.getElementById('q').value.trim();
+            const limit = Number(document.getElementById('limit').value || 25);
+            const offset = page * limit;
+            const url = new URL(API_BASE, window.location.origin);
+            url.searchParams.set('limit', limit);
+            url.searchParams.set('offset', offset);
+            if (q) url.searchParams.set('q', q);
+
+            document.getElementById('productsTbody').innerHTML = '<tr><td colspan="8" class="empty">Cargando...</td></tr>';
+
+            try {
+                const res = await fetch(url.toString(), {
+                    headers: { 'accept': 'application/json' }
+                });
+                if (!res.ok) throw new Error('Error en la respuesta');
+                const data = await res.json();
+                const items = data.items || [];
+
+                if (items.length === 0) {
+                    document.getElementById('productsTbody').innerHTML = '<tr><td colspan="8" class="empty">No se encontraron productos.</td></tr>';
+                } else {
+                    document.getElementById('productsTbody').innerHTML = items.map(buildRow).join('');
+                }
+
+                document.getElementById('pageInfo').textContent = `Página ${page + 1} - ${data.total || items.length} resultados`;
+            } catch (err) {
+                document.getElementById('productsTbody').innerHTML = '<tr><td colspan="8" class="empty">Error cargando datos.</td></tr>';
+                console.error(err);
+            }
+        }
+
+        function prevPage() {
+            if (page > 0) {
+                page--;
+                loadProducts();
+            }
+        }
+
+        function nextPage() {
+            page++;
+            loadProducts();
+        }
+
+        async function editProduct(id) {
+            try {
+                // Cargar datos del producto
+                const response = await fetch(`${API_BASE}/${id}`, {
+                    headers: { 'accept': 'application/json' }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Error al cargar el producto');
+                }
+
+                const producto = await response.json();
+
+                // Actualizar título del modal
+                document.getElementById('modalTitle').textContent = 'Editar Producto';
+
+                // Llenar el formulario con los datos del producto
+                document.getElementById('productId').value = producto.id;
+                document.getElementById('codigo').value = producto.codigo || '';
+                document.getElementById('codigo_barras').value = producto.codigo_barras || '';
+                document.getElementById('nombre').value = producto.nombre || '';
+                document.getElementById('descripcion').value = producto.descripcion || '';
+                document.getElementById('marca').value = producto.marca || '';
+                document.getElementById('modelo').value = producto.modelo || '';
+                document.getElementById('categoria').value = producto.categoria || '';
+                document.getElementById('precio_compra').value = producto.precio_compra || '';
+                document.getElementById('precio_venta').value = producto.precio_venta || '';
+                document.getElementById('precio_venta_credito').value = producto.precio_venta_credito || '';
+                document.getElementById('stock_minimo').value = producto.stock_minimo || 5;
+                document.getElementById('ubicacion_estante').value = producto.ubicacion_estante || '';
+                document.getElementById('ubicacion_fila').value = producto.ubicacion_fila || '';
+                document.getElementById('ubicacion_columna').value = producto.ubicacion_columna || '';
+
+                // Limpiar alertas y abrir modal
+                document.getElementById('modalAlert').innerHTML = '';
+                document.getElementById('productModal').style.display = 'block';
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al cargar el producto: ' + error.message);
+            }
+        }
+
+        async function deleteProduct(id, nombre) {
+            if (!confirm(`¿Estás seguro de que deseas eliminar el producto "${nombre}"?\n\nEsta acción no se puede deshacer.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'accept': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Error al eliminar el producto');
+                }
+
+                alert('Producto eliminado correctamente');
+                await loadProducts(); // Recargar la lista
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al eliminar el producto: ' + error.message);
+            }
+        }
+
+        // BÚSQUEDA AVANZADA
+        async function performAdvancedSearch() {
+            const codigo = document.getElementById('advCodeFilter').value.trim();
+            const nombre = document.getElementById('advNameFilter').value.trim();
+            const marca = document.getElementById('advBrandFilter').value.trim();
+            const categoria = document.getElementById('advCategoryFilter').value.trim();
+            const precioMin = document.getElementById('advMinPrice').value;
+            const precioMax = document.getElementById('advMaxPrice').value;
+            const stock = document.getElementById('advMinStock').value;
+
+            const resultsDiv = document.getElementById('advancedResults');
+            resultsDiv.innerHTML = '<div class="loading-advanced">Buscando productos...</div>';
+
+            try {
+                const params = new URLSearchParams();
+                if (nombre) params.append('q', nombre);
+                if (codigo) params.append('codigo', codigo);
+                if (marca) params.append('marca', marca);
+                if (categoria) params.append('categoria', categoria);
+                if (precioMin) params.append('precio_min', precioMin);
+                if (precioMax) params.append('precio_max', precioMax);
+                if (stock) params.append('stock_minimo', stock);
+                params.append('limit', 100);
+                params.append('offset', 0);
+
+                const response = await fetch(`${API_BASE}?${params}`, {
+                    headers: { 'accept': 'application/json' }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Error en la búsqueda');
+                }
+
+                const data = await response.json();
+                displayAdvancedResults(data.items || [], data.total);
+
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="alert alert-error">Error: ${error.message}</div>`;
+            }
+        }
+
+        function displayAdvancedResults(items, total) {
+            const resultsDiv = document.getElementById('advancedResults');
+
+            if (items.length === 0) {
+                resultsDiv.innerHTML = '<div class="advanced-results"><div class="no-results-advanced">No se encontraron productos con los criterios especificados.</div></div>';
+                return;
+            }
+
+            let html = `<div class="advanced-results">
+                <div class="advanced-results-header">Se encontraron ${total} productos</div>
+                <div class="advanced-products-list">`;
+
+            items.forEach(p => {
+                html += `<div class="product-item-advanced">
+                    <div class="product-info-advanced">
+                        <div class="product-code-advanced">${escapeHtml(p.codigo)}</div>
+                        <div class="product-name-advanced">${escapeHtml(p.nombre)}</div>
+                        <div class="product-meta-advanced">
+                            <strong>Marca:</strong> ${escapeHtml(p.marca || '-')} | 
+                            <strong>Categoría:</strong> ${escapeHtml(p.categoria || '-')} | 
+                            <strong>Stock:</strong> ${p.stock_total || 0}
+                        </div>
+                    </div>
+                    <div class="product-price-advanced">$${Number(p.precio_venta).toFixed(2)}</div>
+                </div>`;
+            });
+
+            html += `</div></div>`;
+            resultsDiv.innerHTML = html;
+        }
+
+        function clearAdvancedFilters() {
+            document.getElementById('advCodeFilter').value = '';
+            document.getElementById('advNameFilter').value = '';
+            document.getElementById('advBrandFilter').value = '';
+            document.getElementById('advCategoryFilter').value = '';
+            document.getElementById('advMinPrice').value = '';
+            document.getElementById('advMaxPrice').value = '';
+            document.getElementById('advMinStock').value = '';
+            document.getElementById('advancedResults').innerHTML = '';
+        }
+
+        // Funciones para Líneas de Producto
+        async function loadLineas() {
+            try {
+                const resp = await fetch('/api/v1/grupos/?activo=1&limit=1000');
+                const data = await resp.json();
+                const lineas = data.items || [];
+
+                const tbody = document.getElementById('lineasTbody');
+                tbody.innerHTML = lineas.length > 0 ? lineas.map(l => `
+                    <tr>
+                        <td>${l.id}</td>
+                        <td><strong>${l.nombre}</strong></td>
+                        <td>${l.descripcion || '-'}</td>
+                        <td>-</td>
+                        <td>
+                            <button class="page-btn" onclick="editLinea(${l.id}, '${(l.nombre || '').replace(/'/g, "\\'")}')">Editar</button>
+                            <button class="page-btn" onclick="deleteLinea(${l.id})" style="background:#d9534f">Eliminar</button>
+                        </td>
+                    </tr>
+                `).join('') : '<tr><td colspan="5" style="text-align:center;padding:20px;color:#999">Sin líneas registradas</td></tr>';
+            } catch (e) {
+                console.error(e);
+                mostrarToast('✗ Error al cargar líneas: ' + e.message, 'error');
+            }
+        }
+
+        function openLineaModal() {
+            lineaEditId = null;
+            document.getElementById('lineaModalTitle').innerText = 'LÍNEA_LÍNEA';
+            document.getElementById('lineaNombre').value = '';
+            document.getElementById('lineaObservacion').value = '';
+            document.getElementById('lineaClaveSat').value = '';
+            document.getElementById('lineaActiva').checked = true;
+            document.getElementById('lineaModal').style.display = 'flex';
+        }
+
+        async function editLinea(id, nombre) {
+            try {
+                const resp = await fetch(`/api/v1/grupos/${id}`);
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                const linea = await resp.json();
+
+                lineaEditId = id;
+                document.getElementById('lineaModalTitle').innerText = 'LÍNEA_LÍNEA';
+                document.getElementById('lineaNombre').value = linea.nombre || '';
+                document.getElementById('lineaObservacion').value = linea.descripcion || '';
+                document.getElementById('lineaClaveSat').value = linea.tipo || '';
+                document.getElementById('lineaActiva').checked = linea.activo !== false;
+                document.getElementById('lineaModal').style.display = 'flex';
+            } catch (e) {
+                console.error(e);
+                mostrarToast('✗ Error al cargar línea: ' + e.message, 'error');
+            }
+        }
+
+        function cerrarLineaModal() {
+            document.getElementById('lineaModal').style.display = 'none';
+            lineaEditId = null;
+        }
+
+        async function guardarLinea() {
+            const nombre = document.getElementById('lineaNombre').value.trim();
+            const descripcion = document.getElementById('lineaObservacion').value.trim();
+            const tipo = document.getElementById('lineaClaveSat').value.trim();
+            const activo = document.getElementById('lineaActiva').checked;
+
+            if (!nombre) {
+                mostrarToast('✗ El nombre de la línea es obligatorio', 'error');
+                return;
+            }
+
+            try {
+                if (lineaEditId) {
+                    // Actualizar
+                    const resp = await fetch(`/api/v1/grupos/${lineaEditId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ nombre, descripcion, tipo, activo })
+                    });
+                    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                    mostrarToast('✓ Línea actualizada', 'success');
+                } else {
+                    // Crear
+                    const resp = await fetch('/api/v1/grupos/', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ nombre, descripcion, tipo, activo })
+                    });
+                    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                    mostrarToast('✓ Línea creada', 'success');
+                }
+                cerrarLineaModal();
+                await loadLineas();
+            } catch (e) {
+                console.error(e);
+                mostrarToast('✗ Error: ' + e.message, 'error');
+            }
+        }
+
+        async function deleteLinea(id) {
+            if (!confirm('¿Eliminar esta línea?')) return;
+            try {
+                const resp = await fetch(`/api/v1/grupos/${id}`, { method: 'DELETE' });
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                mostrarToast('✓ Línea eliminada', 'success');
+                await loadLineas();
+            } catch (e) {
+                console.error(e);
+                mostrarToast('✗ Error al eliminar: ' + e.message, 'error');
+            }
+        }
+
+        // Funciones para Marcas de Producto
+        async function loadMarcas() {
+            try {
+                const resp = await fetch('/api/v1/marcas/?activo=1&limit=1000');
+                const data = await resp.json();
+                const marcas = data.items || [];
+
+                const tbody = document.getElementById('marcasTbody');
+                tbody.innerHTML = marcas.length > 0 ? marcas.map(m => `
+                    <tr>
+                        <td>${m.id}</td>
+                        <td><strong>${m.nombre}</strong></td>
+                        <td>${m.pais_origen || '-'}</td>
+                        <td>${m.productos_count || 0}</td>
+                        <td>
+                            <button class="page-btn" onclick="editarMarca(${m.id}, '${m.nombre}', '${m.pais_origen || ''}')">Editar</button>
+                            <button class="page-btn" onclick="eliminarMarca(${m.id})" style="background:#d9534f">Eliminar</button>
+                        </td>
+                    </tr>
+                `).join('') : '<tr><td colspan="5" style="text-align:center;padding:20px;color:#999">Sin marcas registradas</td></tr>';
+            } catch (e) {
+                console.error(e);
+                mostrarToast('✗ Error al cargar marcas: ' + e.message, 'error');
+            }
+        }
+
+        function openMarcaModal() {
+            marcaEditId = null;
+            document.getElementById('marcaModalTitle').innerText = 'Nueva Marca';
+            document.getElementById('marcaNombre').value = '';
+            document.getElementById('marcaPais').value = '';
+            document.getElementById('marcaModal').style.display = 'flex';
+        }
+
+        function editarMarca(id, nombre, pais) {
+            marcaEditId = id;
+            document.getElementById('marcaModalTitle').innerText = 'Editar Marca';
+            document.getElementById('marcaNombre').value = nombre;
+            document.getElementById('marcaPais').value = pais;
+            document.getElementById('marcaModal').style.display = 'flex';
+        }
+
+        function cerrarMarcaModal() {
+            document.getElementById('marcaModal').style.display = 'none';
+            marcaEditId = null;
+        }
+
+        async function guardarMarca() {
+            const nombre = document.getElementById('marcaNombre').value.trim();
+            const pais = document.getElementById('marcaPais').value.trim();
+
+            if (!nombre) {
+                mostrarToast('✗ El nombre de la marca es obligatorio', 'error');
+                return;
+            }
+
+            try {
+                if (marcaEditId) {
+                    // Actualizar
+                    const resp = await fetch(`/api/v1/marcas/${marcaEditId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ nombre, pais_origen: pais })
+                    });
+                    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                    mostrarToast('✓ Marca actualizada', 'success');
+                } else {
+                    // Crear
+                    const resp = await fetch('/api/v1/marcas/', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ nombre, pais_origen: pais })
+                    });
+                    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                    mostrarToast('✓ Marca creada', 'success');
+                }
+                cerrarMarcaModal();
+                await loadMarcas();
+            } catch (e) {
+                console.error(e);
+                mostrarToast('✗ Error: ' + e.message, 'error');
+            }
+        }
+
+        async function eliminarMarca(id) {
+            if (!confirm('¿Eliminar esta marca?')) return;
+            try {
+                const url = `/api/v1/marcas/${id}`;
+                console.log('DELETE URL:', url);
+                const resp = await fetch(url, { method: 'DELETE' });
+                console.log('DELETE Response:', resp.status, resp.statusText);
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                mostrarToast('✓ Marca eliminada', 'success');
+                await loadMarcas();
+            } catch (e) {
+                console.error('Error en eliminarMarca:', e);
+                mostrarToast('✗ Error: ' + e.message, 'error');
+            }
+        }
+
+        // Funciones para Grupos Relaciones
+        let grupoLista = [
+            {
+                id: 1,
+                nombre: 'Kit Suspensión Delantera',
+                tipo: 'Compatibilidad',
+                productos: [
+                    { linea: 'CA-100-G', marca: 'EMBRAGUE CABEZA', caracteristica1: 'TBL', caracteristica2: 'CHEV, CHEVY...', clave: '481451-010' },
+                    { linea: 'CA-100-G', marca: 'EMBRAGUE CABEZA', caracteristica1: 'TBL', caracteristica2: 'CHEV, CHEVY...', clave: '481451-020' }
+                ],
+                aplicaciones: [
+                    { marca: 'CHEVROLET', modelo: 'CHEVY', motor: '4L 1.4 TBI SOHC 8V', desde: '1994', hasta: '2003' }
+                ]
+            },
+            {
+                id: 2,
+                nombre: 'Sistema Frenos Completo',
+                tipo: 'Complementario',
+                productos: [
+                    { linea: 'Frenos', marca: 'PASTILLAS FRENO', caracteristica1: 'FRE', caracteristica2: 'GENERAL', clave: '5C1545-010' }
+                ],
+                aplicaciones: [
+                    { marca: 'FORD', modelo: 'FOCUS', motor: '1.8L TI-VCT', desde: '2005', hasta: '2015' }
+                ]
+            },
+            {
+                id: 3,
+                nombre: 'Filtros Motor Diesel',
+                tipo: 'Grupo',
+                productos: [
+                    { linea: 'Filtros', marca: 'FILTRO AIRE', caracteristica1: 'AIR', caracteristica2: 'DIESEL', clave: '870-030' }
+                ],
+                aplicaciones: [
+                    { marca: 'HYUNDAI', modelo: 'H100', motor: '2.5L DIESEL', desde: '2000', hasta: '2010' }
+                ]
+            }
+        ];
+        let grupoSeleccionado = null;
+
+        async function grupoCargar() {
+            try {
+                if (!grupoSeleccionado) {
+                    document.getElementById('grupoProductosTbody').innerHTML = '<tr><td colspan="6" style="padding:20px;text-align:center;color:#999">Selecciona un grupo</td></tr>';
+                    document.getElementById('gruposProductosCount').innerText = '0 registros';
+                    document.getElementById('grupoAplicacionesTbody').innerHTML = '<tr><td colspan="5" style="padding:15px;text-align:center;color:#999">Selecciona un grupo</td></tr>';
+                    document.getElementById('gruposAplicacionesCount').innerText = '0 registros';
+                    return;
+                }
+
+                const search = (document.getElementById('grupoSearch')?.value || '').trim();
+                const linea = (document.getElementById('grupoLineaSelect')?.value || '').trim();
+                // Fetch productos del grupo
+                const respProd = await fetch(`/api/v1/grupos/${grupoSeleccionado.id}/productos`);
+                const dataProd = await respProd.json();
+                let productos = dataProd.items || [];
+                window.grupoProductosCache = productos;
+
+                // Filtrar
+                if (linea) {
+                    productos = productos.filter(p => (p.linea || '') === linea);
+                }
+                if (search) {
+                    const s = search.toLowerCase();
+                    productos = productos.filter(p =>
+                        (p.clave || '').toLowerCase().includes(s) || (p.marca || '').toLowerCase().includes(s) || (p.nombre || '').toLowerCase().includes(s)
+                    );
+                }
+
+                document.getElementById('grupoProductosTbody').innerHTML = productos.length > 0 ?
+                    productos.map(p => `
+                        <tr style="border-bottom:1px solid #eee;background:${grupoProdSeleccionado?.id === p.id ? '#e3f2fd' : '#fff'};transition:background 0.2s;cursor:pointer" onclick="grupoProdSeleccionar(${p.id})" onmouseover="this.style.background='${grupoProdSeleccionado?.id === p.id ? '#e3f2fd' : '#f0f0f0'}'" onmouseout="this.style.background='${grupoProdSeleccionado?.id === p.id ? '#e3f2fd' : '#fff'}'">
+                            <td style="padding:8px;border-right:1px solid #eee">${p.linea || ''}</td>
+                            <td style="padding:8px;border-right:1px solid #eee">${p.marca || ''}</td>
+                            <td style="padding:8px;border-right:1px solid #eee">${p.caracteristica1 || ''}</td>
+                            <td style="padding:8px;border-right:1px solid #eee">${p.caracteristica2 || ''}</td>
+                            <td style="padding:8px;border-right:1px solid #eee"></td>
+                            <td style="padding:8px;font-weight:600;color:#c41e3a">${p.clave || ''}</td>
+                        </tr>
+                    `).join('')
+                    : '<tr><td colspan="6" style="padding:20px;text-align:center;color:#999">Sin productos</td></tr>';
+
+                document.getElementById('gruposProductosCount').innerText = `${productos.length} registro${productos.length !== 1 ? 's' : ''}`;
+
+                // Fetch aplicaciones del grupo
+                const respApp = await fetch(`/api/v1/grupos/${grupoSeleccionado.id}/aplicaciones`);
+                const dataApp = await respApp.json();
+                const aplicaciones = dataApp.items || [];
+                window.grupoAplicacionesCache = aplicaciones;
+                document.getElementById('grupoAplicacionesTbody').innerHTML = aplicaciones.length > 0 ?
+                    aplicaciones.map(a => `
+                        <tr style="border-bottom:1px solid #eee;background:${grupoAppSeleccionada?.id === a.id ? '#e3f2fd' : '#fff'};transition:background 0.2s;cursor:pointer" onclick="grupoAppSeleccionar(${a.id})" onmouseover="this.style.background='${grupoAppSeleccionada?.id === a.id ? '#e3f2fd' : '#f0f0f0'}'" onmouseout="this.style.background='${grupoAppSeleccionada?.id === a.id ? '#e3f2fd' : '#fff'}'">
+                            <td style="padding:8px;border-right:1px solid #eee">${a.marca || ''}</td>
+                            <td style="padding:8px;border-right:1px solid #eee">${a.modelo || ''}</td>
+                            <td style="padding:8px;border-right:1px solid #eee">${a.motor || ''}</td>
+                            <td style="padding:8px;border-right:1px solid #eee">${a.desde || ''}</td>
+                            <td style="padding:8px">${a.hasta || ''}</td>
+                        </tr>
+                    `).join('')
+                    : '<tr><td colspan="5" style="padding:15px;text-align:center;color:#999">Sin aplicaciones</td></tr>';
+
+                document.getElementById('gruposAplicacionesCount').innerText = `${aplicaciones.length} registro${aplicaciones.length !== 1 ? 's' : ''}`;
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function grupoSeleccionarPorSelect() {
+            const id = parseInt(document.getElementById('grupoSelect').value);
+            if (!id) {
+                grupoSeleccionado = null;
+            } else {
+                grupoSeleccionado = grupoLista.find(g => g.id === id) || null;
+                // Poblar el selector de líneas desde API
+                try {
+                    const resp = await fetch(`/api/v1/grupos/${id}/productos`);
+                    const data = await resp.json();
+                    const lineas = [...new Set((data.items || []).map(p => p.linea).filter(Boolean))];
+                    const lineaSelect = document.getElementById('grupoLineaSelect');
+                    lineaSelect.innerHTML = '<option value="">-- Todas las líneas --</option>' +
+                        lineas.map(l => `<option value="${l}">${l}</option>`).join('');
+                } catch (e) { console.error(e); }
+            }
+            grupoCargar();
+        }
+
+
+        function grupoNuevo() {
+            document.getElementById('grupoModalTitle').innerText = 'Crear Nuevo Grupo';
+            document.getElementById('grupoNombre').value = '';
+            document.getElementById('grupoDescripcion').value = '';
+            document.getElementById('grupoTipo').value = '';
+            document.getElementById('grupoModalForm').dataset.editId = '';
+            document.getElementById('grupoModalOverlay').style.display = 'flex';
+        }
+
+        function grupoEditar() {
+            if (!grupoSeleccionado) {
+                alert('Selecciona un grupo para editar');
+                return;
+            }
+            document.getElementById('grupoModalTitle').innerText = 'Editar Grupo';
+            document.getElementById('grupoNombre').value = grupoSeleccionado.nombre || '';
+            document.getElementById('grupoDescripcion').value = grupoSeleccionado.descripcion || '';
+            document.getElementById('grupoTipo').value = grupoSeleccionado.tipo || '';
+            document.getElementById('grupoModalForm').dataset.editId = grupoSeleccionado.id;
+            document.getElementById('grupoModalOverlay').style.display = 'flex';
+        }
+
+        async function grupoEliminar() {
+            if (!grupoSeleccionado) {
+                alert('Selecciona un grupo para eliminar');
+                return;
+            }
+            if (!confirm(`¿Eliminar el grupo "${grupoSeleccionado.nombre}"?`)) return;
+            try {
+                const resp = await fetch(`/api/v1/grupos/${grupoSeleccionado.id}`, { method: 'DELETE' });
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                grupoSeleccionado = null;
+                document.getElementById('grupoSelect').value = '';
+                await gruposRefrescarSelect();
+                grupoCargar();
+                alert('Grupo eliminado correctamente');
+            } catch (e) {
+                console.error(e);
+                alert('Error al eliminar el grupo: ' + e.message);
+            }
+        }
+
+        function cerrarGrupoModal() {
+            document.getElementById('grupoModalOverlay').style.display = 'none';
+        }
+
+        async function guardarGrupo() {
+            const nombre = document.getElementById('grupoNombre').value.trim();
+            const descripcion = document.getElementById('grupoDescripcion').value.trim();
+            const tipo = document.getElementById('grupoTipo').value.trim();
+            const editId = document.getElementById('grupoModalForm').dataset.editId;
+
+            if (!nombre) {
+                alert('El nombre del grupo es requerido');
+                return;
+            }
+            try {
+                if (editId) {
+                    const resp = await fetch(`/api/v1/grupos/${editId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ nombre, tipo, descripcion })
+                    });
+                    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                } else {
+                    const resp = await fetch(`/api/v1/grupos/`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ nombre, tipo, descripcion })
+                    });
+                    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                    const data = await resp.json();
+                    document.getElementById('grupoModalForm').dataset.editId = data.id;
+                }
+                cerrarGrupoModal();
+                await gruposRefrescarSelect();
+                document.getElementById('grupoSelect').value = document.getElementById('grupoModalForm').dataset.editId || '';
+                grupoSeleccionarPorSelect();
+                alert(editId ? 'Grupo actualizado correctamente' : 'Grupo creado correctamente');
+            } catch (e) {
+                console.error(e);
+                alert('Error al guardar el grupo: ' + e.message);
+            }
+        }
+        async function gruposRefrescarSelect() {
+            const select = document.getElementById('grupoSelect');
+            const currentValue = select.value;
+            try {
+                const resp = await fetch('/api/v1/grupos/');
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                const data = await resp.json();
+                grupoLista = (data.items || []).map(it => ({
+                    id: it.id,
+                    nombre: it.nombre,
+                    tipo: it.tipo,
+                    descripcion: it.descripcion,
+                    productos: [],
+                    aplicaciones: []
+                }));
+                select.innerHTML = '<option value="">-- Seleccionar Grupo --</option>' +
+                    grupoLista.map(g => `<option value="${g.id}">${g.nombre}</option>`).join('');
+                select.value = currentValue;
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        // Inicializar selector al cargar
+        gruposRefrescarSelect();
+        loadMarcas();
+
+        // ====== Sistema de Notificaciones ======
+        function mostrarToast(msg, tipo = 'info') {
+            let toast = document.getElementById('grupoToast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'grupoToast';
+                toast.style.cssText = 'position:fixed;top:20px;right:20px;padding:12px 16px;background:#333;color:white;border-radius:4px;z-index:9999;font-size:13px;max-width:300px;box-shadow:0 2px 8px rgba(0,0,0,.3)';
+                document.body.appendChild(toast);
+            }
+            const bgColor = tipo === 'success' ? '#4caf50' : tipo === 'error' ? '#f44336' : '#2196f3';
+            toast.style.background = bgColor;
+            toast.innerText = msg;
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 3000);
+        }
+
+        // ====== Selecciones y acciones de Productos del Grupo ======
+        let grupoProdSeleccionado = null;
+        let grupoAppSeleccionada = null;
+
+        function grupoProdSeleccionar(id) {
+            grupoProdSeleccionado = (window.grupoProductosCache || []).find(p => p.id === id) || null;
+            grupoCargar();
+        }
+
+        function grupoAppSeleccionar(id) {
+            grupoAppSeleccionada = (window.grupoAplicacionesCache || []).find(a => a.id === id) || null;
+            grupoCargar();
+        }
+
+        function grupoProdCerrar() { document.getElementById('grupoProdModal').style.display = 'none'; }
+        function grupoAppCerrar() { document.getElementById('grupoAppModal').style.display = 'none'; }
+
+        function grupoProdNuevo() {
+            if (!grupoSeleccionado) { alert('Selecciona un grupo'); return; }
+            document.getElementById('grupoProdModalTitle').innerText = 'Agregar Producto al Grupo';
+            document.getElementById('grupoProdBusc').value = '';
+            document.getElementById('grupoProdProductoId').value = '';
+            document.getElementById('grupoProdRes').innerHTML = '';
+            document.getElementById('grupoProdLinea').value = '';
+            document.getElementById('grupoProdClave').value = '';
+            document.getElementById('grupoProdCar1').value = '';
+            document.getElementById('grupoProdCar2').value = '';
+            document.getElementById('grupoProdModal').style.display = 'flex';
+        }
+
+        function grupoProdEditar() {
+            if (!grupoSeleccionado || !grupoProdSeleccionado) { alert('Selecciona un producto del grupo'); return; }
+            document.getElementById('grupoProdModalTitle').innerText = 'Editar Producto del Grupo';
+            document.getElementById('grupoProdBusc').value = `${grupoProdSeleccionado.codigo || ''} - ${grupoProdSeleccionado.nombre || ''}`;
+            document.getElementById('grupoProdProductoId').value = grupoProdSeleccionado.producto_id || '';
+            document.getElementById('grupoProdRes').innerHTML = '';
+            document.getElementById('grupoProdLinea').value = grupoProdSeleccionado.linea || '';
+            document.getElementById('grupoProdClave').value = grupoProdSeleccionado.clave || '';
+            document.getElementById('grupoProdCar1').value = grupoProdSeleccionado.caracteristica1 || '';
+            document.getElementById('grupoProdCar2').value = grupoProdSeleccionado.caracteristica2 || '';
+            document.getElementById('grupoProdModal').style.display = 'flex';
+        }
+
+        async function grupoProdGuardar() {
+            if (!grupoSeleccionado) { mostrarToast('✗ Selecciona un grupo', 'error'); return; }
+            const producto_id = parseInt(document.getElementById('grupoProdProductoId').value || '0');
+            const linea = document.getElementById('grupoProdLinea').value.trim();
+            const clave = document.getElementById('grupoProdClave').value.trim();
+            const caracteristica1 = document.getElementById('grupoProdCar1').value.trim();
+            const caracteristica2 = document.getElementById('grupoProdCar2').value.trim();
+            const editId = grupoProdSeleccionado?.id || null;
+
+            try {
+                if (editId) {
+                    const resp = await fetch(`/api/v1/grupos/${grupoSeleccionado.id}/productos/${editId}`, {
+                        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ linea, caracteristica1, caracteristica2, clave })
+                    });
+                    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                    mostrarToast('✓ Producto actualizado', 'success');
+                } else {
+                    if (!producto_id) { mostrarToast('✗ Selecciona un producto', 'error'); return; }
+                    const resp = await fetch(`/api/v1/grupos/${grupoSeleccionado.id}/productos`, {
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ producto_id, linea, caracteristica1, caracteristica2, clave })
+                    });
+                    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                    mostrarToast('✓ Producto agregado', 'success');
+                }
+                grupoProdCerrar();
+                grupoProdSeleccionado = null;
+                await grupoCargar();
+            } catch (e) { console.error(e); mostrarToast('✗ Error: ' + e.message, 'error'); }
+        }
+
+        async function grupoProdEliminar() {
+            if (!grupoSeleccionado || !grupoProdSeleccionado) { mostrarToast('✗ Selecciona un producto del grupo', 'error'); return; }
+            if (!confirm('¿Eliminar la relación de producto del grupo?')) return;
+            try {
+                const resp = await fetch(`/api/v1/grupos/${grupoSeleccionado.id}/productos/${grupoProdSeleccionado.id}`, { method: 'DELETE' });
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                grupoProdSeleccionado = null;
+                await grupoCargar();
+                mostrarToast('✓ Producto eliminado', 'success');
+            } catch (e) { console.error(e); mostrarToast('✗ Error: ' + e.message, 'error'); }
+        }
+
+        async function grupoBuscarProducto() {
+            const q = (document.getElementById('grupoProdBusc').value || '').trim();
+            if (!q) { document.getElementById('grupoProdRes').innerHTML = ''; return; }
+            try {
+                const resp = await fetch(`/api/v1/productos/?q=${encodeURIComponent(q)}&limit=10`);
+                const data = await resp.json();
+                const items = data.items || [];
+                document.getElementById('grupoProdRes').innerHTML = items.map(p => `
+                    <div style="padding:6px 8px;cursor:pointer" onclick="grupoProdPick(${p.id}, '${p.codigo}', '${p.nombre?.replace(/'/g, "") || ''}', '${p.marca?.replace(/'/g, "") || ''}')">
+                        <strong>${p.codigo}</strong> - ${p.nombre} <span style="color:#999">${p.marca || ''}</span>
+                    </div>
+                `).join('');
+            } catch (e) { console.error(e); }
+        }
+
+        function grupoProdPick(id, codigo, nombre, marca) {
+            document.getElementById('grupoProdProductoId').value = id;
+            document.getElementById('grupoProdBusc').value = `${codigo} - ${nombre}`;
+            document.getElementById('grupoProdClave').value = codigo;
+            document.getElementById('grupoProdRes').innerHTML = '';
+        }
+
+        // ====== Aplicaciones ======
+        function grupoAppNueva() {
+            if (!grupoSeleccionado) { alert('Selecciona un grupo'); return; }
+            document.getElementById('grupoAppModalTitle').innerText = 'Agregar Aplicación';
+            document.getElementById('grupoAppMarca').value = '';
+            document.getElementById('grupoAppModelo').value = '';
+            document.getElementById('grupoAppMotor').value = '';
+            document.getElementById('grupoAppDesde').value = '';
+            document.getElementById('grupoAppHasta').value = '';
+            document.getElementById('grupoAppModal').style.display = 'flex';
+        }
+
+        function grupoAppEditar() {
+            if (!grupoSeleccionado || !grupoAppSeleccionada) { alert('Selecciona una aplicación'); return; }
+            document.getElementById('grupoAppModalTitle').innerText = 'Editar Aplicación';
+            document.getElementById('grupoAppMarca').value = grupoAppSeleccionada.marca || '';
+            document.getElementById('grupoAppModelo').value = grupoAppSeleccionada.modelo || '';
+            document.getElementById('grupoAppMotor').value = grupoAppSeleccionada.motor || '';
+            document.getElementById('grupoAppDesde').value = grupoAppSeleccionada.desde || '';
+            document.getElementById('grupoAppHasta').value = grupoAppSeleccionada.hasta || '';
+            document.getElementById('grupoAppModal').style.display = 'flex';
+        }
+
+        async function grupoAppGuardar() {
+            if (!grupoSeleccionado) { mostrarToast('✗ Selecciona un grupo', 'error'); return; }
+            const marca = document.getElementById('grupoAppMarca').value.trim();
+            const modelo = document.getElementById('grupoAppModelo').value.trim();
+            const motor = document.getElementById('grupoAppMotor').value.trim();
+            const desde = parseInt(document.getElementById('grupoAppDesde').value || '0') || null;
+            const hasta = parseInt(document.getElementById('grupoAppHasta').value || '0') || null;
+            const editId = grupoAppSeleccionada?.id || null;
+            try {
+                if (editId) {
+                    const resp = await fetch(`/api/v1/grupos/${grupoSeleccionado.id}/aplicaciones/${editId}`, {
+                        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ marca, modelo, motor, desde, hasta })
+                    });
+                    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                    mostrarToast('✓ Aplicación actualizada', 'success');
+                } else {
+                    const resp = await fetch(`/api/v1/grupos/${grupoSeleccionado.id}/aplicaciones`, {
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ marca, modelo, motor, desde, hasta })
+                    });
+                    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                    mostrarToast('✓ Aplicación agregada', 'success');
+                }
+                grupoAppCerrar();
+                grupoAppSeleccionada = null;
+                await grupoCargar();
+            } catch (e) { console.error(e); mostrarToast('✗ Error: ' + e.message, 'error'); }
+        }
+
+        async function grupoAppEliminar() {
+            if (!grupoSeleccionado || !grupoAppSeleccionada) { mostrarToast('✗ Selecciona una aplicación', 'error'); return; }
+            if (!confirm('¿Eliminar la aplicación del grupo?')) return;
+            try {
+                const resp = await fetch(`/api/v1/grupos/${grupoSeleccionado.id}/aplicaciones/${grupoAppSeleccionada.id}`, { method: 'DELETE' });
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                grupoAppSeleccionada = null;
+                await grupoCargar();
+                mostrarToast('✓ Aplicación eliminada', 'success');
+            } catch (e) { console.error(e); mostrarToast('✗ Error: ' + e.message, 'error'); }
+        }
+
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vista Previa de Ticket - Refaccionaria Oviedo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: #f0f0f0;
+            padding: 20px;
+            line-height: 1.4;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background-color: #c41e3a;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .ticket-preview {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            font-size: 13px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            border: 2px solid #ddd;
+            min-height: 600px;
+            overflow-y: auto;
+        }
+
+        .controls {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        button {
+            background-color: #c41e3a;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #8b1428;
+        }
+
+        .btn-print {
+            background-color: #28a745;
+            margin-top: 10px;
+        }
+
+        .btn-print:hover {
+            background-color: #218838;
+        }
+
+        .item-container {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            border-left: 3px solid #c41e3a;
+        }
+
+        .item-input-group {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .item-input-group input {
+            font-size: 12px;
+        }
+
+        .btn-remove {
+            background-color: #dc3545;
+            padding: 5px 10px;
+            width: auto;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .btn-remove:hover {
+            background-color: #c82333;
+        }
+
+        .section-title {
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #c41e3a;
+            border-bottom: 2px solid #c41e3a;
+            padding-bottom: 5px;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+            }
+
+            .container {
+                max-width: 100%;
+            }
+
+            .header {
+                display: none;
+            }
+
+            .content {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .controls {
+                display: none;
+            }
+
+            .ticket-preview {
+                box-shadow: none;
+                border: none;
+                padding: 0;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧾 Vista Previa de Ticket</h1>
+            <p>Refaccionaria Oviedo - Diseño Actualizado</p>
+        </div>
+
+        <div class="content">
+            <div class="ticket-preview" id="ticketPreview">
+                <div style="text-align: center;">
+                    Aquí aparecerá la vista previa del ticket...
+                </div>
+            </div>
+
+            <div class="controls">
+                <h2>Generar Ticket</h2>
+
+                <div class="form-group">
+                    <label>Folio:</label>
+                    <input type="text" id="folio" value="VZ0001" placeholder="Número de folio">
+                </div>
+
+                <div class="form-group">
+                    <label>Cliente:</label>
+                    <input type="text" id="cliente" value="Cliente Ejemplo" placeholder="Nombre del cliente">
+                </div>
+
+                <div class="form-group">
+                    <label>Vendedor:</label>
+                    <input type="text" id="vendedor" value="Juan Pérez" placeholder="Nombre del vendedor">
+                </div>
+
+                <div class="section-title">Artículos</div>
+                <div id="itemsContainer"></div>
+
+                <button onclick="agregarItem()">+ Agregar Artículo</button>
+
+                <div class="section-title">Totales</div>
+
+                <div class="form-group">
+                    <label>Subtotal ($):</label>
+                    <input type="number" id="subtotal" value="1000" step="0.01" placeholder="0.00">
+                </div>
+
+                <div class="form-group">
+                    <label>Descuento ($):</label>
+                    <input type="number" id="descuento" value="100" step="0.01" placeholder="0.00">
+                </div>
+
+                <div class="form-group">
+                    <label>IVA/Impuesto ($):</label>
+                    <input type="number" id="impuesto" value="144" step="0.01" placeholder="0.00">
+                </div>
+
+                <div class="form-group">
+                    <label>Total ($):</label>
+                    <input type="number" id="total" value="1044" step="0.01" placeholder="0.00">
+                </div>
+
+                <button onclick="generarTicket()">📋 Generar Vista Previa</button>
+                <button class="btn-print" onclick="window.print()">🖨️ Imprimir</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let itemCount = 1;
+
+        function agregarItem() {
+            itemCount++;
+            const container = document.getElementById('itemsContainer');
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'item-container';
+            itemDiv.id = `item-${itemCount}`;
+            itemDiv.innerHTML = `
+                <div class="item-input-group">
+                    <input type="text" placeholder="Descripción" class="item-descripcion" value="Producto ${itemCount}">
+                    <input type="number" placeholder="Cantidad" class="item-cantidad" value="1" min="1">
+                    <input type="number" placeholder="Precio" class="item-precio" value="100" step="0.01" min="0">
+                </div>
+                <button class="btn-remove" onclick="removerItem('item-${itemCount}')">Remover</button>
+            `;
+            container.appendChild(itemDiv);
+        }
+
+        function removerItem(itemId) {
+            const item = document.getElementById(itemId);
+            if (item) {
+                item.remove();
+            }
+        }
+
+        function generarTicket() {
+            const folio = document.getElementById('folio').value;
+            const cliente = document.getElementById('cliente').value;
+            const vendedor = document.getElementById('vendedor').value;
+            const subtotal = parseFloat(document.getElementById('subtotal').value) || 0;
+            const descuento = parseFloat(document.getElementById('descuento').value) || 0;
+            const impuesto = parseFloat(document.getElementById('impuesto').value) || 0;
+            const total = parseFloat(document.getElementById('total').value) || 0;
+
+            // Obtener items
+            const items = [];
+            document.querySelectorAll('.item-container').forEach((item) => {
+                const descripcion = item.querySelector('.item-descripcion').value;
+                const cantidad = parseInt(item.querySelector('.item-cantidad').value) || 1;
+                const precio = parseFloat(item.querySelector('.item-precio').value) || 0;
+                items.push({
+                    descripcion,
+                    cantidad,
+                    precio
+                });
+            });
+
+            // Generar HTML del ticket
+            const ticketHTML = generarFormatoTicket(
+                folio, cliente, vendedor, items, subtotal, descuento, impuesto, total
+            );
+
+            document.getElementById('ticketPreview').innerHTML = ticketHTML;
+        }
+
+        function generarFormatoTicket(folio, cliente, vendedor, items, subtotal, descuento, impuesto, total) {
+            const fecha = new Date().toLocaleString('es-MX', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+
+            let html = '<pre>';
+            html += '========================================\n';
+            html += '         Refaccionaria Oviedo\n';
+            html += '   NUESTRA EXPERIENCIA MARCA\n';
+            html += '        LA DIFERENCIA\n';
+            html += '========================================\n\n';
+
+            html += `Folio: ${folio}\n`;
+            html += `Fecha: ${fecha}\n`;
+            if (vendedor) html += `Vendedor: ${vendedor}\n`;
+            if (cliente) html += `Cliente: ${cliente}\n`;
+            html += '----------------------------------------\n\n';
+
+            html += 'ARTÍCULOS\n';
+            html += '----------------------------------------\n';
+
+            items.forEach(item => {
+                const monto = (item.cantidad * item.precio).toFixed(2);
+                html += `${item.descripcion.substring(0, 35)}\n`;
+                html += `  ${item.cantidad}x $${item.precio.toFixed(2)} = $${monto}\n`;
+            });
+
+            html += '----------------------------------------\n\n';
+
+            html += `Subtotal:                 $${subtotal.toFixed(2).padStart(10)}\n`;
+            if (descuento > 0) {
+                html += `Descuento:               -$${descuento.toFixed(2).padStart(10)}\n`;
+            }
+            if (impuesto > 0) {
+                html += `IVA:                      $${impuesto.toFixed(2).padStart(10)}\n`;
+            }
+            html += '========================================\n';
+            html += `TOTAL:                   $${total.toFixed(2).padStart(10)}\n`;
+            html += '========================================\n\n';
+
+            html += 'Promociones:\n';
+            html += '----------------------------------------\n';
+            html += 'LAVADO Y DIAGNÓSTICO DE\n';
+            html += 'INYECTORES POR SOLO $50 C/U\n';
+            html += '----------------------------------------\n\n';
+
+            html += 'Políticas de devolución:\n';
+            html += '----------------------------------------\n';
+            html += 'A) EL PRODUCTO DEBE SER DEVUELTO\n';
+            html += '   EN UN PERIODO DE 30 DIAS\n\n';
+            html += 'B) LAS PARTES ELECTRICAS SERÁN\n';
+            html += '   REVISADAS POR UN ESPECIALISTA Y\n';
+            html += '   SU DEVOLUCIÓN DEPENDERÁ DE SU\n';
+            html += '   DIAGNOSTICO FINAL\n\n';
+            html += 'C) AL NO SER FABRICANTES\n';
+            html += '   DEPENDEMOS DE LAS POLÍTICAS DE\n';
+            html += '   ELLOS PARA PODER EMITIR UNA\n';
+            html += '   RESOLUCIÓN DE GARANTÍA, GRACIAS\n';
+            html += '   POR SU COMPRENSIÓN\n';
+            html += '----------------------------------------\n\n';
+
+            html += '\n\n';
+            html += '      ¡GRACIAS POR SU COMPRA!\n';
+            html += '\n';
+            html += '</pre>';
+
+            return html;
+        }
+
+        // Inicializar con algunos items de ejemplo
+        window.addEventListener('load', () => {
+            agregarItem();
+            agregarItem();
+            agregarItem();
+            generarTicket();
+        });
+    </script>
+</body>
+
+</html>

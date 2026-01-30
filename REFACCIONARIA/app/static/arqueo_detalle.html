@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle de Arqueo - REFACCIONARIA</title>
+    <style>
+        :root {
+            --primary-red: #c41e3a;
+            --dark-red: #8b1428;
+            --light-bg: #e8f4f8;
+            --white: #fff;
+            --text: #333;
+            --highlight-pink: #ffb3c1;
+            --border-gray: #999;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: var(--light-bg);
+            color: var(--text);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            background: #fff;
+            border: 2px solid var(--border-gray);
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(180deg, #fff 0%, #e0e0e0 100%);
+            padding: 15px;
+            border: 1px solid var(--border-gray);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left h1 {
+            font-size: 20px;
+            margin-bottom: 5px;
+            color: var(--dark-red);
+        }
+
+        .header-left p {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .header-right {
+            text-align: right;
+        }
+
+        .header-right .caja-info {
+            font-size: 13px;
+            margin-bottom: 3px;
+        }
+
+        .btn-back {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid var(--border-gray);
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        .btn-back:hover {
+            background: #f0f0f0;
+        }
+
+        .sucursal-badge {
+            background: rgba(196, 30, 58, 0.1);
+            border: 1px solid rgba(196, 30, 58, 0.3);
+            color: var(--dark-red);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sucursal-badge::before {
+            content: "📍";
+        }
+
+        .section-title {
+            background: linear-gradient(180deg, #f5f5f5 0%, #e0e0e0 100%);
+            border: 1px solid var(--border-gray);
+            padding: 8px 12px;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .data-table th,
+        .data-table td {
+            border: 1px solid var(--border-gray);
+            padding: 8px 12px;
+            text-align: left;
+            font-size: 13px;
+        }
+
+        .data-table th {
+            background: linear-gradient(180deg, #f5f5f5 0%, #e0e0e0 100%);
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .data-table .label-cell {
+            font-weight: bold;
+            background: #f9f9f9;
+            width: 150px;
+        }
+
+        .data-table input[type="number"],
+        .data-table .value-cell {
+            background: #fff;
+            border: 1px solid #ccc;
+            padding: 4px 8px;
+            text-align: right;
+            font-size: 13px;
+            width: 120px;
+        }
+
+        .data-table input[type="number"]:focus {
+            outline: 2px solid var(--primary-red);
+            background: #fffacd;
+        }
+
+        /* Resaltar celdas con valores > 0 */
+        .data-table .highlight {
+            background-color: var(--highlight-pink) !important;
+            font-weight: bold;
+        }
+
+        .data-table .highlight input {
+            background-color: var(--highlight-pink) !important;
+            font-weight: bold;
+        }
+
+        .data-table .total-row {
+            background: #fff3cd;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .summary-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .summary-box {
+            border: 1px solid var(--border-gray);
+            padding: 15px;
+        }
+
+        .summary-box h3 {
+            margin-bottom: 10px;
+            font-size: 14px;
+            background: linear-gradient(180deg, #f5f5f5 0%, #e0e0e0 100%);
+            padding: 6px 10px;
+            margin: -15px -15px 10px -15px;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            font-size: 15px;
+            margin-top: 5px;
+            padding-top: 10px;
+            border-top: 2px solid var(--border-gray);
+        }
+
+        .btn-action {
+            background: var(--primary-red);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 10px 5px;
+            border-radius: 4px;
+        }
+
+        .btn-action:hover {
+            background: var(--dark-red);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .actions {
+            text-align: right;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid var(--border-gray);
+        }
+
+        .observaciones {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid var(--border-gray);
+        }
+
+        .observaciones h3 {
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .observaciones textarea {
+            width: 100%;
+            min-height: 80px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            font-family: inherit;
+            font-size: 13px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <button class="btn-back" onclick="volver()">← VOLVER</button>
+        <span class="sucursal-badge" id="sucursalBadge" style="margin-left: 15px;">Sucursal</span>
+
+        <div class="header">
+            <div class="header-left">
+                <h1>APERTURA DE CAJA: <span id="arqueoId">1076</span></h1>
+                <p>Resumen del corte</p>
+                <p><strong>Fecha:</strong> <span id="fecha">14/01/2025 08:42:17</span></p>
+            </div>
+            <div class="header-right">
+                <div class="caja-info"><strong>VENDEDOR:</strong> <span id="vendedor">REINALDO OVIEDO CALATERO</span>
+                </div>
+                <div class="caja-info"><strong>SUCURSAL:</strong> <span id="sucursal">REFACCIONARIA OVIEDO</span></div>
+                <div class="caja-info"><strong>CAJA:</strong> <span id="caja">VENTANILLA</span></div>
+            </div>
+        </div>
+
+        <div class="section-title">Detalles del Arqueo</div>
+
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Concepto</th>
+                    <th>Requerido</th>
+                    <th>Disponible</th>
+                    <th>Diferencia</th>
+                </tr>
+            </thead>
+            <tbody id="tablaArqueo">
+                <tr>
+                    <td class="label-cell">EFECTIVO:</td>
+                    <td class="value-cell" id="efectivo_declarado">0</td>
+                    <td class="value-cell" id="efectivo_contado">0</td>
+                    <td class="value-cell" id="efectivo_diferencia">0</td>
+                </tr>
+                <tr>
+                    <td class="label-cell">RETIROS:</td>
+                    <td class="value-cell" id="retiros_declarado">0</td>
+                    <td class="value-cell" id="retiros_contado">0</td>
+                    <td class="value-cell" id="retiros_diferencia">0</td>
+                </tr>
+                <tr>
+                    <td class="label-cell">VALE:</td>
+                    <td class="value-cell" id="vale_declarado">0</td>
+                    <td class="value-cell" id="vale_contado">0</td>
+                    <td class="value-cell" id="vale_diferencia">0</td>
+                </tr>
+                <tr>
+                    <td class="label-cell">CHEQUE:</td>
+                    <td class="value-cell" id="cheque_declarado">0</td>
+                    <td class="value-cell" id="cheque_contado">0</td>
+                    <td class="value-cell" id="cheque_diferencia">0</td>
+                </tr>
+                <tr>
+                    <td class="label-cell">TARJETA:</td>
+                    <td class="value-cell" id="tarjeta_declarado">0</td>
+                    <td class="value-cell" id="tarjeta_contado">0</td>
+                    <td class="value-cell" id="tarjeta_diferencia">0</td>
+                </tr>
+                <tr>
+                    <td class="label-cell">DÉBITO:</td>
+                    <td class="value-cell" id="debito_declarado">0</td>
+                    <td class="value-cell" id="debito_contado">0</td>
+                    <td class="value-cell" id="debito_diferencia">0</td>
+                </tr>
+                <tr>
+                    <td class="label-cell">DEPÓSITO:</td>
+                    <td class="value-cell" id="deposito_declarado">0</td>
+                    <td class="value-cell" id="deposito_contado">0</td>
+                    <td class="value-cell" id="deposito_diferencia">0</td>
+                </tr>
+                <tr>
+                    <td class="label-cell">CRÉDITO:</td>
+                    <td class="value-cell" id="credito_declarado">0</td>
+                    <td class="value-cell" id="credito_contado">0</td>
+                    <td class="value-cell" id="credito_diferencia">0</td>
+                </tr>
+                <tr>
+                    <td class="label-cell">LEALTAD:</td>
+                    <td class="value-cell" id="lealtad_declarado">0</td>
+                    <td class="value-cell" id="lealtad_contado">0</td>
+                    <td class="value-cell" id="lealtad_diferencia">0</td>
+                </tr>
+                <tr class="total-row">
+                    <td class="label-cell">TOTAL:</td>
+                    <td class="value-cell" id="total_declarado">0</td>
+                    <td class="value-cell" id="total_contado">0</td>
+                    <td class="value-cell" id="total_diferencia">0</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="summary-section">
+            <div class="summary-box">
+                <h3>Resumen del corte</h3>
+                <div class="summary-item">
+                    <span>Vendido:</span>
+                    <span id="sum_vendido">$0.00</span>
+                </div>
+                <div class="summary-item">
+                    <span>Devuelto:</span>
+                    <span id="sum_devuelto">$0.00</span>
+                </div>
+                <div class="summary-item">
+                    <span>Total:</span>
+                    <span id="sum_total">$0.00</span>
+                </div>
+            </div>
+
+            <div class="summary-box">
+                <h3>Vales de diferencia:</h3>
+                <div class="summary-item">
+                    <span>Concepto:</span>
+                    <span id="vales_concepto">-</span>
+                </div>
+                <div class="summary-item">
+                    <span>Total:</span>
+                    <span id="vales_total">$0.00</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="observaciones">
+            <h3>Observaciones:</h3>
+            <textarea id="observaciones" readonly></textarea>
+        </div>
+
+        <div class="actions">
+            <button class="btn-action btn-secondary" onclick="volver()">Cerrar</button>
+            <button class="btn-action" onclick="imprimir()">Imprimir</button>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api/v1';
+        let arqueoId = null;
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Obtener ID del arqueo de la URL
+            const urlParams = new URLSearchParams(window.location.search);
+            arqueoId = urlParams.get('id');
+
+            // Mostrar sucursal
+            const sucursalNombre = localStorage.getItem('sucursal_nombre');
+            if (sucursalNombre) {
+                document.getElementById('sucursalBadge').textContent = sucursalNombre;
+            }
+
+            if (arqueoId) {
+                cargarDetalleArqueo(arqueoId);
+            } else {
+                alert('No se especificó un arqueo');
+                volver();
+            }
+        });
+
+        async function cargarDetalleArqueo(id) {
+            try {
+                const response = await fetch(`${API_BASE}/arqueos/caja/${id}`);
+                if (!response.ok) {
+                    throw new Error('Arqueo no encontrado');
+                }
+
+                const arqueo = await response.json();
+                mostrarDetalles(arqueo);
+            } catch (error) {
+                console.error('Error al cargar arqueo:', error);
+                alert('Error al cargar el arqueo: ' + error.message);
+            }
+        }
+
+        function mostrarDetalles(arqueo) {
+            // Header
+            document.getElementById('arqueoId').textContent = arqueo.id;
+            const fecha = new Date(arqueo.fecha_arqueo);
+            document.getElementById('fecha').textContent = fecha.toLocaleString('es-ES');
+            document.getElementById('caja').textContent = arqueo.caja;
+
+            // Conceptos
+            const conceptos = ['efectivo', 'retiros', 'vale', 'cheque', 'tarjeta', 'debito', 'deposito', 'credito', 'lealtad'];
+
+            conceptos.forEach(concepto => {
+                const declarado = parseFloat(arqueo[`${concepto}_declarado`]) || 0;
+                const contado = parseFloat(arqueo[`${concepto}_contado`]) || 0;
+                const diferencia = parseFloat(arqueo[`diferencia_${concepto}`]) || 0;
+
+                const cellDeclarado = document.getElementById(`${concepto}_declarado`);
+                const cellContado = document.getElementById(`${concepto}_contado`);
+                const cellDiferencia = document.getElementById(`${concepto}_diferencia`);
+
+                cellDeclarado.textContent = `$${declarado.toFixed(2)}`;
+                cellContado.textContent = `$${contado.toFixed(2)}`;
+                cellDiferencia.textContent = `$${diferencia.toFixed(2)}`;
+
+                // Resaltar si el valor declarado > 0
+                if (declarado > 0) {
+                    cellDeclarado.classList.add('highlight');
+                }
+                if (contado > 0) {
+                    cellContado.classList.add('highlight');
+                }
+                if (diferencia != 0) {
+                    cellDiferencia.classList.add('highlight');
+                }
+            });
+
+            // Totales
+            const totalDeclarado = parseFloat(arqueo.total_declarado) || 0;
+            const totalContado = parseFloat(arqueo.total_contado) || 0;
+            const totalDiferencia = parseFloat(arqueo.diferencia_total) || 0;
+
+            document.getElementById('total_declarado').textContent = `$${totalDeclarado.toFixed(2)}`;
+            document.getElementById('total_contado').textContent = `$${totalContado.toFixed(2)}`;
+            document.getElementById('total_diferencia').textContent = `$${totalDiferencia.toFixed(2)}`;
+
+            // Resumen
+            document.getElementById('sum_vendido').textContent = `$${totalContado.toFixed(2)}`;
+            document.getElementById('sum_devuelto').textContent = `$0.00`;
+            document.getElementById('sum_total').textContent = `$${totalContado.toFixed(2)}`;
+
+            // Observaciones
+            document.getElementById('observaciones').value = arqueo.observaciones || 'Sin observaciones';
+        }
+
+        function volver() {
+            window.location.href = '/static/arqueos_caja.html';
+        }
+
+        function imprimir() {
+            window.print();
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Test Simple Paquetes</title>
+</head>
+
+<body>
+    <h1>Test de API de Paquetes</h1>
+    <button onclick="testAPI()">Probar API</button>
+    <pre id="output" style="background: #f0f0f0; padding: 20px; margin-top: 20px;"></pre>
+
+    <script>
+        const output = document.getElementById('output');
+
+        function log(msg) {
+            output.textContent += msg + '\n';
+            console.log(msg);
+        }
+
+        async function testAPI() {
+            output.textContent = '';
+            log('=== INICIANDO PRUEBA ===\n');
+
+            // 1. Verificar token
+            const token = localStorage.getItem('token');
+            log('1. Token en localStorage:');
+            if (token) {
+                log('   ✓ SÍ EXISTE (longitud: ' + token.length + ')');
+                log('   Primeros 30 caracteres: ' + token.substring(0, 30) + '...');
+            } else {
+                log('   ✗ NO EXISTE');
+                log('   ERROR: Debes iniciar sesión primero');
+                return;
+            }
+
+            // 2. Probar endpoint GET
+            log('\n2. Probando GET /api/v1/paquetes:');
+            try {
+                const response = await fetch('/api/v1/paquetes', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                log('   Status: ' + response.status + ' ' + response.statusText);
+
+                if (response.status === 401) {
+                    log('   ✗ ERROR 401: Token inválido o expirado');
+                    log('   Necesitas iniciar sesión nuevamente');
+                    return;
+                }
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    log('   ✗ ERROR: ' + errorText);
+                    return;
+                }
+
+                const data = await response.json();
+                log('   ✓ ÉXITO');
+                log('   Total de paquetes: ' + data.total);
+                log('   Items recibidos: ' + (data.items ? data.items.length : 0));
+                log('\n   Datos completos:');
+                log(JSON.stringify(data, null, 2));
+
+            } catch (error) {
+                log('   ✗ ERROR: ' + error.message);
+                log('   Stack: ' + error.stack);
+            }
+
+            // 3. Probar crear paquete
+            log('\n3. Probando POST /api/v1/paquetes:');
+            try {
+                const testPaquete = {
+                    nombre: 'Test Paquete ' + new Date().getTime(),
+                    descripcion: 'Paquete de prueba',
+                    clase: 'Test'
+                };
+
+                log('   Enviando: ' + JSON.stringify(testPaquete));
+
+                const response = await fetch('/api/v1/paquetes', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testPaquete)
+                });
+
+                log('   Status: ' + response.status + ' ' + response.statusText);
+
+                if (response.ok) {
+                    const data = await response.json();
+                    log('   ✓ PAQUETE CREADO EXITOSAMENTE');
+                    log('   Respuesta: ' + JSON.stringify(data));
+                } else {
+                    const errorText = await response.text();
+                    log('   ✗ ERROR: ' + errorText);
+                }
+
+            } catch (error) {
+                log('   ✗ ERROR: ' + error.message);
+            }
+
+            log('\n=== PRUEBA COMPLETADA ===');
+        }
+
+        // Ejecutar automáticamente al cargar
+        window.onload = function () {
+            log('Página cargada. Haz clic en el botón para probar la API.');
+            if (!localStorage.getItem('token')) {
+                log('\n⚠️ ADVERTENCIA: No hay token. Debes iniciar sesión primero en:');
+                log('http://127.0.0.1:8000/static/login.html');
+            }
+        };
+    </script>
+</body>
+
+</html>

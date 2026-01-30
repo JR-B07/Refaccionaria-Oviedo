@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle de la Venta - Acceso Rápido</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "Tahoma", "Arial", sans-serif;
+            background: #f0f0f0;
+            color: #1f1f1f;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .header {
+            background: #c41e3a;
+            color: white;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            border-bottom: 2px solid #8b1428;
+        }
+
+        .btn-volver {
+            position: absolute;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 13px;
+            border-radius: 3px;
+        }
+
+        .btn-volver:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .sucursal-badge {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            position: absolute;
+            right: 20px;
+        }
+
+        .sucursal-badge::before {
+            content: "📍";
+        }
+
+        .header-title {
+            font-size: 16px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .content-wrapper {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .sidebar {
+            width: 350px;
+            background: white;
+            border-left: 1px solid #ddd;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .btn-entregar {
+            background: #c41e3a;
+            color: white;
+            border: 1px solid #8b1428;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+            border-radius: 3px;
+            margin-bottom: 15px;
+        }
+
+        .btn-entregar:hover {
+            background: #b01830;
+        }
+
+        .productos-section {
+            background: white;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .productos-section h3 {
+            color: #c41e3a;
+            font-size: 14px;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #c41e3a;
+        }
+
+        .productos-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        .productos-table th {
+            background: #c41e3a;
+            color: white;
+            padding: 8px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .productos-table td {
+            padding: 6px 8px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .productos-table tr:hover {
+            background: #f9f9f9;
+        }
+
+        .productos-table .num {
+            text-align: right;
+        }
+
+        .cliente-info {
+            background: white;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .cliente-info label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 12px;
+            color: #333;
+        }
+
+        .cliente-info input {
+            width: 100%;
+            padding: 6px 8px;
+            border: 1px solid #ccc;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+        .registro-pagos {
+            margin-bottom: 20px;
+        }
+
+        .registro-pagos h3 {
+            color: #c41e3a;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .info-box {
+            background: #fffbea;
+            border: 1px solid #f4d88a;
+            padding: 10px;
+            font-size: 12px;
+            color: #856404;
+            margin-bottom: 15px;
+            border-radius: 3px;
+        }
+
+        .payment-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .payment-btn {
+            padding: 40px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            transition: transform 0.1s;
+        }
+
+        .payment-btn:hover {
+            transform: scale(1.02);
+        }
+
+        .payment-btn:active {
+            transform: scale(0.98);
+        }
+
+        .payment-btn.cheque {
+            background: #1abc9c;
+        }
+
+        .payment-btn.debito {
+            background: #3498db;
+        }
+
+        .payment-btn.deposito {
+            background: #34495e;
+        }
+
+        .payment-btn.efectivo {
+            background: #e67e22;
+        }
+
+        .payment-btn.tarjeta {
+            background: #3498db;
+        }
+
+        .payment-btn.vale {
+            background: #9b59b6;
+        }
+
+        .payment-icon {
+            font-size: 32px;
+        }
+
+        .btn-cambiar-oferta {
+            background: #95a5a6;
+            color: white;
+            border: 1px solid #7f8c8d;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 13px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-cambiar-oferta:hover {
+            background: #7f8c8d;
+        }
+
+        .resumen-title {
+            color: #c41e3a;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #c41e3a;
+        }
+
+        .resumen-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 13px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .resumen-total {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 0;
+            font-size: 18px;
+            font-weight: bold;
+            color: #c41e3a;
+            border-top: 2px solid #ddd;
+            border-bottom: 2px solid #ddd;
+            margin: 10px 0;
+        }
+
+        .btn-desglosar {
+            width: 100%;
+            background: #17a2b8;
+            color: white;
+            border: 1px solid #138496;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 13px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-desglosar:hover {
+            background: #138496;
+        }
+
+        .estado-pago {
+            margin-bottom: 20px;
+        }
+
+        .estado-pago h4 {
+            color: #c41e3a;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .estado-info {
+            background: #f9f9f9;
+            padding: 8px;
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 10px;
+            border-radius: 3px;
+        }
+
+        .estado-box {
+            border: 2px solid #28a745;
+            padding: 12px;
+            border-radius: 4px;
+            background: white;
+        }
+
+        .estado-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 14px;
+        }
+
+        .estado-row.pagado {
+            color: #333;
+        }
+
+        .estado-row.resta {
+            color: #c41e3a;
+            font-weight: bold;
+        }
+
+        .estado-row.cambio {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn-action {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-procesar {
+            background: #c41e3a;
+            color: white;
+            border: 1px solid #8b1428;
+        }
+
+        .btn-procesar:hover {
+            background: #b01830;
+        }
+
+        .btn-imprimir {
+            background: #6c757d;
+            color: white;
+            border: 1px solid #5a6268;
+        }
+
+        .btn-imprimir:hover {
+            background: #5a6268;
+        }
+
+        .btn-cancelar {
+            background: #6c757d;
+            color: white;
+            border: 1px solid #5a6268;
+        }
+
+        .btn-cancelar:hover {
+            background: #5a6268;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="btn-volver" onclick="window.location.href='nueva_venta.html'">← Volver</button>
+            <div class="header-title">
+                <span>📋</span>
+                <span>DETALLE DE LA VENTA - ACCESO RÁPIDO</span>
+            </div>
+        </div>
+
+        <div class="content-wrapper">
+            <div class="main-content">
+                <button class="btn-entregar">Entregar</button>
+
+                <div class="productos-section">
+                    <h3>Productos de la Venta</h3>
+                    <table class="productos-table">
+                        <thead>
+                            <tr>
+                                <th>Clave</th>
+                                <th>Descripción</th>
+                                <th style="width: 80px;">Cant.</th>
+                                <th style="width: 100px;">$ Unitario</th>
+                                <th style="width: 100px;">$ Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productosListado">
+                            <tr>
+                                <td colspan="5" style="text-align: center; padding: 20px; color: #999;">No hay productos
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="cliente-info">
+                    <label>RFC:</label>
+                    <input type="text" id="rfc" placeholder="RFC del cliente">
+                    <label>NOMBRE:</label>
+                    <input type="text" id="nombre" placeholder="Nombre del cliente">
+                </div>
+
+                <div class="registro-pagos">
+                    <h3>Registro de Pagos</h3>
+                    <div class="info-box">
+                        Escriba a continuación el monto de pago y su referencia.
+                    </div>
+
+                    <div class="payment-grid">
+                        <button class="payment-btn cheque" onclick="seleccionarMetodoPago('cheque')">
+                            <span class="payment-icon">📄</span>
+                            <span>PAGAR CON CHEQUE</span>
+                        </button>
+                        <button class="payment-btn debito" onclick="seleccionarMetodoPago('debito')">
+                            <span class="payment-icon">💳</span>
+                            <span>PAGAR CON DÉBITO</span>
+                        </button>
+                        <button class="payment-btn deposito" onclick="seleccionarMetodoPago('deposito')">
+                            <span class="payment-icon">🏛️</span>
+                            <span>PAGAR CON DEPÓSITO</span>
+                        </button>
+                        <button class="payment-btn efectivo" onclick="seleccionarMetodoPago('efectivo')">
+                            <span class="payment-icon">💵</span>
+                            <span>PAGAR EN EFECTIVO</span>
+                        </button>
+                        <button class="payment-btn tarjeta" onclick="seleccionarMetodoPago('tarjeta')">
+                            <span class="payment-icon">💳</span>
+                            <span>PAGAR CON TARJETA</span>
+                        </button>
+                        <button class="payment-btn vale" onclick="seleccionarMetodoPago('vale')">
+                            <span class="payment-icon">🎫</span>
+                            <span>PAGAR CON VALE</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <div class="resumen-title">Resumen</div>
+
+                <div class="resumen-row">
+                    <span>Subtotal:</span>
+                    <span id="subtotal1">$ 0.00</span>
+                </div>
+                <div class="resumen-row">
+                    <span>Descuento:</span>
+                    <span id="descuento">$ 0.00</span>
+                </div>
+                <div class="resumen-row">
+                    <span>Subtotal:</span>
+                    <span id="subtotal2">$ 0.00</span>
+                </div>
+                <div class="resumen-row">
+                    <span>Impuesto:</span>
+                    <span id="impuesto">$ 0.00</span>
+                </div>
+
+                <div class="resumen-total">
+                    <span>Total:</span>
+                    <span id="total">$ 0.00</span>
+                </div>
+
+                <button class="btn-desglosar" onclick="desglosarISR()">
+                    <span>📊</span>
+                    <span>Desglosar ISR</span>
+                </button>
+
+                <div class="estado-pago">
+                    <h4>Estado de Pago</h4>
+                    <div class="estado-info">
+                        PAGADO [FORMA DE PAGO] - Referencia: <span id="refPago">-</span>
+                    </div>
+                    <div class="estado-box">
+                        <div class="estado-row pagado">
+                            <span>Pagado:</span>
+                            <span id="pagado">$ 0</span>
+                        </div>
+                        <div class="estado-row resta">
+                            <span>Resta:</span>
+                            <span id="resta">$ 0</span>
+                        </div>
+                        <div class="estado-row cambio">
+                            <span>Cambio:</span>
+                            <span id="cambio">$ 0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn-action btn-procesar" onclick="procesarVenta()">
+                        <span>✓</span>
+                        <span>Procesar Venta</span>
+                    </button>
+                    <button class="btn-action btn-cancelar" onclick="cancelarVenta()">
+                        <span>✗</span>
+                        <span>Cancelar Venta</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let ventaData = {};
+        let pagos = [];
+
+        // Cargar datos de la venta desde localStorage
+        function cargarDatosVenta() {
+            console.log('Iniciando carga de datos...');
+            const datosGuardados = localStorage.getItem('ventaActual');
+            console.log('Datos guardados en localStorage:', datosGuardados);
+
+            if (datosGuardados) {
+                try {
+                    ventaData = JSON.parse(datosGuardados);
+                    console.log('VentaData parseado:', ventaData);
+                    console.log('Productos en ventaData:', ventaData.productos);
+
+                    renderizarProductos();
+                    actualizarResumen();
+                } catch (error) {
+                    console.error('Error al parsear datos:', error);
+                    alert('Error al cargar los datos de la venta');
+                    window.location.href = 'nueva_venta.html';
+                }
+            } else {
+                console.error('No hay datos en localStorage');
+                alert('No hay datos de venta disponibles');
+                window.location.href = 'nueva_venta.html';
+            }
+        }
+
+        function renderizarProductos() {
+            console.log('Renderizando productos...');
+            const tbody = document.getElementById('productosListado');
+            console.log('Tbody encontrado:', tbody);
+            console.log('ventaData.productos:', ventaData.productos);
+
+            if (!ventaData.productos || ventaData.productos.length === 0) {
+                console.warn('No hay productos para mostrar');
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 20px; color: #999;">No hay productos</td></tr>';
+                return;
+            }
+
+            console.log('Cantidad de productos a renderizar:', ventaData.productos.length);
+            tbody.innerHTML = ventaData.productos.map(p => {
+                const total = p.cantidad * p.precio;
+                console.log('Renderizando producto:', p);
+                return `
+                    <tr>
+                        <td>${p.clave}</td>
+                        <td>${p.descripcion}</td>
+                        <td class="num">${p.cantidad.toFixed(2)}</td>
+                        <td class="num">$ ${p.precio.toFixed(2)}</td>
+                        <td class="num">$ ${total.toFixed(2)}</td>
+                    </tr>
+                `;
+            }).join('');
+            console.log('Productos renderizados exitosamente');
+        }
+
+        function actualizarResumen() {
+            document.getElementById('subtotal1').textContent = '$ ' + (ventaData.subtotal || 0).toFixed(2);
+            document.getElementById('descuento').textContent = '$ ' + (ventaData.descuentoMonto || 0).toFixed(2);
+            document.getElementById('subtotal2').textContent = '$ ' + (ventaData.subtotal - (ventaData.descuentoMonto || 0)).toFixed(2);
+            document.getElementById('impuesto').textContent = '$ ' + (ventaData.impuesto || 0).toFixed(2);
+            document.getElementById('total').textContent = '$ ' + (ventaData.total || 0).toFixed(2);
+
+            // Actualizar estado de pago
+            const totalPagado = pagos.reduce((sum, p) => sum + p.monto, 0);
+            const resta = (ventaData.total || 0) - totalPagado;
+            const cambio = resta < 0 ? Math.abs(resta) : 0;
+
+            document.getElementById('pagado').textContent = '$ ' + totalPagado.toFixed(0);
+            document.getElementById('resta').textContent = '$ ' + Math.max(0, resta).toFixed(0);
+            document.getElementById('cambio').textContent = '$ ' + cambio.toFixed(0);
+        }
+
+        function volverVenta() {
+            try {
+                if (confirm('¿Deseas volver a la vista de venta? Los datos se mantendrán guardados.')) {
+                    // Mantener los datos en localStorage para poder regresar después
+                    window.location.href = 'nueva_venta.html';
+                }
+            } catch (error) {
+                console.error('Error al volver:', error);
+                // Intento alternativo sin confirmación
+                window.location.href = 'nueva_venta.html';
+            }
+        }
+
+        function seleccionarMetodoPago(metodo) {
+            const metodosNombres = {
+                'cheque': 'CHEQUE',
+                'debito': 'DÉBITO',
+                'deposito': 'DEPÓSITO',
+                'efectivo': 'EFECTIVO',
+                'tarjeta': 'TARJETA',
+                'vale': 'VALE'
+            };
+
+            const monto = prompt(`Ingresa el monto a pagar con ${metodosNombres[metodo]}:`, (ventaData.total || 0).toFixed(2));
+
+            if (monto !== null && monto.trim() !== '') {
+                const montoNum = parseFloat(monto);
+                if (isNaN(montoNum) || montoNum <= 0) {
+                    alert('Monto inválido');
+                    return;
+                }
+
+                const referencia = prompt('Ingresa la referencia (opcional):', '');
+
+                pagos.push({
+                    metodo: metodosNombres[metodo],
+                    monto: montoNum,
+                    referencia: referencia || '-'
+                });
+
+                // Actualizar referencia mostrada
+                document.getElementById('refPago').textContent = referencia || '-';
+
+                // Actualizar info del método de pago
+                const estadoInfo = document.querySelector('.estado-info');
+                estadoInfo.textContent = `PAGADO [FORMA DE PAGO] - Referencia: ${referencia || '-'}`;
+
+                actualizarResumen();
+
+                // Verificar si ya está completamente pagado
+                const totalPagado = pagos.reduce((sum, p) => sum + p.monto, 0);
+                if (totalPagado >= ventaData.total) {
+                    alert('¡Venta pagada completamente!');
+                }
+            }
+        }
+
+        function desglosarISR() {
+            const subtotal = ventaData.subtotal - (ventaData.descuentoMonto || 0);
+            const iva = subtotal * 0.16;
+            const isr = subtotal * 0.0125;
+            const total = subtotal + iva + isr;
+
+            alert(
+                `Desglose de Impuestos:\n\n` +
+                `Subtotal: $ ${subtotal.toFixed(2)}\n` +
+                `IVA (16%): $ ${iva.toFixed(2)}\n` +
+                `ISR (1.25%): $ ${isr.toFixed(2)}\n` +
+                `───────────────────\n` +
+                `Total: $ ${total.toFixed(2)}`
+            );
+        }
+
+        function procesarVenta() {
+            const totalPagado = pagos.reduce((sum, p) => sum + p.monto, 0);
+            const resta = (ventaData.total || 0) - totalPagado;
+
+            if (resta > 0) {
+                if (!confirm(`Aún falta por pagar $ ${resta.toFixed(2)}. ¿Deseas continuar de todos modos?`)) {
+                    return;
+                }
+            }
+
+            // Imprimir ticket automáticamente
+            imprimirTicket();
+
+            // Aquí se procesaría la venta con el backend
+            alert('Procesando venta...\n\n' +
+                'Folio: ' + (ventaData.folio || 'N/A') + '\n' +
+                'Total: $ ' + (ventaData.total || 0).toFixed(2) + '\n' +
+                'Pagado: $ ' + totalPagado.toFixed(2) + '\n\n' +
+                '🖨️ Imprimiendo ticket...');
+
+            // TODO: Enviar datos al servidor
+            // fetch('/api/v1/ventas/', { method: 'POST', ... })
+
+            // Limpiar y regresar
+            localStorage.removeItem('ventaActual');
+            window.location.href = 'nueva_venta.html';
+        }
+
+        function imprimirTicket() {
+            // Preparar datos para el endpoint dinámico
+            const articulos = (ventaData.productos || []).map(p => ({
+                descripcion: p.descripcion || '',
+                cantidad: p.cantidad || 1,
+                precio: p.precio || 0
+            }));
+            // Obtener vendedor desde localStorage (igual que antes)
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const vendedorNombreDefault = (user.name || user.nombre || user.nombre_usuario || '').trim();
+            const isAdmin = (
+                (user.role && String(user.role).toLowerCase() === 'administrador') ||
+                (user.rol && String(user.rol).toLowerCase() === 'administrador') ||
+                (user.username && String(user.username).toLowerCase() === 'admin') ||
+                (user.nombre_usuario && String(user.nombre_usuario).toLowerCase() === 'admin')
+            );
+            const vendedorNombre = isAdmin
+                ? 'REINALDO OVIEDO CALIXTO'
+                : (vendedorNombreDefault || 'PÚBLICO GENERAL');
+            const nombre = document.getElementById('nombre') ? document.getElementById('nombre').value : 'PÚBLICO GENERAL';
+            const datosTicket = {
+                folio: ventaData.folio || '',
+                cliente: nombre,
+                items: articulos,
+                subtotal: ventaData.subtotal || 0,
+                descuento: ventaData.descuentoMonto || 0,
+                impuesto: ventaData.impuesto || 0,
+                total: ventaData.total || 0,
+                vendedor: vendedorNombre,
+                incluir_qr: false
+            };
+            fetch('/api/v1/tickets/generar-formato', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(datosTicket)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.exito && data.contenido_ticket) {
+                        const ventanaImpresion = window.open('', '_blank', 'width=300,height=800');
+                        if (ventanaImpresion && ventanaImpresion.document) {
+                            ventanaImpresion.document.write('<div style="text-align:center;"><img src="/static/images/logo_blanconegro.png" style="width:120px;margin-bottom:8px;"></div>');
+                            ventanaImpresion.document.write('<pre style="font-family: Courier New, monospace; font-size: 11px;">' + data.contenido_ticket + '</pre>');
+                            ventanaImpresion.document.close();
+                        } else {
+                            alert('No se pudo abrir la ventana de impresión. Por favor, permite ventanas emergentes en tu navegador.');
+                        }
+                    } else {
+                        alert('No se pudo generar el ticket: ' + (data.detail || 'Error desconocido'));
+                    }
+                })
+                .catch(err => {
+                    alert('Error al generar ticket: ' + err);
+                });
+        }
+
+        function cancelarVenta() {
+            if (confirm('¿Estás seguro de cancelar esta venta?')) {
+                localStorage.removeItem('ventaActual');
+                window.location.href = 'nueva_venta.html';
+            }
+        }
+
+        // Cargar datos al iniciar
+        window.onload = function () {
+            cargarDatosVenta();
+
+            // Mostrar sucursal
+            const sucursalNombre = localStorage.getItem('sucursal_nombre');
+            if (sucursalNombre) {
+                document.getElementById('sucursalBadge').textContent = sucursalNombre;
+            }
+        };
+    </script>
+</body>
+
+</html>

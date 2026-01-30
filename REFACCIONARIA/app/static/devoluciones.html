@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Devoluciones</title>
+    <style>
+        :root {
+            --primary: #c41e3a;
+            --primary-dark: #a01729;
+            --bg: #f6f6f8;
+            --card: #ffffff;
+            --text: #1f1f1f;
+            --muted: #6b6b6b;
+            --border: #e3e3e3;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .topbar {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: #fff;
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow);
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            padding: 10px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 700;
+            letter-spacing: .4px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.18);
+            transform: translateY(-1px);
+        }
+
+        .sucursal-badge {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            color: #fff;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sucursal-badge::before {
+            content: "📍";
+        }
+
+        .user-info {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .container {
+            padding: 26px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .breadcrumb {
+            color: var(--muted);
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+
+        h1 {
+            font-size: 26px;
+            margin-bottom: 18px;
+            color: var(--primary-dark);
+        }
+
+        .filters {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 18px;
+            box-shadow: var(--shadow);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            align-items: end;
+        }
+
+        label {
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(196, 30, 58, 0.15);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 11px 14px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .card {
+            margin-top: 20px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 14px 16px;
+            background: #fafafa;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+
+        .summary {
+            font-size: 14px;
+            color: var(--muted);
+            display: flex;
+            gap: 12px;
+        }
+
+        .table-wrap {
+            overflow: auto;
+            max-height: 70vh;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f3f4f6;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        th,
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        th {
+            text-align: left;
+            color: var(--muted);
+            font-weight: 700;
+        }
+
+        tbody tr:hover {
+            background: #f9f9fb;
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 12px;
+            display: inline-block;
+        }
+
+        .badge-devuelta {
+            background: #e8f5e9;
+            color: #1b5e20;
+            border: 1px solid #a5d6a7;
+        }
+
+        .badge-completada {
+            background: #e3f2fd;
+            color: #0d47a1;
+            border: 1px solid #90caf9;
+        }
+
+        .badge-cancelada {
+            background: #ffebee;
+            color: #b71c1c;
+            border: 1px solid #ef9a9a;
+        }
+
+        .empty {
+            padding: 28px;
+            text-align: center;
+            color: var(--muted);
+        }
+
+        .alert {
+            margin-top: 14px;
+            padding: 12px 14px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert.error {
+            background: #ffebee;
+            color: #b71c1c;
+            border: 1px solid #ef9a9a;
+        }
+
+        .alert.success {
+            background: #e8f5e9;
+            color: #1b5e20;
+            border: 1px solid #a5d6a7;
+        }
+
+        .btn-new {
+            background: #28a745;
+            color: #fff;
+            border: none;
+            padding: 11px 16px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-new:hover {
+            background: #218838;
+            transform: translateY(-1px);
+        }
+
+        .btn-refresh {
+            background: #007bff;
+            color: #fff;
+            border: none;
+            padding: 11px 16px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-refresh:hover {
+            background: #0056b3;
+            transform: translateY(-1px);
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--card);
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalSlide 0.3s ease;
+        }
+
+        @keyframes modalSlide {
+            from {
+                transform: translateY(-30px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: #fff;
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group textarea {
+            width: 100%;
+            min-height: 80px;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(196, 30, 58, 0.15);
+        }
+
+        .modal-footer {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .btn-cancel {
+            background: #6c757d;
+            color: #fff;
+            border: none;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-cancel:hover {
+            background: #5a6268;
+        }
+
+        @media (max-width: 768px) {
+            .filters {
+                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            }
+
+            th,
+            td {
+                white-space: nowrap;
+            }
+        }
+    </style>
+    <script src="/static/js/sucursal_selector.js"></script>
+</head>
+
+<body>
+    <div class="topbar">
+        <button class="back-btn" onclick="volver()">← VOLVER</button>
+        <span class="sucursal-badge" id="sucursalBadge">Sucursal</span>
+        <div class="user-info">Registro de Devoluciones</div>
+    </div>
+
+    <div class="container">
+        <div class="breadcrumb">Menú Principal > Punto de Venta > Devoluciones</div>
+        <h1>Registro de Devoluciones</h1>
+
+        <form class="filters" onsubmit="aplicarFiltros(event)">
+            <div>
+                <label>Folio</label>
+                <input type="text" id="filtroFolio" placeholder="Ej: D1234">
+            </div>
+            <div>
+                <label>Cliente</label>
+                <input type="text" id="filtroCliente" placeholder="Nombre o razón social">
+            </div>
+            <div>
+                <label>Venta</label>
+                <input type="text" id="filtroVenta" placeholder="Folio de venta">
+            </div>
+            <div>
+                <label>Fecha</label>
+                <input type="date" id="filtroFecha">
+            </div>
+            <div>
+                <label>Monto</label>
+                <input type="number" id="filtroMonto" placeholder="Monto exacto" step="0.01">
+            </div>
+            <div>
+                <label>Sucursal</label>
+                <input type="text" id="filtroSucursal" placeholder="Sucursal">
+            </div>
+            <div>
+                <button type="submit" class="btn-primary">Filtrar</button>
+            </div>
+        </form>
+
+        <div id="alerta" class="alert"></div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">Resultados</div>
+                <div style="display: flex; gap: 12px; align-items: center;">
+                    <div class="summary">
+                        <span id="resumenTotal">0 devoluciones</span>
+                        <span id="resumenMonto">Monto total: $0.00</span>
+                    </div>
+                    <button class="btn-refresh" onclick="actualizarListado()">🔄 Actualizar</button>
+                    <button class="btn-new" onclick="abrirModalNueva()">➕ Nueva Devolución</button>
+                </div>
+            </div>
+            <div class="table-wrap" id="contenedorTabla"></div>
+        </div>
+    </div>
+
+    <!-- MODAL NUEVA DEVOLUCIÓN -->
+    <div id="modalNueva" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">Nueva Devolución</div>
+                <button class="modal-close" onclick="cerrarModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form onsubmit="guardarDevolucion(event)">
+                    <div class="form-group">
+                        <label>Folio *</label>
+                        <input type="text" id="modalFolio" placeholder="Ej: D-00001" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Estado *</label>
+                        <select id="modalEstado" required>
+                            <option value="">Selecciona estado</option>
+                            <option value="devuelta">Devuelta</option>
+                            <option value="completada">Completada</option>
+                            <option value="cancelada">Cancelada</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha Venta *</label>
+                        <input type="date" id="modalFechaVenta" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Cliente</label>
+                        <input type="text" id="modalCliente" placeholder="Nombre o razón social">
+                    </div>
+                    <div class="form-group">
+                        <label>Total *</label>
+                        <input type="number" id="modalTotal" placeholder="0.00" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Usuario</label>
+                        <input type="text" id="modalUsuario" placeholder="Vendedor">
+                    </div>
+                    <div class="form-group">
+                        <label>Sucursal</label>
+                        <input type="text" id="modalSucursal" placeholder="Sucursal">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn-cancel" onclick="cerrarModal()">Cancelar</button>
+                        <button type="submit" class="btn-primary">✅ Crear Devolución</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api/v1';
+        let devoluciones = [];
+
+        // Cargar devoluciones locales del localStorage al iniciar
+        function cargarDevolucionesLocales() {
+            const stored = localStorage.getItem('devoluciones_locales');
+            if (stored) {
+                try {
+                    const locales = JSON.parse(stored);
+                    return Array.isArray(locales) ? locales : [];
+                } catch (e) {
+                    console.error('Error al cargar devoluciones locales:', e);
+                    return [];
+                }
+            }
+            return [];
+        }
+
+        // Guardar devoluciones locales en localStorage
+        function guardarDevolucionesLocales(devs) {
+            try {
+                localStorage.setItem('devoluciones_locales', JSON.stringify(devs));
+            } catch (e) {
+                console.error('Error al guardar devoluciones locales:', e);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Cargar devoluciones locales
+            const locales = cargarDevolucionesLocales();
+            if (locales.length > 0) {
+                devoluciones = locales;
+                renderTabla();
+                actualizarResumen(devoluciones.length, devoluciones.reduce((sum, d) => sum + parseFloat(d.total || d.monto || 0), 0));
+            } else {
+                // Mostrar mensaje inicial
+                document.getElementById('contenedorTabla').innerHTML = '<div class="empty">Por favor utiliza al menos un filtro para realizar la búsqueda.</div>';
+            }
+        });
+
+        function volver() {
+            window.location.href = '/ventas';
+        }
+
+        // Mostrar sucursal
+        const sucursalNombre = localStorage.getItem('sucursal_nombre');
+        if (sucursalNombre) {
+            document.getElementById('sucursalBadge').textContent = sucursalNombre;
+        }
+
+        function abrirModalNueva() {
+            document.getElementById('modalNueva').classList.add('show');
+            document.getElementById('modalFolio').focus();
+        }
+
+        function cerrarModal() {
+            document.getElementById('modalNueva').classList.remove('show');
+            document.getElementById('modalFolio').value = '';
+            document.getElementById('modalEstado').value = '';
+            document.getElementById('modalFechaVenta').value = '';
+            document.getElementById('modalCliente').value = '';
+            document.getElementById('modalTotal').value = '';
+            document.getElementById('modalUsuario').value = '';
+            document.getElementById('modalSucursal').value = '';
+        }
+
+        async function guardarDevolucion(e) {
+            e.preventDefault();
+            const folio = document.getElementById('modalFolio').value.trim();
+            const estado = document.getElementById('modalEstado').value;
+            const fechaVenta = document.getElementById('modalFechaVenta').value;
+            const cliente = document.getElementById('modalCliente').value.trim();
+            const total = document.getElementById('modalTotal').value;
+            const usuario = document.getElementById('modalUsuario').value.trim();
+            const sucursal = document.getElementById('modalSucursal').value.trim();
+
+            if (!folio || !estado || !fechaVenta || !total) {
+                mostrarAlerta('Por favor completa los campos requeridos');
+                return;
+            }
+
+            try {
+                const payload = {
+                    folio: folio,
+                    estado: estado,
+                    fecha_venta: fechaVenta,
+                    fecha_devolucion: new Date().toISOString().slice(0, 10),
+                    cliente: cliente || 'PUBLICO GENERAL',
+                    total: parseFloat(total),
+                    monto: parseFloat(total),
+                    vendedor: usuario || '-',
+                    sucursal: sucursal || '-'
+                };
+
+                // Agregar la nueva devolución al array local
+                devoluciones.unshift(payload);
+
+                // Guardar en localStorage
+                guardarDevolucionesLocales(devoluciones);
+
+                renderTabla();
+                actualizarResumen(devoluciones.length, devoluciones.reduce((sum, d) => sum + parseFloat(d.total || d.monto || 0), 0));
+
+                // Simular guardado exitoso (sin endpoint real aún)
+                console.log('Payload de devolución:', payload);
+
+                mostrarAlerta('Devolución creada exitosamente', 'success');
+                cerrarModal();
+            } catch (err) {
+                console.error('Error:', err);
+                mostrarAlerta('Error al crear devolución: ' + err.message);
+            }
+        }
+
+        function mostrarAlerta(msg, tipo = 'error') {
+            const alert = document.getElementById('alerta');
+            alert.textContent = msg;
+            alert.className = `alert show ${tipo}`;
+            setTimeout(() => alert.classList.remove('show'), 3000);
+        }
+
+        function aplicarFiltros(e) {
+            e.preventDefault();
+            cargarDatos();
+        }
+
+        function actualizarListado() {
+            cargarDatos();
+        }
+
+        async function cargarDatos() {
+            const fecha = document.getElementById('filtroFecha').value;
+            const monto = document.getElementById('filtroMonto').value;
+            const folio = document.getElementById('filtroFolio').value.trim();
+            const cliente = document.getElementById('filtroCliente').value.trim();
+            const venta = document.getElementById('filtroVenta').value.trim();
+            const sucursal = document.getElementById('filtroSucursal').value.trim();
+
+            // Validar que al menos un filtro esté lleno
+            if (!fecha && !monto && !folio && !cliente && !venta && !sucursal) {
+                mostrarAlerta('Por favor completa al menos un filtro para realizar la búsqueda');
+                return;
+            }
+
+            // Si no hay fecha seleccionada, usar 30 últimos días por defecto
+            let inicio, fin;
+            if (fecha) {
+                inicio = fecha;
+                fin = fecha;
+            } else {
+                const hoy = new Date();
+                const hace30 = new Date();
+                hace30.setDate(hoy.getDate() - 30);
+                inicio = hace30.toISOString().slice(0, 10);
+                fin = hoy.toISOString().slice(0, 10);
+            }
+
+            const params = new URLSearchParams({
+                fecha_inicio: inicio,
+                fecha_fin: fin
+            });
+
+            if (folio) params.append('folio', folio);
+            if (cliente) params.append('cliente', cliente);
+            if (venta) params.append('venta', venta);
+            if (monto) params.append('monto', monto);
+            if (sucursal) params.append('sucursal', sucursal);
+
+            try {
+                const resp = await fetch(`${API_BASE}/reportes/devoluciones-detalladas?${params.toString()}`);
+                if (!resp.ok) throw new Error('No se pudo obtener el reporte');
+                const data = await resp.json();
+
+                // Combinar devoluciones del servidor con las locales
+                const locales = cargarDevolucionesLocales();
+                let resultados = [...locales, ...(data.devoluciones || [])];
+
+                // Filtros locales
+                if (folio) resultados = resultados.filter(d => (d.folio || '').toLowerCase().includes(folio.toLowerCase()));
+                if (cliente) resultados = resultados.filter(d => (d.cliente || '').toLowerCase().includes(cliente.toLowerCase()));
+                if (venta) resultados = resultados.filter(d => (d.folio || '').toLowerCase().includes(venta.toLowerCase()));
+                if (monto) {
+                    const montoNum = parseFloat(monto);
+                    resultados = resultados.filter(d => parseFloat(d.total || d.monto || 0) === montoNum);
+                }
+                if (sucursal) resultados = resultados.filter(d => (d.sucursal || '').toLowerCase().includes(sucursal.toLowerCase()));
+                if (fecha) resultados = resultados.filter(d => (d.fecha_venta || '').startsWith(fecha));
+
+                devoluciones = resultados;
+                renderTabla();
+                actualizarResumen(devoluciones.length, devoluciones.reduce((sum, d) => sum + parseFloat(d.total || d.monto || 0), 0));
+            } catch (err) {
+                console.error(err);
+                // Si falla el servidor, mostrar solo las locales
+                const locales = cargarDevolucionesLocales();
+                devoluciones = locales;
+                renderTabla();
+                actualizarResumen(devoluciones.length, devoluciones.reduce((sum, d) => sum + parseFloat(d.total || d.monto || 0), 0));
+                mostrarAlerta('Mostrando solo devoluciones locales (sin conexión al servidor)');
+            }
+        }
+
+        function actualizarResumen(total, monto) {
+            document.getElementById('resumenTotal').textContent = `${total} devoluciones`;
+            document.getElementById('resumenMonto').textContent = `Monto total: $${Number(monto).toFixed(2)}`;
+        }
+
+        function badgeEstado(estado) {
+            const map = {
+                devuelta: 'badge-devuelta',
+                completada: 'badge-completada',
+                cancelada: 'badge-cancelada'
+            };
+            const cls = map[estado] || 'badge-completada';
+            return `<span class="badge ${cls}">${(estado || '').toUpperCase()}</span>`;
+        }
+
+        function renderTabla() {
+            const cont = document.getElementById('contenedorTabla');
+            if (!devoluciones.length) {
+                cont.innerHTML = '<div class="empty">No hay resultados para los filtros seleccionados.</div>';
+                return;
+            }
+
+            const filas = devoluciones.map(item => {
+                const total = Number(item.total || item.monto || 0).toFixed(2);
+                return `
+                    <tr>
+                        <td>${item.folio || '-'}</td>
+                        <td>${badgeEstado(item.estado || 'devuelta')}</td>
+                        <td>${item.fecha_venta || '-'}</td>
+                        <td>${item.fecha_devolucion || '-'}</td>
+                        <td>${item.cliente || 'PUBLICO GENERAL'}</td>
+                        <td>$${total}</td>
+                        <td>${item.vendedor || '-'}</td>
+                        <td>${item.sucursal || '-'}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            cont.innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Folio</th>
+                            <th>Estado</th>
+                            <th>Fecha Venta</th>
+                            <th>Fecha Devolución</th>
+                            <th>Cliente</th>
+                            <th>Total</th>
+                            <th>Usuario</th>
+                            <th>Sucursal</th>
+                        </tr>
+                    </thead>
+                    <tbody>${filas}</tbody>
+                </table>
+            `;
+        }
+    </script>
+</body>
+
+</html>

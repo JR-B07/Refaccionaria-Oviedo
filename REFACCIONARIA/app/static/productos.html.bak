@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REFACCIONARIA - Productos y Servicios</title>
+    <link rel="stylesheet" href="/static/css/login.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .top-bar {
+            background: #c41e3a;
+            color: #fff;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .top-bar h1 {
+            font-size: 18px
+        }
+
+        .main {
+            max-width: 1200px;
+            margin: 100px auto;
+            padding: 20px
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .controls input,
+        .controls select {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc
+        }
+
+        .btn {
+            background: #c41e3a;
+            color: #fff;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: #a01729;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #5568d3;
+        }
+
+        .table-wrap {
+            background: #fff;
+            border-radius: 8px;
+            padding: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05)
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse
+        }
+
+        th,
+        td {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+            font-size: 14px
+        }
+
+        th {
+            background: #fafafa
+        }
+
+        .muted {
+            color: #777;
+            font-size: 13px
+        }
+
+        .pagination {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-top: 12px
+        }
+
+        .page-btn {
+            padding: 6px 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            background: #fff;
+            cursor: pointer
+        }
+
+        .empty {
+            padding: 30px;
+            text-align: center;
+            color: #666
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            overflow: auto;
+        }
+
+        .modal-content {
+            background: #fff;
+            margin: 50px auto;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #c41e3a;
+        }
+
+        .modal-header h3 {
+            color: #c41e3a;
+            margin: 0;
+        }
+
+        .close {
+            font-size: 28px;
+            font-weight: bold;
+            color: #999;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .btn-primary {
+            background: #c41e3a;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background: #a01830;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-left: 10px;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .alert {
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* Estilos para Modal de Búsqueda Avanzada */
+        .advanced-search-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .advanced-search-content {
+            background: #fff;
+            margin: 60px auto;
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 900px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .advanced-search-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #c41e3a;
+        }
+
+        .advanced-search-header h2 {
+            color: #c41e3a;
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .close-advanced {
+            font-size: 28px;
+            font-weight: bold;
+            color: #999;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .close-advanced:hover {
+            color: #333;
+        }
+
+        .advanced-filters {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .filter-group-advanced {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group-advanced label {
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #333;
+            font-size: 13px;
+        }
+
+        .filter-group-advanced input,
+        .filter-group-advanced select {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 13px;
+            transition: border-color 0.3s;
+        }
+
+        .filter-group-advanced input:focus,
+        .filter-group-advanced select:focus {
+            outline: none;
+            border-color: #c41e3a;
+            box-shadow: 0 0 5px rgba(196, 30, 58, 0.2);
+        }
+
+        .filter-full-width {
+            grid-column: 1 / -1;
+        }
+
+        .advanced-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: flex-end;
+        }
+
+        .btn-search-advanced {
+            background: #c41e3a;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .btn-search-advanced:hover {
+            background: #a01729;
+            transform: translateY(-1px);
+        }
+
+        .btn-reset-advanced {
+            background: #e0e0e0;
+            color: #333;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .btn-reset-advanced:hover {
+            background: #d0d0d0;
+        }
+
+        .advanced-results {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .advanced-results-header {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .advanced-products-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .product-item-advanced {
+            background: #f8f9fa;
+            border-left: 4px solid #c41e3a;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .product-item-advanced:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .product-info-advanced {
+            flex: 1;
+        }
+
+        .product-code-advanced {
+            font-weight: 600;
+            color: #c41e3a;
+            font-size: 13px;
+        }
+
+        .product-name-advanced {
+            font-weight: 600;
+            color: #333;
+            margin: 3px 0;
+        }
+
+        .product-meta-advanced {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .product-price-advanced {
+            font-weight: 700;
+            color: #c41e3a;
+            font-size: 16px;
+        }
+
+        .loading-advanced {
+            text-align: center;
+            padding: 20px;
+            color: #c41e3a;
+            font-weight: 600;
+        }
+
+        .no-results-advanced {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+            font-style: italic;
+        }
+
+        </head><body><div class="top-bar"><div style="display:flex;align-items:center;gap:12px"><button class="btn" onclick="goBack()">← VOLVER</button><h1>📦 Productos y Servicios</h1></div><div class="muted">Usuario: <strong id="userName">Usuario</strong></div></div><div class="main"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div><h2 style="margin:0;color:#c41e3a">Listado de Productos</h2><div class="muted">Busca,
+        filtra y administra tus productos</div></div><div style="display:flex;gap:10px"><button class="btn btn-secondary" onclick="openAdvancedSearch()">🔍 Búsqueda Avanzada</button><button class="btn" onclick="openCreate()">+Nuevo Producto</button></div></div><div class="controls"><input id="q" placeholder="Buscar por código, nombre o marca"
+        onkeydown="if(event.key==='Enter') loadProducts()" style="flex:1"><select id="limit" onchange="loadProducts()"><option value="25">25</option><option value="50">50</option><option value="100">100</option></select><button class="btn" onclick="loadProducts()">Buscar</button></div><div class="table-wrap"><table id="productsTable"><thead><tr><th>Clave</th><th>Nombre / Descripción</th><th>Marca</th><th>Modelo</th><th>Categoría</th><th>Precio</th><th>Stock</th><th>Acciones</th></tr></thead><tbody id="productsTbody"><tr><td colspan="8" class="empty">Cargando...</td></tr></tbody></table><div class="pagination"><button class="page-btn" onclick="prevPage()">Anterior</button><div id="pageInfo" class="muted">Página 1</div><button class="page-btn" onclick="nextPage()">Siguiente</button></div></div></div>< !-- Modal para crear producto --><div id="productModal" class="modal"><div class="modal-content"><div class="modal-header"><h3>Nuevo Producto</h3><span class="close" onclick="closeModal()">&times;
+        </span></div><div id="modalAlert"></div><form id="productForm" onsubmit="saveProduct(event)"><div class="form-group"><label>Código *</label><input type="text" id="codigo" name="codigo" required></div><div class="form-group"><label>Código de Barras</label><input type="text" id="codigo_barras" name="codigo_barras"></div><div class="form-group"><label>Nombre *</label><input type="text" id="nombre" name="nombre" required></div><div class="form-group"><label>Descripción</label><textarea id="descripcion" name="descripcion"></textarea></div><div class="form-row"><div class="form-group"><label>Marca</label><input type="text" id="marca" name="marca"></div><div class="form-group"><label>Modelo</label><input type="text" id="modelo" name="modelo"></div></div><div class="form-group"><label>Categoría</label><input type="text" id="categoria" name="categoria"></div><div class="form-row"><div class="form-group"><label>Precio Compra *</label><input type="number" id="precio_compra" name="precio_compra" step="0.01" min="0" required></div><div class="form-group"><label>Precio Venta *</label><input type="number" id="precio_venta" name="precio_venta" step="0.01" min="0" required></div></div><div class="form-row"><div class="form-group"><label>Precio Venta Crédito</label><input type="number" id="precio_venta_credito" name="precio_venta_credito" step="0.01" min="0"></div><div class="form-group"><label>Stock Mínimo</label><input type="number" id="stock_minimo" name="stock_minimo" value="5" min="0"></div></div><div class="form-row"><div class="form-group"><label>Ubicación Estante</label><input type="text" id="ubicacion_estante" name="ubicacion_estante"></div><div class="form-group"><label>Fila - Columna</label><div style="display:flex;gap:5px"><input type="text" id="ubicacion_fila" name="ubicacion_fila" placeholder="Fila"
+        style="width:50%"><input type="text" id="ubicacion_columna" name="ubicacion_columna" placeholder="Col"
+        style="width:50%"></div></div></div><div style="margin-top:20px;text-align:right"><button type="submit" class="btn-primary">Guardar Producto</button><button type="button" class="btn-secondary" onclick="closeModal()">Cancelar</button></div></form></div></div>< !-- Modal para Búsqueda Avanzada --><div id="advancedSearchModal" class="advanced-search-modal"><div class="advanced-search-content"><div class="advanced-search-header"><h2>🔍 Búsqueda Avanzada de Productos</h2><span class="close-advanced" onclick="closeAdvancedSearch()">&times;
+        </span></div><div class="advanced-filters"><div class="filter-group-advanced"><label>Código del Producto</label><input type="text" id="advCodeFilter" placeholder="Ej: TR-5521"></div><div class="filter-group-advanced"><label>Nombre/Descripción</label><input type="text" id="advNameFilter" placeholder="Ej: Rótula suspension"></div><div class="filter-group-advanced"><label>Marca</label><input type="text" id="advBrandFilter" placeholder="Ej: MOOG, BOSCH"></div><div class="filter-group-advanced"><label>Categoría</label><select id="advCategoryFilter"><option value="">Todas</option><option value="Filtros">Filtros</option><option value="Sistema de Frenos">Sistema de Frenos</option><option value="Suspensión">Suspensión</option><option value="Motor">Motor</option><option value="Transmisión">Transmisión</option><option value="Sistemas Eléctricos">Sistemas Eléctricos</option><option value="Combustible">Combustible</option><option value="Lubricantes">Lubricantes</option><option value="Correas y Bandas">Correas y Bandas</option><option value="Tuercas y Tornillos">Tuercas y Tornillos</option><option value="Sensores">Sensores</option><option value="Mangueras">Mangueras</option><option value="Accesorios">Accesorios</option><option value="Universal">Universal</option></select></div><div class="filter-group-advanced"><label>Precio Mínimo ($)</label><input type="number" id="advMinPrice" min="0" step="0.01" placeholder="0.00"></div><div class="filter-group-advanced"><label>Precio Máximo ($)</label><input type="number" id="advMaxPrice" min="0" step="0.01" placeholder="10000.00"></div><div class="filter-group-advanced filter-full-width"><label>Stock Mínimo Disponible</label><input type="number" id="advMinStock" min="0" step="1" placeholder="0"></div></div><div class="advanced-buttons"><button class="btn-reset-advanced" onclick="clearAdvancedFilters()">↺ Limpiar</button><button class="btn-search-advanced" onclick="performAdvancedSearch()">🔍 Buscar</button></div><div id="advancedResults"></div></div></div><script>const API_BASE='/api/v1/productos';
+        let page=0;
+
+        document.addEventListener('DOMContentLoaded', ()=> {
+                const user=JSON.parse(localStorage.getItem('user') || '{}');
+                document.getElementById('userName').textContent=user.name || user.username || 'Usuario';
+                loadProducts();
+            });
+
+        function goBack() {
+            window.location.href='/almacen';
+        }
+
+        function openAdvancedSearch() {
+            document.getElementById('advancedSearchModal').style.display='block';
+        }
+
+        function closeAdvancedSearch() {
+            document.getElementById('advancedSearchModal').style.display='none';
+        }
+
+        function openCreate() {
+            document.getElementById('productModal').style.display='block';
+            document.getElementById('productForm').reset();
+            document.getElementById('modalAlert').innerHTML='';
+        }
+
+        function closeModal() {
+            document.getElementById('productModal').style.display='none';
+        }
+
+        async function saveProduct(event) {
+            event.preventDefault();
+            const form=event.target;
+            const formData=new FormData(form);
+
+            const data= {}
+
+            ;
+
+            formData.forEach((value, key)=> {
+                    if (value) data[key]=value;
+                });
+
+            // Convertir números
+            if (data.precio_compra) data.precio_compra=parseFloat(data.precio_compra);
+            if (data.precio_venta) data.precio_venta=parseFloat(data.precio_venta);
+            if (data.precio_venta_credito) data.precio_venta_credito=parseFloat(data.precio_venta_credito);
+            if (data.stock_minimo) data.stock_minimo=parseInt(data.stock_minimo);
+
+            try {
+                const res=await fetch(API_BASE, {
+
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'accept': 'application/json'
+                    }
+
+                    ,
+                    body: JSON.stringify(data)
+                });
+
+            if ( !res.ok) {
+                const error=await res.json();
+                throw new Error(error.detail || 'Error al crear el producto');
+            }
+
+            const result=await res.json();
+            document.getElementById('modalAlert').innerHTML='<div class="alert alert-success">✓ Producto creado exitosamente</div>';
+
+            setTimeout(()=> {
+                    closeModal();
+                    page=0;
+                    loadProducts();
+                }
+
+                , 1500);
+        }
+
+        catch (err) {
+            document.getElementById('modalAlert').innerHTML=`<div class="alert alert-error">✗ $ {
+                err.message
+            }
+
+            </div>`;
+            console.error(err);
+        }
+        }
+
+        // Cerrar modal al hacer clic fuera
+        window.onclick=function (event) {
+            const modal=document.getElementById('productModal');
+            const advModal=document.getElementById('advancedSearchModal');
+
+            if (event.target===modal) {
+                closeModal();
+            }
+
+            if (event.target===advModal) {
+                closeAdvancedSearch();
+            }
+        }
+
+        function buildRow(p) {
+            return ` <tr><td>$ {
+                escapeHtml(p.codigo || '')
+            }
+
+            </td><td><strong>$ {
+                escapeHtml(p.nombre || '')
+            }
+
+            </strong><div class="muted">$ {
+                escapeHtml((p.descripcion || '').slice(0, 120))
+            }
+
+            </div></td><td>$ {
+                escapeHtml(p.marca || '')
+            }
+
+            </td><td>$ {
+                escapeHtml(p.modelo || '')
+            }
+
+            </td><td>$ {
+                escapeHtml(p.categoria || '')
+            }
+
+            </td><td>$ {
+                p.precio_venta !=null ? ('$' + Number(p.precio_venta).toFixed(2)): '-'
+            }
+
+            </td><td>$ {
+                p.stock_total !=null ? p.stock_total: '-'
+            }
+
+            </td><td><button class="page-btn" onclick='viewProduct(${p.id})'>Ver</button></td></tr>`;
+        }
+
+        function escapeHtml(s) {
+            return String(s).replace(/[&<>"]+/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '" ': ' &quot; ' }[c])); }
+
+
+                async function loadProducts() {
+                    const q=document.getElementById('q').value.trim();
+                    const limit=Number(document.getElementById('limit').value || 25);
+                    const offset=page * limit;
+                    const url=new URL(API_BASE, window.location.origin);
+                    url.searchParams.set('limit', limit);
+                    url.searchParams.set('offset', offset);
+                    if (q) url.searchParams.set('q', q);
+
+                    document.getElementById('productsTbody').innerHTML='<tr><td colspan="8" class="empty">Cargando...</td></tr>';
+
+                    try {
+                        const res=await fetch(url.toString(), {
+                            headers: {
+                                'accept': 'application/json'
+                            }
+                        });
+                    if ( !res.ok) throw new Error('Error en la respuesta');
+                    const data=await res.json();
+                    const items=data.items || [];
+
+                    if (items.length===0) {
+                        document.getElementById('productsTbody').innerHTML='<tr><td colspan="8" class="empty">No se encontraron productos.</td></tr>';
+                    }
+
+                    else {
+                        document.getElementById('productsTbody').innerHTML=items.map(buildRow).join('');
+                    }
+
+                    document.getElementById('pageInfo').textContent=`Página $ {
+                        page + 1
+                    }
+
+                    - $ {
+                        data.total || items.length
+                    }
+
+                    resultados`;
+                }
+
+                catch (err) {
+                    document.getElementById('productsTbody').innerHTML='<tr><td colspan="8" class="empty">Error cargando datos.</td></tr>';
+                    console.error(err);
+                }
+            }
+
+            function prevPage() {
+                if (page > 0) {
+                    page--; loadProducts();
+                }
+            }
+
+            function nextPage() {
+                page++; loadProducts();
+            }
+
+            function viewProduct(id) {
+                window.location.href='/producto-detalle?id=' + id;
+            }
+
+            // BÚSQUEDA AVANZADA
+            async function performAdvancedSearch() {
+                const codigo=document.getElementById('advCodeFilter').value.trim();
+                const nombre=document.getElementById('advNameFilter').value.trim();
+                const marca=document.getElementById('advBrandFilter').value.trim();
+                const categoria=document.getElementById('advCategoryFilter').value.trim();
+                const precioMin=document.getElementById('advMinPrice').value;
+                const precioMax=document.getElementById('advMaxPrice').value;
+                const stock=document.getElementById('advMinStock').value;
+
+                const resultsDiv=document.getElementById('advancedResults');
+                resultsDiv.innerHTML='<div class="loading-advanced">Buscando productos...</div>';
+
+                try {
+                    const params=new URLSearchParams();
+                    if (nombre) params.append('q', nombre);
+                    if (codigo) params.append('codigo', codigo);
+                    if (marca) params.append('marca', marca);
+                    if (categoria) params.append('categoria', categoria);
+                    if (precioMin) params.append('precio_min', precioMin);
+                    if (precioMax) params.append('precio_max', precioMax);
+                    if (stock) params.append('stock_minimo', stock);
+                    params.append('limit', 100);
+                    params.append('offset', 0);
+
+                    const response=await fetch(`$ {
+                            API_BASE
+                        }
+
+                        ?$ {
+                            params
+                        }
+
+                        `, {
+                        headers: {
+                            'accept': 'application/json'
+                        }
+                    });
+
+                if ( !response.ok) {
+                    throw new Error('Error en la búsqueda');
+                }
+
+                const data=await response.json();
+                displayAdvancedResults(data.items || [], data.total);
+
+            }
+
+            catch (error) {
+                resultsDiv.innerHTML=`<div class="alert alert-error" >Error: $ {
+                    error.message
+                }
+
+                </div>`;
+            }
+        }
+
+        function displayAdvancedResults(items, total) {
+            const resultsDiv=document.getElementById('advancedResults');
+
+            if (items.length===0) {
+                resultsDiv.innerHTML='<div class="advanced-results"><div class="no-results-advanced">No se encontraron productos con los criterios especificados.</div></div>';
+                return;
+            }
+
+            let html=`<div class="advanced-results" > <div class="advanced-results-header" >Se encontraron $ {
+                total
+            }
+
+            productos</div> <div class="advanced-products-list" >`;
+
+            items.forEach(p=> {
+                    html +=`<div class="product-item-advanced" > <div class="product-info-advanced" > <div class="product-code-advanced" >$ {
+                        escapeHtml(p.codigo)
+                    }
+
+                    </div> <div class="product-name-advanced" >$ {
+                        escapeHtml(p.nombre)
+                    }
+
+                    </div> <div class="product-meta-advanced" > <strong>Marca:</strong> $ {
+                        escapeHtml(p.marca || '-')
+                    }
+
+                    | <strong>Categoría:</strong> $ {
+                        escapeHtml(p.categoria || '-')
+                    }
+
+                    | <strong>Stock:</strong> $ {
+                        p.stock_total || 0
+                    }
+
+                    </div> </div> <div class="product-price-advanced" >$$ {
+                        Number(p.precio_venta).toFixed(2)
+                    }
+
+                    </div> </div>`;
+                });
+
+            html +=`</div></div>`;
+            resultsDiv.innerHTML=html;
+        }
+
+        function clearAdvancedFilters() {
+            document.getElementById('advCodeFilter').value='';
+            document.getElementById('advNameFilter').value='';
+            document.getElementById('advBrandFilter').value='';
+            document.getElementById('advCategoryFilter').value='';
+            document.getElementById('advMinPrice').value='';
+            document.getElementById('advMaxPrice').value='';
+            document.getElementById('advMinStock').value='';
+            document.getElementById('advancedResults').innerHTML='';
+        }
+
+        </script> </body> </html>

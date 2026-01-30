@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Gastos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #b8092f;
+            --primary-dark: #930725;
+            --accent: #0f9d58;
+            --card: #ffffff;
+            --bg: #f5f6fb;
+            --border: #e4e6ef;
+            --text: #1f2933;
+            --muted: #6b7280;
+            --shadow: 0 12px 30px rgba(0, 0, 0, 0.05);
+            --radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Manrope', 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .topbar {
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+            color: #fff;
+            padding: 14px 22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand {
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+
+        .back-btn,
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: #fff;
+            padding: 8px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.15s ease, background 0.2s ease;
+        }
+
+        .back-btn:hover,
+        .logout-btn:hover {
+            transform: translateY(-1px);
+            background: rgba(255, 255, 255, 0.22);
+        }
+
+        .sucursal-badge {
+            background: rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: #fff;
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sucursal-badge::before {
+            content: "📍";
+        }
+
+        .page {
+            max-width: 1400px;
+            margin: 24px auto 40px;
+            padding: 0 18px;
+        }
+
+        .breadcrumb {
+            color: var(--muted);
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+
+        .title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .title {
+            font-size: 26px;
+            margin: 0;
+        }
+
+        .subtitle {
+            color: var(--muted);
+            margin: 4px 0 18px;
+        }
+
+        .panel {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 18px;
+            margin-bottom: 18px;
+        }
+
+        .toolbar {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 10px;
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .field label {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .field input,
+        .field select {
+            height: 42px;
+            padding: 0 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: #fdfdfd;
+            font-size: 14px;
+            transition: border 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .field input:focus,
+        .field select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(184, 9, 47, 0.15);
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .btn {
+            border: 1px solid var(--border);
+            background: #fff;
+            color: var(--text);
+            height: 42px;
+            padding: 0 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            transition: transform 0.12s ease, box-shadow 0.15s ease, border 0.15s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+            border-color: #d2d5e0;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            border-color: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
+        .btn-secondary:hover {
+            background: #068d4a;
+            border-color: #068d4a;
+        }
+
+        .btn-danger {
+            background: #d32f2f;
+            color: #fff;
+            border-color: #d32f2f;
+        }
+
+        .btn-danger:hover {
+            background: #b71c1c;
+            border-color: #b71c1c;
+        }
+
+        .btn-edit {
+            background: #ff9800;
+            color: #fff;
+            border-color: #ff9800;
+        }
+
+        .btn-edit:hover {
+            background: #e68900;
+            border-color: #e68900;
+        }
+
+        .btn-small {
+            height: 32px;
+            padding: 0 10px;
+            font-size: 12px;
+        }
+
+        .menu-wrap {
+            position: relative;
+        }
+
+        .menu-btn {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 0 14px;
+            height: 42px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .menu-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .menu {
+            position: absolute;
+            top: 46px;
+            left: 0;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            width: 220px;
+            padding: 6px;
+            display: none;
+            z-index: 10;
+        }
+
+        .menu a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .menu a:hover {
+            background: #f4f6fb;
+            color: var(--primary);
+        }
+
+        .quick-panels {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .quick-card {
+            border: 1px dashed var(--border);
+            background: #fff;
+            border-radius: 10px;
+            padding: 10px 12px;
+            display: none;
+        }
+
+        .quick-card.active {
+            display: block;
+        }
+
+        .chip-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 6px;
+        }
+
+        .chip {
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: #f4f6fb;
+            color: var(--muted);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .chip.active {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+            overflow-x: auto;
+        }
+
+        th,
+        td {
+            padding: 12px 10px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+        }
+
+        th {
+            color: var(--muted);
+            font-weight: 700;
+        }
+
+        tbody tr:hover {
+            background: #f9fafc;
+        }
+
+        .estado {
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 12px;
+            display: inline-flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .estado.pendiente {
+            background: #fff7e6;
+            color: #c27803;
+        }
+
+        .estado.pagado {
+            background: #e6f7ef;
+            color: #137333;
+        }
+
+        .estado.cancelado {
+            background: #fde7e7;
+            color: #b42318;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        .actions-col {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.2s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: var(--card);
+            padding: 28px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 12px;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--muted);
+        }
+
+        .close-modal:hover {
+            color: var(--text);
+        }
+
+        .modal-body {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .modal-body .field {
+            grid-column: span 1;
+        }
+
+        .modal-body .field.full {
+            grid-column: 1 / -1;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .confirmation-dialog {
+            display: none;
+            position: fixed;
+            z-index: 110;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .confirmation-dialog.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .confirmation-content {
+            background: var(--card);
+            padding: 24px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .confirmation-content h3 {
+            margin: 0 0 12px 0;
+            color: var(--text);
+        }
+
+        .confirmation-content p {
+            margin: 0 0 20px 0;
+            color: var(--muted);
+        }
+
+        .confirmation-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        @media (max-width: 900px) {
+            .toolbar {
+                grid-template-columns: 1fr;
+            }
+
+            .actions {
+                justify-content: flex-start;
+            }
+
+            .modal-body {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-body .field.full {
+                grid-column: 1;
+            }
+        }
+    </style>
+    <script src="/static/js/sucursal_selector.js"></script>
+</head>
+
+<body>
+    <div class="topbar">
+        <div class="topbar-left">
+            <button class="back-btn" onclick="window.location.href='/admin'">← Volver</button>
+            <span class="sucursal-badge" id="sucursalBadge">Sucursal</span>
+            <div class="brand">Gestión de Gastos</div>
+        </div>
+        <div class="topbar-left">
+            <span id="userName">Usuario</span>
+            <button class="logout-btn" onclick="logout()">Cerrar sesión</button>
+        </div>
+    </div>
+
+    <div class="page">
+        <div class="breadcrumb">Menú Principal / Administración / Gestión de Gastos</div>
+        <div class="title-row">
+            <div>
+                <h1 class="title">Registro de Gastos</h1>
+                <p class="subtitle">Filtra, revisa y navega los gastos por estado, usuario, departamento o rango de
+                    monto.</p>
+            </div>
+            <div class="actions">
+                <button class="btn" onclick="window.location.href='/static/categorias_gastos.html'">📋
+                    Categorías</button>
+                <button class="btn btn-secondary" onclick="abrirModalAgregar()">➕ Nuevo Gasto</button>
+                <button class="btn" onclick="limpiarFiltros()">Limpiar</button>
+                <button class="btn btn-primary" onclick="aplicarFiltros()">Buscar</button>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="toolbar">
+                <div class="input-row">
+                    <div class="field">
+                        <label>Folio / Factura</label>
+                        <input type="text" id="filtroFolio" placeholder="Ej. G-1023">
+                    </div>
+                    <div class="field">
+                        <label>Sucursal</label>
+                        <input type="text" id="filtroSucursal" placeholder="Matriz, Norte...">
+                    </div>
+                    <div class="field">
+                        <label>Proveedor</label>
+                        <input type="text" id="filtroProveedor" placeholder="Nombre del proveedor">
+                    </div>
+                    <div class="field">
+                        <label>Categoría</label>
+                        <input type="text" id="filtroCategoria" placeholder="Refacciones, Insumos">
+                    </div>
+                    <div class="field">
+                        <label>Monto aproximado</label>
+                        <input type="number" id="filtroMonto" placeholder="Ej. 1500">
+                    </div>
+                    <div class="field">
+                        <label>Descripción</label>
+                        <input type="text" id="filtroDescripcion" placeholder="Concepto, nota...">
+                    </div>
+                </div>
+                <div class="actions">
+                    <div class="menu-wrap">
+                        <button class="menu-btn" id="menuVerBtn">Ver ▾</button>
+                        <div class="menu" id="menuVer">
+                            <a href="#" data-view="estado">Por estado…</a>
+                            <a href="#" data-view="usuario">Por usuario…</a>
+                            <a href="#" data-view="departamento">Por departamento…</a>
+                            <a href="#" data-view="rango">Rango $ aproximado…</a>
+                        </div>
+                    </div>
+                    <div class="field" style="min-width:220px;">
+                        <label>Fechas</label>
+                        <div style="display:flex; gap:8px;">
+                            <input type="date" id="filtroFechaInicio" style="flex:1;">
+                            <input type="date" id="filtroFechaFin" style="flex:1;">
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="aplicarFiltros()">🔍 Buscar</button>
+                </div>
+            </div>
+
+            <div class="quick-panels">
+                <div class="quick-card" id="panelEstado">
+                    <div class="field">
+                        <label>Filtrar por estado</label>
+                        <div class="chip-row" id="chipsEstado"></div>
+                    </div>
+                </div>
+                <div class="quick-card" id="panelUsuario">
+                    <div class="field">
+                        <label>Filtrar por usuario</label>
+                        <select id="selectUsuario"></select>
+                    </div>
+                </div>
+                <div class="quick-card" id="panelDepartamento">
+                    <div class="field">
+                        <label>Filtrar por departamento</label>
+                        <select id="selectDepartamento"></select>
+                    </div>
+                </div>
+                <div class="quick-card" id="panelRango">
+                    <div class="field">
+                        <label>Rango de monto</label>
+                        <div style="display:flex; gap:8px;">
+                            <input type="number" id="rangoMin" placeholder="Mín" style="flex:1;">
+                            <input type="number" id="rangoMax" placeholder="Máx" style="flex:1;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="summary-row">
+                <span id="resumen">0 resultados</span>
+                <span id="resumenMonto">Monto total: $0.00</span>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Folio</th>
+                        <th>Estado</th>
+                        <th>Fecha</th>
+                        <th>Total</th>
+                        <th>Categoría</th>
+                        <th>Usuario</th>
+                        <th>Departamento</th>
+                        <th>Proveedor</th>
+                        <th>Descripción</th>
+                        <th style="text-align: center; width: 100px;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaGastos"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal para agregar/editar gasto -->
+    <div id="modalGasto" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitulo">Nuevo Gasto</h2>
+                <button class="close-modal" onclick="cerrarModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="field">
+                    <label>Folio *</label>
+                    <input type="text" id="gastoFolio" placeholder="G-1028" required>
+                </div>
+                <div class="field">
+                    <label>Estado *</label>
+                    <select id="gastoEstado" required>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="Pagado">Pagado</option>
+                        <option value="Cancelado">Cancelado</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Fecha *</label>
+                    <input type="date" id="gastoFecha" required>
+                </div>
+                <div class="field">
+                    <label>Total *</label>
+                    <input type="number" id="gastoTotal" placeholder="0.00" step="0.01" required>
+                </div>
+                <div class="field">
+                    <label>Categoría *</label>
+                    <input type="text" id="gastoCategoria" placeholder="Refacciones" required>
+                </div>
+                <div class="field">
+                    <label>Factura</label>
+                    <input type="text" id="gastoFactura" placeholder="F-8812">
+                </div>
+                <div class="field">
+                    <label>Usuario *</label>
+                    <input type="text" id="gastoUsuario" placeholder="Nombre del usuario" required>
+                </div>
+                <div class="field">
+                    <label>Sucursal Origen *</label>
+                    <input type="text" id="gastoSucursalOrigen" placeholder="Matriz" required>
+                </div>
+                <div class="field">
+                    <label>Departamento *</label>
+                    <input type="text" id="gastoDepartamento" placeholder="Ventas" required>
+                </div>
+                <div class="field">
+                    <label>Proveedor</label>
+                    <input type="text" id="gastoProveedor" placeholder="Nombre del proveedor">
+                </div>
+                <div class="field">
+                    <label>Sucursal Destino</label>
+                    <input type="text" id="gastoSucursalDestino" placeholder="Sucursal Norte">
+                </div>
+                <div class="field full">
+                    <label>Descripción</label>
+                    <textarea id="gastoDescripcion" placeholder="Notas sobre el gasto"
+                        style="height: 80px; padding: 8px; border-radius: 10px; border: 1px solid var(--border); font-family: inherit;"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="cerrarModal()">Cancelar</button>
+                <button class="btn btn-primary" id="btnGuardarGasto" onclick="guardarGasto()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmación para eliminar -->
+    <div id="confirmacionEliminar" class="confirmation-dialog">
+        <div class="confirmation-content">
+            <h3>¿Eliminar gasto?</h3>
+            <p id="confirmacionTexto">¿Estás seguro de que deseas eliminar este gasto? Esta acción no se puede deshacer.
+            </p>
+            <div class="confirmation-buttons">
+                <button class="btn" onclick="cerrarConfirmacion()">Cancelar</button>
+                <button class="btn btn-danger" onclick="confirmarEliminar()">Eliminar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const gastosBase = [
+            { id: 1, folio: 'G-1023', estado: 'Pendiente', fecha: '2024-12-18', total: 1850, categoria: 'Refacciones', factura: 'F-8812', usuario: 'Laura Martínez', sucursal_origen: 'Matriz', departamento: 'Ventas', proveedor: 'Autopartes MX', sucursal_destino: 'Sucursal Norte', descripcion: 'Pastillas y balatas para revisión técnica' },
+            { id: 2, folio: 'G-1024', estado: 'Pagado', fecha: '2024-12-22', total: 920, categoria: 'Insumos', factura: 'F-8820', usuario: 'Carlos Pérez', sucursal_origen: 'Matriz', departamento: 'Compras', proveedor: 'Suministros del Norte', sucursal_destino: 'Matriz', descripcion: 'Papelería y etiquetas para inventario' },
+            { id: 3, folio: 'G-1025', estado: 'Pendiente', fecha: '2025-01-05', total: 3120, categoria: 'Servicios', factura: 'F-8890', usuario: 'Laura Martínez', sucursal_origen: 'Sucursal Norte', departamento: 'Ventas', proveedor: 'Servicio Rápido', sucursal_destino: 'Sucursal Norte', descripcion: 'Mantenimiento de racks y estantes' },
+            { id: 4, folio: 'G-1026', estado: 'Cancelado', fecha: '2025-01-08', total: 450, categoria: 'Viáticos', factura: 'F-8899', usuario: 'Diego Rodríguez', sucursal_origen: 'Matriz', departamento: 'Operaciones', proveedor: 'Hotel Central', sucursal_destino: 'Matriz', descripcion: 'Viaje a visita de proveedor' },
+            { id: 5, folio: 'G-1027', estado: 'Pagado', fecha: '2025-01-12', total: 1750, categoria: 'Refacciones', factura: 'F-8905', usuario: 'Ana Karen', sucursal_origen: 'Sucursal Centro', departamento: 'Taller', proveedor: 'Autopartes MX', sucursal_destino: 'Sucursal Centro', descripcion: 'Filtros y correas de motor' }
+        ];
+
+        let gastos = [...gastosBase];
+        let vistaActiva = null;
+        let editandoId = null;
+        let eliminandoId = null;
+        const filtrosRapidos = { estado: null, usuario: null, departamento: null, rango: { min: null, max: null } };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            document.getElementById('userName').textContent = user.name || user.username || 'Usuario';
+
+            // Mostrar sucursal
+            const sucursalNombre = localStorage.getItem('sucursal_nombre');
+            if (sucursalNombre) {
+                document.getElementById('sucursalBadge').textContent = sucursalNombre;
+            }
+
+            cargarOpciones();
+            wiringMenu();
+            setDefaultFechas();
+            aplicarFiltros();
+        });
+
+        function logout() {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('token_type');
+            localStorage.removeItem('user');
+            window.location.href = '/login';
+        }
+
+        function wiringMenu() {
+            const menuBtn = document.getElementById('menuVerBtn');
+            const menu = document.getElementById('menuVer');
+            menuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+            });
+            menu.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const view = link.getAttribute('data-view');
+                    activarPanel(view);
+                    menu.style.display = 'none';
+                });
+            });
+            document.addEventListener('click', (e) => {
+                if (!menu.contains(e.target) && e.target !== menuBtn) menu.style.display = 'none';
+            });
+        }
+
+        function activarPanel(view) {
+            vistaActiva = view;
+            ['panelEstado', 'panelUsuario', 'panelDepartamento', 'panelRango'].forEach(id => document.getElementById(id).classList.remove('active'));
+            if (view === 'estado') document.getElementById('panelEstado').classList.add('active');
+            if (view === 'usuario') document.getElementById('panelUsuario').classList.add('active');
+            if (view === 'departamento') document.getElementById('panelDepartamento').classList.add('active');
+            if (view === 'rango') document.getElementById('panelRango').classList.add('active');
+        }
+
+        function cargarOpciones() {
+            const estados = ['Pendiente', 'Pagado', 'Cancelado'];
+            const chipsEstado = document.getElementById('chipsEstado');
+            chipsEstado.innerHTML = '';
+            estados.forEach(est => {
+                const chip = document.createElement('div');
+                chip.textContent = est;
+                chip.className = 'chip';
+                chip.onclick = () => {
+                    filtrosRapidos.estado = filtrosRapidos.estado === est ? null : est;
+                    chipsEstado.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+                    if (filtrosRapidos.estado) chip.classList.add('active');
+                    aplicarFiltros();
+                };
+                chipsEstado.appendChild(chip);
+            });
+
+            const usuarios = Array.from(new Set(gastos.map(g => g.usuario)));
+            const departamentos = Array.from(new Set(gastos.map(g => g.departamento)));
+            fillSelect('selectUsuario', usuarios, 'usuario');
+            fillSelect('selectDepartamento', departamentos, 'departamento');
+
+            document.getElementById('rangoMin').addEventListener('input', () => { filtrosRapidos.rango.min = numOrNull('rangoMin'); aplicarFiltros(); });
+            document.getElementById('rangoMax').addEventListener('input', () => { filtrosRapidos.rango.max = numOrNull('rangoMax'); aplicarFiltros(); });
+        }
+
+        function fillSelect(id, values, tipo) {
+            const select = document.getElementById(id);
+            select.innerHTML = '<option value="">Todos</option>' + values.map(v => `<option value="${v}">${v}</option>`).join('');
+            select.addEventListener('change', () => {
+                filtrosRapidos[tipo] = select.value || null;
+                aplicarFiltros();
+            });
+        }
+
+        function setDefaultFechas() {
+            const fin = new Date();
+            const inicio = new Date();
+            inicio.setDate(fin.getDate() - 30);
+            document.getElementById('filtroFechaFin').value = fin.toISOString().slice(0, 10);
+            document.getElementById('filtroFechaInicio').value = inicio.toISOString().slice(0, 10);
+        }
+
+        function numOrNull(id) {
+            const val = parseFloat(document.getElementById(id).value);
+            return isNaN(val) ? null : val;
+        }
+
+        function aplicarFiltros() {
+            const folio = document.getElementById('filtroFolio').value.trim().toLowerCase();
+            const sucursal = document.getElementById('filtroSucursal').value.trim().toLowerCase();
+            const proveedor = document.getElementById('filtroProveedor').value.trim().toLowerCase();
+            const categoria = document.getElementById('filtroCategoria').value.trim().toLowerCase();
+            const monto = numOrNull('filtroMonto');
+            const descripcion = document.getElementById('filtroDescripcion').value.trim().toLowerCase();
+            const fechaInicio = document.getElementById('filtroFechaInicio').value;
+            const fechaFin = document.getElementById('filtroFechaFin').value;
+
+            let resultados = [...gastos];
+
+            if (folio) resultados = resultados.filter(g => g.folio.toLowerCase().includes(folio));
+            if (sucursal) resultados = resultados.filter(g => g.sucursal_origen.toLowerCase().includes(sucursal) || (g.sucursal_destino || '').toLowerCase().includes(sucursal));
+            if (proveedor) resultados = resultados.filter(g => (g.proveedor || '').toLowerCase().includes(proveedor));
+            if (categoria) resultados = resultados.filter(g => (g.categoria || '').toLowerCase().includes(categoria));
+            if (descripcion) resultados = resultados.filter(g => (g.descripcion || '').toLowerCase().includes(descripcion));
+            if (monto !== null) resultados = resultados.filter(g => Math.abs(g.total - monto) <= (monto * 0.1));
+
+            if (fechaInicio) resultados = resultados.filter(g => g.fecha >= fechaInicio);
+            if (fechaFin) resultados = resultados.filter(g => g.fecha <= fechaFin);
+
+            if (filtrosRapidos.estado) resultados = resultados.filter(g => g.estado === filtrosRapidos.estado);
+            if (filtrosRapidos.usuario) resultados = resultados.filter(g => g.usuario === filtrosRapidos.usuario);
+            if (filtrosRapidos.departamento) resultados = resultados.filter(g => g.departamento === filtrosRapidos.departamento);
+            const { min, max } = filtrosRapidos.rango;
+            if (min !== null) resultados = resultados.filter(g => g.total >= min);
+            if (max !== null) resultados = resultados.filter(g => g.total <= max);
+
+            renderTabla(resultados);
+        }
+
+        function renderTabla(lista) {
+            const tbody = document.getElementById('tablaGastos');
+            if (!lista.length) {
+                tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; color: var(--muted); padding: 22px;">Sin resultados con los filtros actuales</td></tr>';
+            } else {
+                tbody.innerHTML = lista.map(g => `
+                    <tr>
+                        <td><strong>${g.folio}</strong></td>
+                        <td><span class="estado ${g.estado.toLowerCase()}">${g.estado}</span></td>
+                        <td>${g.fecha}</td>
+                        <td>$${g.total.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</td>
+                        <td>${g.categoria}</td>
+                        <td>${g.usuario}</td>
+                        <td>${g.departamento}</td>
+                        <td>${g.proveedor || '-'}</td>
+                        <td>${g.descripcion || '-'}</td>
+                        <td>
+                            <div class="actions-col">
+                                <button class="btn btn-small btn-edit" onclick="abrirModalEditar(${g.id})" title="Editar">✏️</button>
+                                <button class="btn btn-small btn-danger" onclick="abrirConfirmacionEliminar(${g.id})" title="Eliminar">🗑️</button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            const total = lista.reduce((acc, g) => acc + (g.total || 0), 0);
+            document.getElementById('resumen').textContent = `${lista.length} resultados`;
+            document.getElementById('resumenMonto').textContent = `Monto total: $${total.toLocaleString('es-MX', { minimumFractionDigits: 2 })}`;
+        }
+
+        function limpiarFiltros() {
+            ['filtroFolio', 'filtroSucursal', 'filtroProveedor', 'filtroCategoria', 'filtroMonto', 'filtroDescripcion', 'rangoMin', 'rangoMax'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+            filtrosRapidos.estado = null;
+            filtrosRapidos.usuario = null;
+            filtrosRapidos.departamento = null;
+            filtrosRapidos.rango = { min: null, max: null };
+            document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+            document.getElementById('selectUsuario').value = '';
+            document.getElementById('selectDepartamento').value = '';
+            setDefaultFechas();
+            aplicarFiltros();
+        }
+
+        function abrirModalAgregar() {
+            editandoId = null;
+            limpiarFormulario();
+            document.getElementById('modalTitulo').textContent = 'Nuevo Gasto';
+            document.getElementById('btnGuardarGasto').textContent = 'Crear';
+            document.getElementById('gastoFolio').disabled = false;
+            const modal = document.getElementById('modalGasto');
+            modal.classList.add('show');
+        }
+
+        function abrirModalEditar(id) {
+            const gasto = gastos.find(g => g.id === id);
+            if (!gasto) return;
+
+            editandoId = id;
+            document.getElementById('gastoFolio').value = gasto.folio;
+            document.getElementById('gastoEstado').value = gasto.estado;
+            document.getElementById('gastoFecha').value = gasto.fecha;
+            document.getElementById('gastoTotal').value = gasto.total;
+            document.getElementById('gastoCategoria').value = gasto.categoria;
+            document.getElementById('gastoFactura').value = gasto.factura || '';
+            document.getElementById('gastoUsuario').value = gasto.usuario;
+            document.getElementById('gastoSucursalOrigen').value = gasto.sucursal_origen;
+            document.getElementById('gastoDepartamento').value = gasto.departamento;
+            document.getElementById('gastoProveedor').value = gasto.proveedor || '';
+            document.getElementById('gastoSucursalDestino').value = gasto.sucursal_destino || '';
+            document.getElementById('gastoDescripcion').value = gasto.descripcion || '';
+
+            document.getElementById('modalTitulo').textContent = `Editar Gasto ${gasto.folio}`;
+            document.getElementById('btnGuardarGasto').textContent = 'Actualizar';
+            document.getElementById('gastoFolio').disabled = true;
+            const modal = document.getElementById('modalGasto');
+            modal.classList.add('show');
+        }
+
+        function cerrarModal() {
+            document.getElementById('modalGasto').classList.remove('show');
+            limpiarFormulario();
+            editandoId = null;
+        }
+
+        function limpiarFormulario() {
+            ['gastoFolio', 'gastoEstado', 'gastoFecha', 'gastoTotal', 'gastoCategoria', 'gastoFactura', 'gastoUsuario', 'gastoSucursalOrigen', 'gastoDepartamento', 'gastoProveedor', 'gastoSucursalDestino', 'gastoDescripcion'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el.tagName === 'TEXTAREA') {
+                    el.value = '';
+                } else if (el.tagName === 'SELECT') {
+                    el.value = 'Pendiente';
+                } else {
+                    el.value = '';
+                }
+            });
+        }
+
+        function guardarGasto() {
+            const folio = document.getElementById('gastoFolio').value.trim();
+            const estado = document.getElementById('gastoEstado').value;
+            const fecha = document.getElementById('gastoFecha').value;
+            const total = parseFloat(document.getElementById('gastoTotal').value);
+            const categoria = document.getElementById('gastoCategoria').value.trim();
+            const factura = document.getElementById('gastoFactura').value.trim();
+            const usuario = document.getElementById('gastoUsuario').value.trim();
+            const sucursal_origen = document.getElementById('gastoSucursalOrigen').value.trim();
+            const departamento = document.getElementById('gastoDepartamento').value.trim();
+            const proveedor = document.getElementById('gastoProveedor').value.trim();
+            const sucursal_destino = document.getElementById('gastoSucursalDestino').value.trim();
+            const descripcion = document.getElementById('gastoDescripcion').value.trim();
+
+            if (!folio || !fecha || !total || !categoria || !usuario || !sucursal_origen || !departamento) {
+                alert('Por favor completa todos los campos requeridos');
+                return;
+            }
+
+            if (editandoId === null) {
+                if (gastos.some(g => g.folio === folio)) {
+                    alert('Ya existe un gasto con este folio');
+                    return;
+                }
+                const nuevoId = Math.max(...gastos.map(g => g.id), 0) + 1;
+                gastos.push({
+                    id: nuevoId,
+                    folio,
+                    estado,
+                    fecha,
+                    total,
+                    categoria,
+                    factura,
+                    usuario,
+                    sucursal_origen,
+                    departamento,
+                    proveedor,
+                    sucursal_destino,
+                    descripcion
+                });
+                alert('Gasto agregado exitosamente');
+            } else {
+                const index = gastos.findIndex(g => g.id === editandoId);
+                if (index !== -1) {
+                    gastos[index] = {
+                        id: editandoId,
+                        folio,
+                        estado,
+                        fecha,
+                        total,
+                        categoria,
+                        factura,
+                        usuario,
+                        sucursal_origen,
+                        departamento,
+                        proveedor,
+                        sucursal_destino,
+                        descripcion
+                    };
+                    alert('Gasto actualizado exitosamente');
+                }
+            }
+
+            cerrarModal();
+            cargarOpciones();
+            aplicarFiltros();
+        }
+
+        function abrirConfirmacionEliminar(id) {
+            eliminandoId = id;
+            const gasto = gastos.find(g => g.id === id);
+            document.getElementById('confirmacionTexto').textContent = `¿Estás seguro de que deseas eliminar el gasto ${gasto.folio}? Esta acción no se puede deshacer.`;
+            document.getElementById('confirmacionEliminar').classList.add('show');
+        }
+
+        function cerrarConfirmacion() {
+            document.getElementById('confirmacionEliminar').classList.remove('show');
+            eliminandoId = null;
+        }
+
+        function confirmarEliminar() {
+            if (eliminandoId !== null) {
+                gastos = gastos.filter(g => g.id !== eliminandoId);
+                alert('Gasto eliminado exitosamente');
+                cerrarConfirmacion();
+                cargarOpciones();
+                aplicarFiltros();
+            }
+        }
+
+        window.addEventListener('click', (e) => {
+            const modal = document.getElementById('modalGasto');
+            const confirmacion = document.getElementById('confirmacionEliminar');
+            if (e.target === modal) {
+                cerrarModal();
+            }
+            if (e.target === confirmacion) {
+                cerrarConfirmacion();
+            }
+        });
+    </script>
+</body>
+
+</html>

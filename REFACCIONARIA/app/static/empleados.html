@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REFACCIONARIA - Empleados</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --primary-red: #c41e3a;
+            --dark-red: #8b1428;
+            --light-bg: #f5f5f5;
+            --white: #ffffff;
+            --text-dark: #333333;
+            --border-color: #d4a574;
+            --muted: #6b7280;
+            --shadow: 0 12px 24px rgba(0, 0, 0, 0.06);
+            --radius: 10px;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-bg);
+            color: var(--text-dark);
+            min-height: 100vh;
+        }
+
+        .top-bar {
+            background-color: var(--primary-red);
+            color: var(--white);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .back-btn {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: var(--white);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin-right: auto;
+        }
+
+        .back-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.8);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logout-btn {
+            background-color: var(--dark-red);
+            color: var(--white);
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+
+        .logout-btn:hover {
+            background-color: #6a0f1f;
+        }
+
+        .sucursal-badge {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sucursal-badge::before {
+            content: "📍";
+        }
+
+        .main-content {
+            margin-top: 80px;
+            padding: 30px 40px 50px;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .breadcrumb {
+            color: var(--text-dark);
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .breadcrumb a {
+            color: var(--primary-red);
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .page-title {
+            color: var(--primary-red);
+            font-size: 28px;
+            margin-bottom: 6px;
+        }
+
+        .page-subtitle {
+            color: #666;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .actions-top {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            border: 1px solid var(--border-color);
+            background: var(--white);
+            color: var(--text-dark);
+            height: 42px;
+            padding: 0 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            transition: transform 0.12s ease, box-shadow 0.15s ease, border 0.15s ease;
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+            border-color: #c98e4d;
+        }
+
+        .btn-primary {
+            background: var(--primary-red);
+            color: #fff;
+            border-color: var(--primary-red);
+        }
+
+        .btn-primary:hover {
+            background: var(--dark-red);
+            border-color: var(--dark-red);
+        }
+
+        .panel {
+            background: var(--white);
+            border: 1px solid #e5d5b8;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 18px;
+            margin-top: 12px;
+        }
+
+        .toolbar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            align-items: end;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .field label {
+            font-size: 13px;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        .field input,
+        .field select {
+            height: 40px;
+            padding: 0 12px;
+            border-radius: 10px;
+            border: 1px solid #e5d5b8;
+            background: #fdfdfd;
+            font-size: 14px;
+        }
+
+        .field input:focus,
+        .field select:focus {
+            outline: none;
+            border-color: var(--primary-red);
+            box-shadow: 0 0 0 3px rgba(196, 30, 58, 0.15);
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: 10px;
+            border: 1px solid #e5d5b8;
+            margin-top: 16px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5d5b8;
+            font-size: 13px;
+        }
+
+        th {
+            background: #faf4ea;
+            color: var(--muted);
+            font-weight: 700;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        tbody tr:hover {
+            background: #f9f4ed;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-block;
+        }
+
+        .badge-activo {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-inactivo {
+            background: #fecaca;
+            color: #991b1b;
+        }
+
+        .actions-cell {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-icon {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 4px 6px;
+            border-radius: 6px;
+            transition: background 0.15s ease;
+        }
+
+        .btn-icon:hover {
+            background: #f3f4f6;
+        }
+
+        .no-results,
+        .loading {
+            text-align: center;
+            padding: 32px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.45);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--white);
+            padding: 24px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 620px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            border-bottom: 1px solid #e5d5b8;
+            padding-bottom: 10px;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--muted);
+        }
+
+        .modal-body {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #e5d5b8;
+            font-family: inherit;
+        }
+
+        @media (max-width: 900px) {
+            .main-content {
+                padding: 20px;
+            }
+
+            .toolbar {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-body {
+                grid-template-columns: 1fr;
+            }
+
+            th,
+            td {
+                padding: 10px 8px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="top-bar">
+        <button class="back-btn" onclick="window.location.href='/static/rrhh.html'">← VOLVER</button>
+        <div class="user-info">
+            <span class="sucursal-badge" id="sucursalBadge">Sucursal</span>
+            <div>
+                <p>Bienvenido, <strong id="userName">Usuario</strong></p>
+            </div>
+            <button class="logout-btn" onclick="logout()">CERRAR SESIÓN</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="breadcrumb">
+            <a onclick="window.location.href='/static/dashboard.html'">Menú Principal</a> >
+            <a onclick="window.location.href='/static/rrhh.html'">Recursos Humanos</a> >
+            <span>Empleados</span>
+        </div>
+
+        <div class="header-row">
+            <div>
+                <h2 class="page-title">Empleados</h2>
+                <p class="page-subtitle">Consulta, agrega, edita o elimina empleados.</p>
+            </div>
+            <div class="actions-top">
+                <button class="btn btn-primary" onclick="abrirModal()">➕ Nuevo empleado</button>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="toolbar">
+                <div class="field">
+                    <label>Nombre / Apellido</label>
+                    <input type="text" id="filtroNombre" placeholder="Buscar por nombre o apellido">
+                </div>
+                <div class="field">
+                    <label>Puesto</label>
+                    <input type="text" id="filtroPuesto" placeholder="Ej. Vendedor">
+                </div>
+                <div class="field">
+                    <label>Departamento</label>
+                    <input type="text" id="filtroDepartamento" placeholder="Ej. Ventas">
+                </div>
+                <div class="field">
+                    <label>Sucursal</label>
+                    <input type="text" id="filtroSucursal" placeholder="Ej. Matriz">
+                </div>
+                <div class="field">
+                    <label>Activo</label>
+                    <select id="filtroActivo">
+                        <option value="">Todos</option>
+                        <option value="si">Sí</option>
+                        <option value="no">No</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Fecha Alta (desde)</label>
+                    <input type="date" id="filtroFechaInicio">
+                </div>
+                <div class="field">
+                    <label>Fecha Alta (hasta)</label>
+                    <input type="date" id="filtroFechaFin">
+                </div>
+                <button class="btn" onclick="buscarEmpleados()">🔎 Filtrar</button>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Puesto</th>
+                            <th>Departamento</th>
+                            <th>Sucursal</th>
+                            <th>Fecha Alta</th>
+                            <th>Fecha Baja</th>
+                            <th>Organización</th>
+                            <th>Activo</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="empleadosBody">
+                        <tr>
+                            <td colspan="9" class="loading">Cargando empleados...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modalEmpleado" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitulo">Nuevo empleado</h2>
+                <button class="close-modal" onclick="cerrarModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="field">
+                    <label>Nombre completo*</label>
+                    <input type="text" id="inputNombre" placeholder="Ej. César Miguel Ramos">
+                </div>
+                <div class="field">
+                    <label>Puesto*</label>
+                    <input type="text" id="inputPuesto" placeholder="Ej. Vendedor">
+                </div>
+                <div class="field">
+                    <label>Departamento</label>
+                    <input type="text" id="inputDepartamento" placeholder="Ej. Ventas">
+                </div>
+                <div class="field">
+                    <label>Sucursal</label>
+                    <input type="text" id="inputSucursal" placeholder="Ej. Matriz">
+                </div>
+                <div class="field">
+                    <label>Organización</label>
+                    <input type="text" id="inputOrganizacion" placeholder="Ej. Refaccionaria Oviedo">
+                </div>
+                <div class="field">
+                    <label>Fecha alta</label>
+                    <input type="date" id="inputFechaAlta">
+                </div>
+                <div class="field">
+                    <label>Fecha baja</label>
+                    <input type="date" id="inputFechaBaja">
+                </div>
+                <div class="field">
+                    <label>Activo</label>
+                    <select id="inputActivo">
+                        <option value="si">Sí</option>
+                        <option value="no">No</option>
+                    </select>
+                </div>
+                <div class="field" style="grid-column: 1 / -1;">
+                    <label>Notas</label>
+                    <textarea id="inputNotas" placeholder="Observaciones relevantes"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="cerrarModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="guardarEmpleado()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let empleados = [];
+        let indiceEditando = null;
+        const token = localStorage.getItem('access_token');
+
+        const datosEjemplo = [
+            { nombre: 'ADMINISTRADOR PRINCIPAL', puesto: 'DIRECTOR GRAL.', departamento: 'DIRECCION', sucursal: 'MATRIZ', fecha_alta: '2023-09-11', fecha_baja: '', organizacion: 'REFACCIONARIA OVIEDO', activo: true, notas: '' },
+            { nombre: 'CESAR MIGUEL RAMOS BARCENAS', puesto: 'VENDEDOR', departamento: 'VENTAS', sucursal: 'MATRIZ', fecha_alta: '2022-03-29', fecha_baja: '', organizacion: 'REFACCIONARIA OVIEDO', activo: true, notas: 'Responsable de mostrador' },
+            { nombre: 'KAREN SOTO', puesto: 'COMPRAS', departamento: 'ADMON', sucursal: 'CEDIS', fecha_alta: '2021-07-15', fecha_baja: '', organizacion: 'REFACCIONARIA OVIEDO', activo: true, notas: '' },
+            { nombre: 'ALFREDO PEREZ', puesto: 'REPARTIDOR', departamento: 'LOGISTICA', sucursal: 'CEDIS', fecha_alta: '2020-11-02', fecha_baja: '2024-01-10', organizacion: 'REFACCIONARIA OVIEDO', activo: false, notas: 'Baja voluntaria' }
+        ];
+
+        if (!token) {
+            window.location.href = '/static/login.html';
+        }
+
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        document.getElementById('userName').textContent = user.name || user.username || 'Usuario';
+
+        // Mostrar sucursal
+        const sucursalNombre = localStorage.getItem('sucursal_nombre');
+        if (sucursalNombre) {
+            document.getElementById('sucursalBadge').textContent = sucursalNombre;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            cargarEmpleados();
+            document.getElementById('filtroNombre').addEventListener('input', buscarEmpleados);
+            document.getElementById('filtroPuesto').addEventListener('input', buscarEmpleados);
+            document.getElementById('filtroDepartamento').addEventListener('input', buscarEmpleados);
+            document.getElementById('filtroSucursal').addEventListener('input', buscarEmpleados);
+            document.getElementById('filtroActivo').addEventListener('change', buscarEmpleados);
+            document.getElementById('filtroFechaInicio').addEventListener('change', buscarEmpleados);
+            document.getElementById('filtroFechaFin').addEventListener('change', buscarEmpleados);
+        });
+
+        async function cargarEmpleados() {
+            const tbody = document.getElementById('empleadosBody');
+            tbody.innerHTML = '<tr><td colspan="9" class="loading">Cargando empleados...</td></tr>';
+            try {
+                let response = await fetch('/api/v1/empleados', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                if (!response.ok && response.status === 404) {
+                    response = await fetch('/api/v1/empleados/', { headers: { 'Authorization': 'Bearer ' + token } });
+                }
+                if (response.ok) {
+                    const data = await response.json();
+                    if (Array.isArray(data)) empleados = data; else if (Array.isArray(data.data)) empleados = data.data; else empleados = datosEjemplo;
+                } else {
+                    empleados = datosEjemplo;
+                }
+            } catch (e) {
+                console.error(e);
+                empleados = datosEjemplo;
+            }
+            mostrarEmpleados(empleados);
+        }
+
+        function mostrarEmpleados(lista) {
+            const tbody = document.getElementById('empleadosBody');
+            if (!lista || lista.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="no-results">No hay empleados para mostrar.</td></tr>';
+                return;
+            }
+            let html = '';
+            for (let i = 0; i < lista.length; i++) {
+                const e = lista[i];
+                const badge = e.activo ? '<span class="badge badge-activo">Sí</span>' : '<span class="badge badge-inactivo">No</span>';
+                const fechaAlta = e.fecha_alta || '';
+                const fechaBaja = e.fecha_baja || '';
+                const idx = empleados.indexOf(e);
+                html += '<tr>';
+                html += '<td><strong>' + (e.nombre || '') + '</strong></td>';
+                html += '<td>' + (e.puesto || '') + '</td>';
+                html += '<td>' + (e.departamento || '') + '</td>';
+                html += '<td>' + (e.sucursal || '') + '</td>';
+                html += '<td>' + fechaAlta + '</td>';
+                html += '<td>' + (fechaBaja || '-') + '</td>';
+                html += '<td>' + (e.organizacion || '') + '</td>';
+                html += '<td>' + badge + '</td>';
+                html += '<td><div class="actions-cell"><button class="btn-icon" title="Editar" onclick="editarEmpleado(' + idx + ')">✏️</button><button class="btn-icon" title="Eliminar" onclick="eliminarEmpleado(' + idx + ')">🗑️</button></div></td>';
+                html += '</tr>';
+            }
+            tbody.innerHTML = html;
+        }
+
+        function buscarEmpleados() {
+            const texto = document.getElementById('filtroNombre').value.toLowerCase();
+            const puesto = document.getElementById('filtroPuesto').value.toLowerCase();
+            const depto = document.getElementById('filtroDepartamento').value.toLowerCase();
+            const sucursal = document.getElementById('filtroSucursal').value.toLowerCase();
+            const activo = document.getElementById('filtroActivo').value;
+            const desde = document.getElementById('filtroFechaInicio').value;
+            const hasta = document.getElementById('filtroFechaFin').value;
+
+            const filtrados = [];
+            for (let i = 0; i < empleados.length; i++) {
+                const e = empleados[i];
+                const cumpleTexto = !texto || (e.nombre && e.nombre.toLowerCase().indexOf(texto) >= 0);
+                const cumplePuesto = !puesto || (e.puesto && e.puesto.toLowerCase().indexOf(puesto) >= 0);
+                const cumpleDepto = !depto || (e.departamento && e.departamento.toLowerCase().indexOf(depto) >= 0);
+                const cumpleSucursal = !sucursal || (e.sucursal && e.sucursal.toLowerCase().indexOf(sucursal) >= 0);
+                const cumpleActivo = !activo || (activo === 'si' && e.activo) || (activo === 'no' && !e.activo);
+                const cumpleDesde = !desde || (e.fecha_alta && e.fecha_alta >= desde);
+                const cumpleHasta = !hasta || (e.fecha_alta && e.fecha_alta <= hasta);
+                if (cumpleTexto && cumplePuesto && cumpleDepto && cumpleSucursal && cumpleActivo && cumpleDesde && cumpleHasta) {
+                    filtrados.push(e);
+                }
+            }
+            mostrarEmpleados(filtrados);
+        }
+
+        function abrirModal() {
+            indiceEditando = null;
+            document.getElementById('modalTitulo').textContent = 'Nuevo empleado';
+            document.getElementById('inputNombre').value = '';
+            document.getElementById('inputPuesto').value = '';
+            document.getElementById('inputDepartamento').value = '';
+            document.getElementById('inputSucursal').value = '';
+            document.getElementById('inputOrganizacion').value = '';
+            document.getElementById('inputFechaAlta').value = '';
+            document.getElementById('inputFechaBaja').value = '';
+            document.getElementById('inputActivo').value = 'si';
+            document.getElementById('inputNotas').value = '';
+            document.getElementById('modalEmpleado').classList.add('show');
+        }
+
+        function cerrarModal() {
+            document.getElementById('modalEmpleado').classList.remove('show');
+            indiceEditando = null;
+        }
+
+        function editarEmpleado(idx) {
+            indiceEditando = idx;
+            const e = empleados[idx];
+            document.getElementById('modalTitulo').textContent = 'Editar empleado';
+            document.getElementById('inputNombre').value = e.nombre || '';
+            document.getElementById('inputPuesto').value = e.puesto || '';
+            document.getElementById('inputDepartamento').value = e.departamento || '';
+            document.getElementById('inputSucursal').value = e.sucursal || '';
+            document.getElementById('inputOrganizacion').value = e.organizacion || '';
+            document.getElementById('inputFechaAlta').value = e.fecha_alta || '';
+            document.getElementById('inputFechaBaja').value = e.fecha_baja || '';
+            document.getElementById('inputActivo').value = e.activo ? 'si' : 'no';
+            document.getElementById('inputNotas').value = e.notas || '';
+            document.getElementById('modalEmpleado').classList.add('show');
+        }
+
+        function guardarEmpleado() {
+            const nombre = document.getElementById('inputNombre').value.trim();
+            const puesto = document.getElementById('inputPuesto').value.trim();
+            if (!nombre || !puesto) { alert('Nombre y puesto son obligatorios'); return; }
+            const data = {
+                nombre: nombre,
+                puesto: puesto,
+                departamento: document.getElementById('inputDepartamento').value.trim(),
+                sucursal: document.getElementById('inputSucursal').value.trim(),
+                organizacion: document.getElementById('inputOrganizacion').value.trim(),
+                fecha_alta: document.getElementById('inputFechaAlta').value,
+                fecha_baja: document.getElementById('inputFechaBaja').value,
+                activo: document.getElementById('inputActivo').value === 'si',
+                notas: document.getElementById('inputNotas').value.trim()
+            };
+            if (indiceEditando !== null) {
+                empleados[indiceEditando] = data;
+            } else {
+                empleados.unshift(data);
+            }
+            mostrarEmpleados(empleados);
+            cerrarModal();
+            alert('✓ Empleado guardado');
+        }
+
+        function eliminarEmpleado(idx) {
+            if (confirm('¿Eliminar este empleado?')) {
+                empleados.splice(idx, 1);
+                mostrarEmpleados(empleados);
+                alert('✓ Empleado eliminado');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('token_type');
+            localStorage.removeItem('user');
+            window.location.href = '/static/login.html';
+        }
+
+        window.onclick = function (event) {
+            const modal = document.getElementById('modalEmpleado');
+            if (event.target === modal) { cerrarModal(); }
+        }
+    </script>
+</body>
+
+</html>

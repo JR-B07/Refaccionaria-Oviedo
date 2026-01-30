@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REFACCIONARIA - Detalle de Proveedor</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-red: #c41e3a;
+            --dark-red: #8b1428;
+            --light-bg: #f5f5f5;
+            --white: #ffffff;
+            --text-dark: #333333;
+            --border-color: #d4a574;
+            --sidebar-bg: #2c2c2c;
+            --sidebar-text: #ffffff;
+            --section-blue: #1a237e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-bg);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .sidebar-header h3 {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .menu-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: rgba(255, 255, 255, 0.7);
+            border-left: 4px solid transparent;
+        }
+
+        .menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+        }
+
+        .menu-item.active {
+            background-color: rgba(196, 30, 58, 0.3);
+            border-left: 4px solid var(--primary-red);
+            color: var(--white);
+            font-weight: 600;
+        }
+
+        .menu-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .main-container {
+            flex: 1;
+            margin-left: 250px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .top-bar {
+            background-color: var(--primary-red);
+            color: var(--white);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .top-bar h1 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .action-bar {
+            background-color: var(--white);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e0e0e0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-red);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--dark-red);
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: var(--white);
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            color: var(--white);
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid #ddd;
+            color: var(--text-dark);
+        }
+
+        .btn-outline:hover {
+            background-color: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .status-active {
+            background-color: #28a745;
+            color: var(--white);
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .section {
+            background-color: var(--white);
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-title {
+            color: var(--section-blue);
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-red);
+            box-shadow: 0 0 0 2px rgba(196, 30, 58, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .sucursal-badge {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sucursal-badge::before {
+            content: "📍";
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            margin-top: 5px;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .radio-item input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary-red);
+        }
+
+        .radio-item label {
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .error-message.active {
+            display: block;
+        }
+
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .success-message.active {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+
+            .main-container {
+                margin-left: 200px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h3>ADMINISTRADOR GENERAL SYSDATAN</h3>
+        </div>
+        <div class="menu-item active" onclick="window.location.href='/proveedores'">
+            <i class="fas fa-home"></i>
+            <span>MENU PRINCIPAL</span>
+        </div>
+        <div class="menu-item" onclick="window.location.href='/admin'">
+            <i class="fas fa-cog"></i>
+            <span>ADMINISTRACIÓN</span>
+        </div>
+        <div class="menu-item" onclick="window.location.href='/almacen'">
+            <i class="fas fa-warehouse"></i>
+            <span>ALMACEN</span>
+        </div>
+        <div class="menu-item" onclick="window.location.href='/compras'">
+            <i class="fas fa-shopping-cart"></i>
+            <span>COMPRAS</span>
+        </div>
+        <div class="menu-item" onclick="window.location.href='/ventas'">
+            <i class="fas fa-cash-register"></i>
+            <span>PUNTO DE VENTA</span>
+        </div>
+        <div class="menu-item" onclick="window.location.href='/rrhh'">
+            <i class="fas fa-users"></i>
+            <span>RECURSOS HUMANOS</span>
+        </div>
+        <div class="menu-item" onclick="window.location.href='/reportes'">
+            <i class="fas fa-chart-bar"></i>
+            <span>HERRAMIENTAS</span>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <h1>REFACCIONARIA ERP - DETALLE DE PROVEEDOR</h1>
+            <span class="sucursal-badge" id="sucursalBadge">Sucursal</span>
+        </div>
+
+        <!-- Action Bar -->
+        <div class="action-bar">
+            <div class="action-buttons">
+                <button class="btn btn-outline" onclick="navegarAnterior()">
+                    <i class="fas fa-arrow-left"></i> Anterior
+                </button>
+                <button class="btn btn-outline" onclick="navegarSiguiente()">
+                    Siguiente <i class="fas fa-arrow-right"></i>
+                </button>
+                <button class="btn btn-outline" onclick="nuevoProveedor()">
+                    <i class="fas fa-plus"></i> Nuevo
+                </button>
+                <button class="btn btn-secondary" onclick="descartarCambios()">
+                    <i class="fas fa-times"></i> Descartar
+                </button>
+                <button class="btn btn-primary" onclick="guardarProveedor()">
+                    <i class="fas fa-save"></i> Guardar
+                </button>
+            </div>
+            <div class="status-badge status-active" id="statusBadge">ACTIVO</div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
+
+            <div class="loading" id="loading">
+                <i class="fas fa-spinner fa-spin" style="font-size: 48px; color: var(--primary-red);"></i>
+                <p>Cargando...</p>
+            </div>
+
+            <div id="formContent">
+                <!-- ACCESO RAPIDO -->
+                <div class="section">
+                    <h2 class="section-title">ACCESO RAPIDO</h2>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="clave">Clave *</label>
+                            <input type="text" id="clave" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="nombre">Nombre *</label>
+                            <input type="text" id="nombre" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="rfc">RFC</label>
+                            <input type="text" id="rfc">
+                        </div>
+                        <div class="form-group">
+                            <label for="web">Web</label>
+                            <input type="url" id="web">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DIRECCION -->
+                <div class="section">
+                    <h2 class="section-title">DIRECCION</h2>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="calle">Calle</label>
+                            <input type="text" id="calle">
+                        </div>
+                        <div class="form-group">
+                            <label for="numero_exterior">No. Exterior</label>
+                            <input type="text" id="numero_exterior">
+                        </div>
+                        <div class="form-group">
+                            <label for="numero_interior">No. Interior</label>
+                            <input type="text" id="numero_interior">
+                        </div>
+                        <div class="form-group">
+                            <label for="colonia">Colonia</label>
+                            <input type="text" id="colonia">
+                        </div>
+                        <div class="form-group">
+                            <label for="codigo_postal">Código Postal</label>
+                            <input type="text" id="codigo_postal">
+                        </div>
+                        <div class="form-group">
+                            <label for="municipio">Municipio</label>
+                            <input type="text" id="municipio">
+                        </div>
+                        <div class="form-group">
+                            <label for="estado">Estado</label>
+                            <select id="estado">
+                                <option value="">Seleccionar...</option>
+                                <option value="AGUASCALIENTES">Aguascalientes</option>
+                                <option value="BAJA CALIFORNIA">Baja California</option>
+                                <option value="BAJA CALIFORNIA SUR">Baja California Sur</option>
+                                <option value="CAMPECHE">Campeche</option>
+                                <option value="CHIAPAS">Chiapas</option>
+                                <option value="CHIHUAHUA">Chihuahua</option>
+                                <option value="CIUDAD DE MEXICO">Ciudad de México</option>
+                                <option value="COAHUILA">Coahuila</option>
+                                <option value="COLIMA">Colima</option>
+                                <option value="DURANGO">Durango</option>
+                                <option value="GUANAJUATO">Guanajuato</option>
+                                <option value="GUERRERO">Guerrero</option>
+                                <option value="HIDALGO">Hidalgo</option>
+                                <option value="JALISCO">Jalisco</option>
+                                <option value="MEXICO">México</option>
+                                <option value="MICHOACAN">Michoacán</option>
+                                <option value="MORELOS">Morelos</option>
+                                <option value="NAYARIT">Nayarit</option>
+                                <option value="NUEVO LEON">Nuevo León</option>
+                                <option value="OAXACA">Oaxaca</option>
+                                <option value="PUEBLA">Puebla</option>
+                                <option value="QUERETARO">Querétaro</option>
+                                <option value="QUINTANA ROO">Quintana Roo</option>
+                                <option value="SAN LUIS POTOSI">San Luis Potosí</option>
+                                <option value="SINALOA">Sinaloa</option>
+                                <option value="SONORA">Sonora</option>
+                                <option value="TABASCO">Tabasco</option>
+                                <option value="TAMAULIPAS">Tamaulipas</option>
+                                <option value="TLAXCALA">Tlaxcala</option>
+                                <option value="VERACRUZ">Veracruz</option>
+                                <option value="YUCATAN">Yucatán</option>
+                                <option value="ZACATECAS">Zacatecas</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="ciudad">Ciudad</label>
+                            <input type="text" id="ciudad">
+                        </div>
+                        <div class="form-group">
+                            <label for="pais">País</label>
+                            <select id="pais">
+                                <option value="MEXICO" selected>MEXICO</option>
+                                <option value="USA">USA</option>
+                                <option value="CANADA">CANADA</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- INFORMACION PARA COMPRAS -->
+                <div class="section">
+                    <h2 class="section-title">INFORMACION PARA COMPRAS</h2>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="contacto_compras_nombre">Nombre de Contacto</label>
+                            <input type="text" id="contacto_compras_nombre">
+                        </div>
+                        <div class="form-group">
+                            <label for="contacto_compras_email">E-Mail</label>
+                            <input type="email" id="contacto_compras_email">
+                        </div>
+                        <div class="form-group">
+                            <label for="contacto_compras_telefono">Teléfono</label>
+                            <input type="tel" id="contacto_compras_telefono">
+                        </div>
+                        <div class="form-group">
+                            <label for="lista_precios_compra">Lista Precios de Compra</label>
+                            <select id="lista_precios_compra">
+                                <option value="ninguna">ninguna</option>
+                                <option value="lista1">Lista 1</option>
+                                <option value="lista2">Lista 2</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="dias_entrega">Días de Entrega</label>
+                            <input type="number" id="dias_entrega" min="0" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Tipo de moneda</label>
+                            <div class="radio-group">
+                                <div class="radio-item">
+                                    <input type="radio" id="moneda_pesos" name="tipo_moneda" value="pesos" checked>
+                                    <label for="moneda_pesos">$ Pesos Mexicanos</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="moneda_dolares" name="tipo_moneda" value="dolares">
+                                    <label for="moneda_dolares">$$ Dolares Americanos</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- INFORMACION DE DESCUENTOS -->
+                <div class="section">
+                    <h2 class="section-title">INFORMACION DE DESCUENTOS</h2>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="descuento_factura">Descuento Factura (%)</label>
+                            <input type="number" id="descuento_factura" min="0" max="100" step="0.01" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="descuento_listas_precio">Descuento Listas Precio (%)</label>
+                            <input type="number" id="descuento_listas_precio" min="0" max="100" step="0.01" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="descuento_producto_factura">Descuento Producto Factura (%)</label>
+                            <input type="number" id="descuento_producto_factura" min="0" max="100" step="0.01"
+                                value="0">
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="notas_compras">Notas para compras</label>
+                            <textarea id="notas_compras"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- INFORMACION PARA FINANZAS -->
+                <div class="section">
+                    <h2 class="section-title">INFORMACION PARA FINANZAS</h2>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="contacto_finanzas_nombre">Nombre de Contacto</label>
+                            <input type="text" id="contacto_finanzas_nombre">
+                        </div>
+                        <div class="form-group">
+                            <label for="contacto_finanzas_email">E-Mail</label>
+                            <input type="email" id="contacto_finanzas_email">
+                        </div>
+                        <div class="form-group">
+                            <label for="contacto_finanzas_telefono">Teléfono</label>
+                            <input type="tel" id="contacto_finanzas_telefono">
+                        </div>
+                        <div class="form-group">
+                            <label for="forma_pago">Forma de Pago</label>
+                            <select id="forma_pago">
+                                <option value="contado">CONTADO</option>
+                                <option value="credito">CREDITO</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="dias_credito">Días de Crédito</label>
+                            <input type="number" id="dias_credito" min="0" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="saldo">Saldo</label>
+                            <input type="number" id="saldo" min="0" step="0.01" value="0">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let proveedorId = null;
+        let proveedoresList = [];
+        let currentIndex = -1;
+
+        // Obtener ID del proveedor de la URL
+        document.addEventListener('DOMContentLoaded', async function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            proveedorId = urlParams.get('id');
+
+            // Mostrar sucursal
+            const sucursalNombre = localStorage.getItem('sucursal_nombre');
+            if (sucursalNombre) {
+                document.getElementById('sucursalBadge').textContent = sucursalNombre;
+            }
+
+            if (proveedorId) {
+                await cargarProveedor(proveedorId);
+            } else {
+                // Modo nuevo
+                document.getElementById('formContent').style.display = 'block';
+            }
+
+            // Cargar lista de proveedores para navegación
+            await cargarListaProveedores();
+        });
+
+        async function cargarListaProveedores() {
+            try {
+                const token = localStorage.getItem('access_token');
+                const headers = {
+                    'Content-Type': 'application/json'
+                };
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
+
+                const response = await fetch('/api/v1/proveedores', {
+                    method: 'GET',
+                    headers: headers
+                });
+
+                if (response.ok) {
+                    proveedoresList = await response.json();
+                    if (proveedorId) {
+                        currentIndex = proveedoresList.findIndex(p => p.id === parseInt(proveedorId));
+                    }
+                }
+            } catch (error) {
+                console.error('Error al cargar lista:', error);
+            }
+        }
+
+        async function cargarProveedor(id) {
+            document.getElementById('loading').classList.add('active');
+            document.getElementById('formContent').style.display = 'none';
+
+            try {
+                const token = localStorage.getItem('access_token');
+                const headers = {
+                    'Content-Type': 'application/json'
+                };
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
+
+                const response = await fetch(`/api/v1/proveedores/${id}`, {
+                    method: 'GET',
+                    headers: headers
+                });
+
+                if (response.ok) {
+                    const proveedor = await response.json();
+                    llenarFormulario(proveedor);
+                    document.getElementById('formContent').style.display = 'block';
+                } else {
+                    mostrarError('Error al cargar el proveedor');
+                }
+            } catch (error) {
+                mostrarError('Error al cargar el proveedor: ' + error.message);
+            } finally {
+                document.getElementById('loading').classList.remove('active');
+            }
+        }
+
+        function llenarFormulario(proveedor) {
+            document.getElementById('clave').value = proveedor.clave || '';
+            document.getElementById('nombre').value = proveedor.nombre || '';
+            document.getElementById('rfc').value = proveedor.rfc || '';
+            document.getElementById('web').value = proveedor.web || '';
+
+            document.getElementById('calle').value = proveedor.calle || '';
+            document.getElementById('numero_exterior').value = proveedor.numero_exterior || '';
+            document.getElementById('numero_interior').value = proveedor.numero_interior || '';
+            document.getElementById('colonia').value = proveedor.colonia || '';
+            document.getElementById('codigo_postal').value = proveedor.codigo_postal || '';
+            document.getElementById('municipio').value = proveedor.municipio || '';
+            document.getElementById('estado').value = proveedor.estado || '';
+            document.getElementById('ciudad').value = proveedor.ciudad || '';
+            document.getElementById('pais').value = proveedor.pais || 'MEXICO';
+
+            document.getElementById('contacto_compras_nombre').value = proveedor.contacto_compras_nombre || '';
+            document.getElementById('contacto_compras_email').value = proveedor.contacto_compras_email || '';
+            document.getElementById('contacto_compras_telefono').value = proveedor.contacto_compras_telefono || '';
+            document.getElementById('lista_precios_compra').value = proveedor.lista_precios_compra || 'ninguna';
+            document.getElementById('dias_entrega').value = proveedor.dias_entrega || 0;
+
+            const tipoMoneda = proveedor.tipo_moneda || 'pesos';
+            if (tipoMoneda === 'pesos') {
+                document.getElementById('moneda_pesos').checked = true;
+            } else {
+                document.getElementById('moneda_dolares').checked = true;
+            }
+
+            document.getElementById('descuento_factura').value = proveedor.descuento_factura || 0;
+            document.getElementById('descuento_listas_precio').value = proveedor.descuento_listas_precio || 0;
+            document.getElementById('descuento_producto_factura').value = proveedor.descuento_producto_factura || 0;
+            document.getElementById('notas_compras').value = proveedor.notas_compras || '';
+
+            document.getElementById('contacto_finanzas_nombre').value = proveedor.contacto_finanzas_nombre || '';
+            document.getElementById('contacto_finanzas_email').value = proveedor.contacto_finanzas_email || '';
+            document.getElementById('contacto_finanzas_telefono').value = proveedor.contacto_finanzas_telefono || '';
+            document.getElementById('forma_pago').value = proveedor.forma_pago || 'contado';
+            document.getElementById('dias_credito').value = proveedor.dias_credito || 0;
+            document.getElementById('saldo').value = proveedor.saldo || 0;
+
+            if (proveedor.activo === 'ACTIVO') {
+                document.getElementById('statusBadge').textContent = 'ACTIVO';
+                document.getElementById('statusBadge').className = 'status-badge status-active';
+            } else {
+                document.getElementById('statusBadge').textContent = 'INACTIVO';
+                document.getElementById('statusBadge').className = 'status-badge';
+                document.getElementById('statusBadge').style.backgroundColor = '#dc3545';
+            }
+        }
+
+        async function guardarProveedor() {
+            const clave = document.getElementById('clave').value.trim();
+            const nombre = document.getElementById('nombre').value.trim();
+
+            if (!clave || !nombre) {
+                mostrarError('Clave y Nombre son campos requeridos');
+                return;
+            }
+
+            const proveedorData = {
+                clave: clave,
+                nombre: nombre,
+                rfc: document.getElementById('rfc').value.trim(),
+                web: document.getElementById('web').value.trim(),
+                calle: document.getElementById('calle').value.trim(),
+                numero_exterior: document.getElementById('numero_exterior').value.trim(),
+                numero_interior: document.getElementById('numero_interior').value.trim(),
+                colonia: document.getElementById('colonia').value.trim(),
+                codigo_postal: document.getElementById('codigo_postal').value.trim(),
+                municipio: document.getElementById('municipio').value.trim(),
+                estado: document.getElementById('estado').value,
+                ciudad: document.getElementById('ciudad').value.trim(),
+                pais: document.getElementById('pais').value,
+                contacto_compras_nombre: document.getElementById('contacto_compras_nombre').value.trim(),
+                contacto_compras_email: document.getElementById('contacto_compras_email').value.trim(),
+                contacto_compras_telefono: document.getElementById('contacto_compras_telefono').value.trim(),
+                lista_precios_compra: document.getElementById('lista_precios_compra').value,
+                dias_entrega: parseInt(document.getElementById('dias_entrega').value) || 0,
+                tipo_moneda: document.querySelector('input[name="tipo_moneda"]:checked').value,
+                descuento_factura: parseFloat(document.getElementById('descuento_factura').value) || 0,
+                descuento_listas_precio: parseFloat(document.getElementById('descuento_listas_precio').value) || 0,
+                descuento_producto_factura: parseFloat(document.getElementById('descuento_producto_factura').value) || 0,
+                notas_compras: document.getElementById('notas_compras').value.trim(),
+                contacto_finanzas_nombre: document.getElementById('contacto_finanzas_nombre').value.trim(),
+                contacto_finanzas_email: document.getElementById('contacto_finanzas_email').value.trim(),
+                contacto_finanzas_telefono: document.getElementById('contacto_finanzas_telefono').value.trim(),
+                forma_pago: document.getElementById('forma_pago').value,
+                dias_credito: parseInt(document.getElementById('dias_credito').value) || 0,
+                saldo: parseFloat(document.getElementById('saldo').value) || 0,
+                activo: document.getElementById('statusBadge').textContent
+            };
+
+            try {
+                const token = localStorage.getItem('access_token');
+                const headers = {
+                    'Content-Type': 'application/json'
+                };
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
+
+                let response;
+                if (proveedorId) {
+                    // Actualizar
+                    response = await fetch(`/api/v1/proveedores/${proveedorId}`, {
+                        method: 'PUT',
+                        headers: headers,
+                        body: JSON.stringify(proveedorData)
+                    });
+                } else {
+                    // Crear
+                    response = await fetch('/api/v1/proveedores', {
+                        method: 'POST',
+                        headers: headers,
+                        body: JSON.stringify(proveedorData)
+                    });
+                }
+
+                if (response.ok) {
+                    const proveedor = await response.json();
+                    mostrarExito('Proveedor guardado correctamente');
+                    if (!proveedorId) {
+                        // Redirigir a la vista de edición del nuevo proveedor
+                        setTimeout(() => {
+                            window.location.href = `/proveedor-detalle?id=${proveedor.id}`;
+                        }, 1500);
+                    }
+                } else {
+                    const error = await response.json();
+                    mostrarError(error.detail || 'Error al guardar el proveedor');
+                }
+            } catch (error) {
+                mostrarError('Error al guardar: ' + error.message);
+            }
+        }
+
+        function descartarCambios() {
+            if (confirm('¿Está seguro de descartar los cambios?')) {
+                if (proveedorId) {
+                    cargarProveedor(proveedorId);
+                } else {
+                    window.location.href = '/proveedores';
+                }
+            }
+        }
+
+        function nuevoProveedor() {
+            window.location.href = '/proveedor-detalle';
+        }
+
+        function navegarAnterior() {
+            if (currentIndex > 0) {
+                const anteriorId = proveedoresList[currentIndex - 1].id;
+                window.location.href = `/proveedor-detalle?id=${anteriorId}`;
+            }
+        }
+
+        function navegarSiguiente() {
+            if (currentIndex < proveedoresList.length - 1) {
+                const siguienteId = proveedoresList[currentIndex + 1].id;
+                window.location.href = `/proveedor-detalle?id=${siguienteId}`;
+            }
+        }
+
+        function mostrarError(mensaje) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = mensaje;
+            errorDiv.classList.add('active');
+            setTimeout(() => {
+                errorDiv.classList.remove('active');
+            }, 5000);
+        }
+
+        function mostrarExito(mensaje) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.textContent = mensaje;
+            successDiv.classList.add('active');
+            setTimeout(() => {
+                successDiv.classList.remove('active');
+            }, 3000);
+        }
+    </script>
+</body>
+
+</html>

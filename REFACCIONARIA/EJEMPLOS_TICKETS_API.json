@@ -1,0 +1,175 @@
+{
+    "ejemplo_1_venta_simple": {
+        "descripcion": "Venta simple con promociones y políticas",
+        "request": {
+            "folio": "VZ0001",
+            "cliente": "Cliente Ejemplo",
+            "items": [
+                {
+                    "descripcion": "Kit de frenos cerámicos",
+                    "cantidad": 1,
+                    "precio": 850.00
+                },
+                {
+                    "descripcion": "Aceite sintético 5W-30",
+                    "cantidad": 2,
+                    "precio": 320.00
+                }
+            ],
+            "subtotal": 1490.00,
+            "descuento": 50.00,
+            "impuesto": 230.40,
+            "total": 1670.40,
+            "vendedor": "Juan Pérez",
+            "incluir_qr": true
+        }
+    },
+    "ejemplo_2_venta_punto_venta": {
+        "descripcion": "Venta rápida de punto de venta",
+        "request": {
+            "folio": "VZ0002",
+            "cliente": "Mostrador",
+            "items": [
+                {
+                    "descripcion": "Bujías Iridio x4",
+                    "cantidad": 1,
+                    "precio": 480.00
+                },
+                {
+                    "descripcion": "Aditivo Combustible",
+                    "cantidad": 3,
+                    "precio": 250.00
+                }
+            ],
+            "subtotal": 1230.00,
+            "descuento": 0.00,
+            "impuesto": 196.80,
+            "total": 1426.80,
+            "vendedor": "María González",
+            "incluir_qr": true
+        }
+    },
+    "ejemplo_3_descuento_importante": {
+        "descripcion": "Venta con descuento importante",
+        "request": {
+            "folio": "VZ0003",
+            "cliente": "Cliente Mayorista",
+            "items": [
+                {
+                    "descripcion": "Batería AGM 70Ah",
+                    "cantidad": 2,
+                    "precio": 2400.00
+                },
+                {
+                    "descripcion": "Terminales Cromadas",
+                    "cantidad": 1,
+                    "precio": 150.00
+                }
+            ],
+            "subtotal": 4950.00,
+            "descuento": 495.00,
+            "impuesto": 711.60,
+            "total": 5166.60,
+            "vendedor": "Carlos Mendoza",
+            "incluir_qr": true
+        }
+    },
+    "ejemplo_4_cliente_frecuente": {
+        "descripcion": "Venta a cliente frecuente",
+        "request": {
+            "folio": "VZ0004",
+            "cliente": "Refaccionaria Centro",
+            "items": [
+                {
+                    "descripcion": "Amortiguador Delantero",
+                    "cantidad": 2,
+                    "precio": 1200.00
+                },
+                {
+                    "descripcion": "Espiral Delantero",
+                    "cantidad": 2,
+                    "precio": 800.00
+                },
+                {
+                    "descripcion": "Rótulas x2",
+                    "cantidad": 1,
+                    "precio": 600.00
+                }
+            ],
+            "subtotal": 5600.00,
+            "descuento": 560.00,
+            "impuesto": 816.00,
+            "total": 5856.00,
+            "vendedor": "Juan Pérez",
+            "incluir_qr": true
+        }
+    },
+    "ejemplo_5_sin_cliente": {
+        "descripcion": "Venta mostrador sin nombre de cliente",
+        "request": {
+            "folio": "VZ0005",
+            "cliente": null,
+            "items": [
+                {
+                    "descripcion": "Limpiador Carburador",
+                    "cantidad": 1,
+                    "precio": 280.00
+                },
+                {
+                    "descripcion": "Desoxidante WD-40",
+                    "cantidad": 2,
+                    "precio": 150.00
+                }
+            ],
+            "subtotal": 580.00,
+            "descuento": 0.00,
+            "impuesto": 92.80,
+            "total": 672.80,
+            "vendedor": null,
+            "incluir_qr": true
+        }
+    },
+    "ejemplo_6_servicio_promocionado": {
+        "descripcion": "Venta con servicio promocionado (inyectores)",
+        "request": {
+            "folio": "VZ0006",
+            "cliente": "Taller Especializado",
+            "items": [
+                {
+                    "descripcion": "Lavado Inyectores c/u",
+                    "cantidad": 4,
+                    "precio": 50.00
+                },
+                {
+                    "descripcion": "Diagnóstico Inyector",
+                    "cantidad": 4,
+                    "precio": 0.00
+                }
+            ],
+            "subtotal": 200.00,
+            "descuento": 0.00,
+            "impuesto": 32.00,
+            "total": 232.00,
+            "vendedor": "José García",
+            "incluir_qr": true
+        }
+    },
+    "notas_importantes": {
+        "ancho_ticket": "40 caracteres",
+        "ideal_para": "Impresora térmica de 80mm",
+        "incluye": [
+            "Encabezado con nombre y lema de empresa",
+            "Detalles de artículos con cantidad y precio",
+            "Cálculo de totales (subtotal, descuento, impuesto, total)",
+            "Sección de PROMOCIONES",
+            "Sección de POLÍTICAS DE DEVOLUCIÓN",
+            "Pie de página con mensaje de agradecimiento"
+        ],
+        "api_endpoint": "POST /api/v1/tickets/generar-formato",
+        "response_format": {
+            "folio": "string",
+            "contenido_ticket": "string (formato para impresora térmica)",
+            "exito": "boolean"
+        }
+    }
+}

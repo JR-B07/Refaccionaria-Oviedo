@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REFACCIONARIA - Compras Generales</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-red: #c41e3a;
+            --dark-red: #8b1428;
+            --light-bg: #f5f5f5;
+            --white: #ffffff;
+            --text-dark: #333333;
+            --section-blue: #1a237e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-bg);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background-color: var(--white);
+            padding: 15px 30px;
+            border-bottom: 2px solid var(--section-blue);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .back-btn {
+            background-color: var(--primary-red);
+            color: var(--white);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.3s;
+        }
+
+        .back-btn:hover {
+            background-color: var(--dark-red);
+        }
+
+        .header-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--section-blue);
+        }
+
+        .quick-access {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .quick-access span {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .menu-btn {
+            background-color: var(--primary-red);
+            color: var(--white);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+
+        .menu-btn:hover {
+            background-color: var(--dark-red);
+        }
+
+        .filters-section {
+            background-color: var(--white);
+            padding: 20px 30px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .section-title {
+            color: var(--section-blue);
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            font-size: 12px;
+            color: #555;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .filter-group input,
+        .filter-group select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .filter-group input:focus,
+        .filter-group select:focus {
+            outline: none;
+            border-color: var(--primary-red);
+        }
+
+        .date-range {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .date-input {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .date-input input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 20px 30px;
+            overflow-y: auto;
+            background-color: var(--white);
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        thead {
+            background-color: #f8f9fa;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        th {
+            padding: 12px 10px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-dark);
+            border-bottom: 2px solid #e0e0e0;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #f0f0f0;
+            color: #555;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tbody tr:hover {
+            background-color: #f0f0f0;
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-pendiente {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-completo {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .badge-cancelado {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+
+        .badge-parcial {
+            background-color: #cfe2ff;
+            color: #084298;
+        }
+
+        .sucursal-badge {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(26, 35, 126, 0.3);
+            color: var(--section-blue);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sucursal-badge::before {
+            content: "📍";
+        }
+
+        .footer {
+            background-color: var(--white);
+            padding: 15px 30px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .results-count {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: var(--white);
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 6px 12px;
+        }
+
+        .search-box input {
+            border: none;
+            outline: none;
+            font-size: 14px;
+            width: 200px;
+        }
+
+        .search-box i {
+            color: #777;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            display: none;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px;
+            color: #999;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #ccc;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: var(--white);
+            padding: 30px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .modal-header h2 {
+            color: var(--section-blue);
+            font-size: 18px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .close-btn:hover {
+            color: var(--primary-red);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-group-full {
+            grid-column: 1 / -1;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        @media (max-width: 768px) {
+            .filters-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <script src="/static/js/sucursal_selector.js"></script>
+</head>
+
+<body>
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-top">
+                <div class="header-left">
+                    <button class="back-btn" onclick="window.location.href='/reportes'">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </button>
+                    <div class="header-title">REFACCIONARIA ERP - COMPRAS DE PRODUCTOS</div>
+                </div>
+                <div class="quick-access">
+                    <span>ACCESO RAPIDO</span>
+                    <span class="sucursal-badge" id="sucursalBadge">Sucursal</span>
+                    <button class="menu-btn" onclick="abrirModalNuevo()" style="background-color: #28a745;">
+                        <i class="fas fa-plus"></i> Nuevo
+                    </button>
+                    <button class="menu-btn" onclick="window.location.href='/dashboard'">
+                        <i class="fas fa-bars"></i> Menú
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters Section -->
+        <div class="filters-section">
+            <h2 class="section-title">Compras de Productos</h2>
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label>Folio:</label>
+                    <input type="text" id="filterFolio" placeholder="Buscar...">
+                </div>
+                <div class="filter-group">
+                    <label>Factura:</label>
+                    <input type="text" id="filterFactura" placeholder="Buscar...">
+                </div>
+                <div class="filter-group">
+                    <label>Sucursal:</label>
+                    <select id="filterSucursal">
+                        <option value="">Todas</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Proveedor:</label>
+                    <select id="filterProveedor">
+                        <option value="">Todos</option>
+                    </select>
+                </div>
+            </div>
+            <div class="date-range">
+                <label style="font-weight: 600; margin-right: 10px;">Fechas de:</label>
+                <div class="date-input">
+                    <input type="date" id="fechaInicio">
+                </div>
+                <span>a:</span>
+                <div class="date-input">
+                    <input type="date" id="fechaFin">
+                </div>
+                <button class="menu-btn" onclick="aplicarFiltros()" style="margin-left: 20px;">
+                    <i class="fas fa-search"></i> Buscar
+                </button>
+                <button class="menu-btn" onclick="limpiarFiltros()" style="background-color: #6c757d;">
+                    <i class="fas fa-times"></i> Limpiar
+                </button>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <div class="loading" id="loading">
+                <i class="fas fa-spinner fa-spin" style="font-size: 48px; color: var(--primary-red);"></i>
+                <p>Cargando compras...</p>
+            </div>
+
+            <div class="table-container" id="tableContainer" style="display: none;">
+                <table id="comprasTable">
+                    <thead>
+                        <tr>
+                            <th>FOLIO</th>
+                            <th>ESTADO</th>
+                            <th>FACTURA</th>
+                            <th>PROVEEDOR</th>
+                            <th>FECHA</th>
+                            <th>SUCURSAL</th>
+                            <th>TOTAL</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <i class="fas fa-inbox"></i>
+                <p>No se encontraron compras</p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-left">
+                <span class="results-count" id="resultsCount">0 resultados.</span>
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Buscar en resultados...">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para crear nueva compra -->
+    <div class="modal" id="modalNuevo">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Nueva Compra</h2>
+                <button class="close-btn" onclick="cerrarModal()">&times;</button>
+            </div>
+            <form id="formNuevaCompra" onsubmit="guardarCompra(event)">
+                <div class="form-row">
+                    <div class="filter-group">
+                        <label>Folio *</label>
+                        <input type="text" id="nuevoFolio" required>
+                    </div>
+                    <div class="filter-group">
+                        <label>Factura</label>
+                        <input type="text" id="nuevoFactura">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="filter-group">
+                        <label>Fecha *</label>
+                        <input type="date" id="nuevoFecha" required>
+                    </div>
+                    <div class="filter-group">
+                        <label>Estado</label>
+                        <select id="nuevoEstado">
+                            <option value="pendiente">PENDIENTE</option>
+                            <option value="completo" selected>COMPLETO</option>
+                            <option value="parcial">PARCIAL</option>
+                            <option value="cancelado">CANCELADO</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="filter-group">
+                        <label>Proveedor *</label>
+                        <select id="nuevoProveedor" required>
+                            <option value="">Seleccionar...</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Sucursal *</label>
+                        <select id="nuevoSucursal" required>
+                            <option value="">Seleccionar...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="filter-group">
+                        <label>Subtotal</label>
+                        <input type="number" id="nuevoSubtotal" step="0.01" min="0" value="0">
+                    </div>
+                    <div class="filter-group">
+                        <label>Descuento</label>
+                        <input type="number" id="nuevoDescuento" step="0.01" min="0" value="0">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="filter-group">
+                        <label>IVA</label>
+                        <input type="number" id="nuevoIva" step="0.01" min="0" value="0">
+                    </div>
+                    <div class="filter-group">
+                        <label>Total *</label>
+                        <input type="number" id="nuevoTotal" step="0.01" min="0" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="filter-group">
+                        <label>Tipo de Moneda</label>
+                        <select id="nuevoTipoMoneda">
+                            <option value="pesos">Pesos Mexicanos</option>
+                            <option value="dolares">Dólares Americanos</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="filter-group form-group-full">
+                        <label>Notas</label>
+                        <textarea id="nuevoNotas" rows="3" placeholder="Notas adicionales..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="menu-btn" style="background-color: #6c757d;" onclick="cerrarModal()">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="menu-btn" style="background-color: #28a745;">
+                        <i class="fas fa-save"></i> Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let comprasData = [];
+        let localesList = [];
+        let proveedoresList = [];
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', async function () {
+            // Establecer fechas por defecto (último mes)
+            const hoy = new Date();
+            const haceUnMes = new Date();
+            haceUnMes.setMonth(haceUnMes.getMonth() - 1);
+
+            document.getElementById('fechaInicio').value = haceUnMes.toISOString().split('T')[0];
+            document.getElementById('fechaFin').value = hoy.toISOString().split('T')[0];
+
+            // Mostrar sucursal
+            const sucursalNombre = localStorage.getItem('sucursal_nombre');
+            if (sucursalNombre) {
+                document.getElementById('sucursalBadge').textContent = sucursalNombre;
+            }
+
+            await cargarLocales();
+            await cargarProveedores();
+            await cargarCompras();
+
+            // Llenar selects del modal
+            llenarSelectsModal();
+
+            // Establecer fecha actual por defecto en el modal
+            document.getElementById('nuevoFecha').value = new Date().toISOString().split('T')[0];
+
+            // Calcular total automáticamente
+            document.getElementById('nuevoSubtotal').addEventListener('input', calcularTotal);
+            document.getElementById('nuevoDescuento').addEventListener('input', calcularTotal);
+            document.getElementById('nuevoIva').addEventListener('input', calcularTotal);
+
+            // Búsqueda en tiempo real
+            document.getElementById('searchInput').addEventListener('input', filtrarTabla);
+        });
+
+        function llenarSelectsModal() {
+            const selectProveedor = document.getElementById('nuevoProveedor');
+            const selectSucursal = document.getElementById('nuevoSucursal');
+
+            // Llenar proveedores
+            proveedoresList.forEach(p => {
+                const option = document.createElement('option');
+                option.value = p.id;
+                option.textContent = p.nombre;
+                selectProveedor.appendChild(option);
+            });
+
+            // Llenar sucursales
+            localesList.forEach(l => {
+                const option = document.createElement('option');
+                option.value = l.id;
+                option.textContent = l.nombre;
+                selectSucursal.appendChild(option);
+            });
+        }
+
+        function calcularTotal() {
+            const subtotal = parseFloat(document.getElementById('nuevoSubtotal').value) || 0;
+            const descuento = parseFloat(document.getElementById('nuevoDescuento').value) || 0;
+            const iva = parseFloat(document.getElementById('nuevoIva').value) || 0;
+
+            const total = subtotal - descuento + iva;
+            document.getElementById('nuevoTotal').value = total.toFixed(2);
+        }
+
+        function abrirModalNuevo() {
+            document.getElementById('modalNuevo').classList.add('active');
+            // Limpiar formulario
+            document.getElementById('formNuevaCompra').reset();
+            document.getElementById('nuevoFecha').value = new Date().toISOString().split('T')[0];
+            document.getElementById('nuevoEstado').value = 'completo';
+            document.getElementById('nuevoTipoMoneda').value = 'pesos';
+            document.getElementById('nuevoSubtotal').value = '0';
+            document.getElementById('nuevoDescuento').value = '0';
+            document.getElementById('nuevoIva').value = '0';
+            document.getElementById('nuevoTotal').value = '0';
+        }
+
+        function cerrarModal() {
+            document.getElementById('modalNuevo').classList.remove('active');
+        }
+
+        async function guardarCompra(event) {
+            event.preventDefault();
+
+            const compraData = {
+                folio: document.getElementById('nuevoFolio').value.trim(),
+                factura: document.getElementById('nuevoFactura').value.trim() || null,
+                fecha: document.getElementById('nuevoFecha').value,
+                proveedor_id: parseInt(document.getElementById('nuevoProveedor').value),
+                local_id: parseInt(document.getElementById('nuevoSucursal').value),
+                estado: document.getElementById('nuevoEstado').value,
+                subtotal: parseFloat(document.getElementById('nuevoSubtotal').value) || 0,
+                descuento: parseFloat(document.getElementById('nuevoDescuento').value) || 0,
+                iva: parseFloat(document.getElementById('nuevoIva').value) || 0,
+                total: parseFloat(document.getElementById('nuevoTotal').value),
+                tipo_moneda: document.getElementById('nuevoTipoMoneda').value,
+                notas: document.getElementById('nuevoNotas').value.trim() || null
+            };
+
+            try {
+                const token = localStorage.getItem('access_token');
+                const headers = {
+                    'Content-Type': 'application/json'
+                };
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
+
+                const response = await fetch('/api/v1/compras', {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify(compraData)
+                });
+
+                if (response.ok) {
+                    cerrarModal();
+                    await cargarCompras();
+                    alert('Compra creada exitosamente');
+                } else {
+                    const error = await response.json();
+                    alert('Error al crear la compra: ' + (error.detail || 'Error desconocido'));
+                }
+            } catch (error) {
+                alert('Error al crear la compra: ' + error.message);
+            }
+        }
+
+        async function cargarLocales() {
+            try {
+                const opcionesLocales = [
+                    { id: 1, nombre: 'REFACCIONARIA OVIEDO' },
+                    { id: 2, nombre: 'REFACCIÓN PARA OVIEDO' },
+                    { id: 3, nombre: 'FILTROS Y LUBRICANTES OVIEDO' },
+                    { id: 4, nombre: 'ALMACEN PRINCIPAL' }
+                ];
+
+                localesList = opcionesLocales;
+
+                const select = document.getElementById('filterSucursal');
+                opcionesLocales.forEach(l => {
+                    const option = document.createElement('option');
+                    option.value = l.id;
+                    option.textContent = l.nombre;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error al cargar locales:', error);
+            }
+        }
+
+        async function cargarProveedores() {
+            try {
+                const token = localStorage.getItem('access_token');
+                const headers = {
+                    'Content-Type': 'application/json'
+                };
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
+
+                const response = await fetch('/api/v1/proveedores?skip=0&limit=100', {
+                    method: 'GET',
+                    headers: headers
+                });
+
+                if (response.ok) {
+                    proveedoresList = await response.json();
+                    const select = document.getElementById('filterProveedor');
+                    proveedoresList.forEach(p => {
+                        const option = document.createElement('option');
+                        option.value = p.id;
+                        option.textContent = p.nombre;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error al cargar proveedores:', error);
+            }
+        }
+
+        async function cargarCompras() {
+            document.getElementById('loading').classList.add('active');
+            document.getElementById('tableContainer').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'none';
+
+            try {
+                const token = localStorage.getItem('access_token');
+                const headers = {
+                    'Content-Type': 'application/json'
+                };
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
+
+                // Construir URL con parámetros
+                const params = new URLSearchParams();
+                const folio = document.getElementById('filterFolio').value;
+                const factura = document.getElementById('filterFactura').value;
+                const sucursal = document.getElementById('filterSucursal').value;
+                const proveedor = document.getElementById('filterProveedor').value;
+                const fechaInicio = document.getElementById('fechaInicio').value;
+                const fechaFin = document.getElementById('fechaFin').value;
+
+                if (folio) params.append('folio', folio);
+                if (factura) params.append('factura', factura);
+                if (sucursal) params.append('local_id', sucursal);
+                if (proveedor) params.append('proveedor_id', proveedor);
+                if (fechaInicio) params.append('fecha_inicio', fechaInicio);
+                if (fechaFin) params.append('fecha_fin', fechaFin);
+
+                const url = `/api/v1/compras?${params.toString()}`;
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: headers
+                });
+
+                if (response.ok) {
+                    comprasData = await response.json();
+                    renderizarTabla(comprasData);
+                    document.getElementById('resultsCount').textContent = `${comprasData.length} resultados.`;
+                } else {
+                    console.error('Error al cargar compras');
+                    mostrarVacio();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarVacio();
+            } finally {
+                document.getElementById('loading').classList.remove('active');
+            }
+        }
+
+        function renderizarTabla(compras) {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            if (compras.length === 0) {
+                mostrarVacio();
+                return;
+            }
+
+            document.getElementById('tableContainer').style.display = 'block';
+            document.getElementById('emptyState').style.display = 'none';
+
+            compras.forEach(compra => {
+                const tr = document.createElement('tr');
+                const fecha = new Date(compra.fecha).toLocaleDateString('es-MX');
+                const estado = compra.estado.toUpperCase();
+                const estadoClass = `badge-${compra.estado.toLowerCase()}`;
+                const total = parseFloat(compra.total || 0).toFixed(2);
+                const simboloMoneda = compra.tipo_moneda === 'dolares' ? 'USD $' : '$';
+
+                tr.innerHTML = `
+                    <td>${compra.folio}</td>
+                    <td><span class="badge ${estadoClass}">${estado}</span></td>
+                    <td>${compra.factura || '-'}</td>
+                    <td>${compra.proveedor_nombre || '-'}</td>
+                    <td>${fecha}</td>
+                    <td>${compra.local_nombre || '-'}</td>
+                    <td>${simboloMoneda}${total.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function mostrarVacio() {
+            document.getElementById('tableContainer').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'block';
+            document.getElementById('resultsCount').textContent = '0 resultados.';
+        }
+
+        function filtrarTabla() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#tableBody tr');
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            document.getElementById('resultsCount').textContent = `${visibleCount} resultados.`;
+        }
+
+        function aplicarFiltros() {
+            cargarCompras();
+        }
+
+        function limpiarFiltros() {
+            document.getElementById('filterFolio').value = '';
+            document.getElementById('filterFactura').value = '';
+            document.getElementById('filterSucursal').value = '';
+            document.getElementById('filterProveedor').value = '';
+
+            const hoy = new Date();
+            const haceUnMes = new Date();
+            haceUnMes.setMonth(haceUnMes.getMonth() - 1);
+
+            document.getElementById('fechaInicio').value = haceUnMes.toISOString().split('T')[0];
+            document.getElementById('fechaFin').value = hoy.toISOString().split('T')[0];
+
+            document.getElementById('searchInput').value = '';
+
+            cargarCompras();
+        }
+    </script>
+</body>
+
+</html>

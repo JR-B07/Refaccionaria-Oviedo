@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REFACCIONARIA - Recepciones</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .top-bar {
+            background: #c41e3a;
+            color: #fff;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .top-bar h1 {
+            font-size: 18px;
+        }
+
+        .top-bar .user-info {}
+
+        .sucursal-badge {
+            background: rgba(196, 30, 58, 0.15);
+            border: 1px solid #c41e3a;
+            color: #c41e3a;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sucursal-badge::before {
+            content: "📍";
+        }
+
+        .main-container {
+            margin-top: 60px;
+            min-height: calc(100vh - 60px);
+        }
+
+        .content {
+            padding: 15px;
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .header-section {
+            background: #fff;
+            padding: 15px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .header-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .header-item label {
+            font-weight: 600;
+            font-size: 11px;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        .header-item input,
+        .header-item select {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 12px;
+            background: #fff;
+        }
+
+        .header-display {
+            font-size: 16px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .quick-access-section {
+            background: #fff;
+            padding: 15px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .quick-access-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #c41e3a;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            border-bottom: 2px solid #c41e3a;
+            padding-bottom: 8px;
+        }
+
+        .quick-access-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .qa-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .qa-item label {
+            font-size: 10px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .qa-item input,
+        .qa-item select {
+            padding: 6px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-size: 11px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 15px;
+        }
+
+        .left-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .right-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .table-section {
+            background: #fff;
+            padding: 15px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .table-title {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #333;
+            text-transform: uppercase;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            font-size: 11px;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f5f5f5;
+            padding: 8px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 1px solid #ddd;
+            color: #333;
+        }
+
+        td {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 6px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-size: 11px;
+            font-family: inherit;
+        }
+
+        .del-btn {
+            background: #ff6b6b;
+            color: #fff;
+            padding: 4px 8px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 10px;
+        }
+
+        .del-btn:hover {
+            background: #ff5252;
+        }
+
+        .add-btn {
+            background: #c41e3a;
+            color: #fff;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .add-btn:hover {
+            background: #a01729;
+        }
+
+        .two-col-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .summary-box {
+            background: #fff;
+            padding: 15px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .summary-title {
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+            text-transform: uppercase;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            font-size: 11px;
+        }
+
+        .summary-row label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .summary-row input {
+            text-align: right;
+            width: 100px;
+            border: none !important;
+            background: transparent !important;
+            font-weight: 600;
+        }
+
+        .summary-total {
+            background: #c41e3a;
+            color: #fff;
+            padding: 10px;
+            border-radius: 3px;
+            display: flex;
+            justify-content: space-between;
+            font-weight: 700;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .notes-box {
+            background: #fff;
+            padding: 15px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .notes-title {
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+            text-transform: uppercase;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-size: 11px;
+            font-family: inherit;
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .details-box {
+            background: #fff;
+            padding: 15px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .details-title {
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+            text-transform: uppercase;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+        }
+
+        .details-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 11px;
+        }
+
+        .details-row label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .details-row input {
+            text-align: right;
+            width: 120px;
+            border: none !important;
+            background: transparent !important;
+        }
+
+        .actions-section {
+            background: #fff;
+            padding: 15px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-accept {
+            background: #51a948;
+            color: #fff;
+        }
+
+        .btn-accept:hover {
+            background: #408e37;
+        }
+
+        .btn-cancel {
+            background: #d9534f;
+            color: #fff;
+        }
+
+        .btn-cancel:hover {
+            background: #c9302c;
+        }
+
+        .btn-save {
+            background: #5bc0de;
+            color: #fff;
+        }
+
+        .btn-save:hover {
+            background: #46b8da;
+        }
+
+        .btn-discard {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-discard:hover {
+            background: #d0d0d0;
+        }
+
+        .pending-section {
+            background: #fff;
+            padding: 15px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            margin-top: 20px;
+        }
+
+        .pending-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #c41e3a;
+            text-transform: uppercase;
+            border-bottom: 2px solid #c41e3a;
+            padding-bottom: 8px;
+        }
+
+        .pending-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .pending-item {
+            background: #f9f9f9;
+            border-left: 4px solid #c41e3a;
+            padding: 12px;
+            border-radius: 4px;
+            display: grid;
+            grid-template-columns: 100px 200px 1fr 150px 100px;
+            gap: 15px;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .pending-item:hover {
+            background: #f0f0f0;
+            transform: translateX(5px);
+        }
+
+        .pending-folio {
+            font-weight: 700;
+            color: #c41e3a;
+            font-size: 12px;
+        }
+
+        .pending-date {
+            font-size: 11px;
+            color: #666;
+        }
+
+        .pending-provider {
+            font-size: 11px;
+            color: #333;
+        }
+
+        .pending-status {
+            font-size: 10px;
+            padding: 4px 8px;
+            border-radius: 3px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-partial {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .pending-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .pending-btn {
+            padding: 4px 10px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .btn-view {
+            background: #5bc0de;
+            color: #fff;
+        }
+
+        .btn-continue {
+            background: #51a948;
+            color: #fff;
+        }
+
+        /* ===== Nueva vista ERP recepciones ===== */
+        .erp-wrapper {
+            background: #f7f7f7;
+            padding: 12px 0 24px;
+        }
+
+        .erp-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .erp-toolbar {
+            background: #fff;
+            border: 1px solid #e6e6e6;
+            border-radius: 6px;
+            padding: 10px 14px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .erp-toolbar .left,
+        .erp-toolbar .center,
+        .erp-toolbar .right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .erp-toolbar .center {
+            justify-content: center;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .erp-toolbar .right {
+            justify-content: flex-end;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #f2f2f2;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 6px 10px;
+            font-weight: 700;
+            color: #333;
+            font-size: 12px;
+        }
+
+        .erp-btn {
+            background: #e8e8e8;
+            color: #333;
+            border: 1px solid #d6d6d6;
+            padding: 7px 12px;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.15s ease;
+        }
+
+        .erp-btn.primary {
+            background: #c41e3a;
+            color: #fff;
+            border-color: #b11a33;
+        }
+
+        .erp-btn.success {
+            background: #28a745;
+            color: #fff;
+            border-color: #24973f;
+        }
+
+        .erp-btn.warning {
+            background: #ffc107;
+            color: #5f4200;
+            border-color: #e0ad06;
+        }
+
+        .erp-btn.muted {
+            background: #f5f5f5;
+            color: #555;
+        }
+
+        .erp-btn.blue {
+            background: #007bff;
+            color: #fff;
+            border-color: #006fe6;
+        }
+
+        .erp-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .erp-grid {
+            background: #fff;
+            border: 1px solid #e6e6e6;
+            border-radius: 6px;
+            padding: 14px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .erp-field label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .erp-field input,
+        .erp-field select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 12px;
+            background: #fff;
+        }
+
+        .erp-actions {
+            display: flex;
+            gap: 8px;
+            background: #fff;
+            border: 1px solid #e6e6e6;
+            border-radius: 6px;
+            padding: 10px 14px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .erp-actions .left,
+        .erp-actions .right {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .erp-table-wrapper {
+            background: #fff;
+            border: 1px solid #e6e6e6;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .erp-table-wrapper table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        .erp-table-wrapper th,
+        .erp-table-wrapper td {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .erp-table-wrapper th {
+            background: #f7f7f7;
+            text-align: left;
+            font-weight: 700;
+            color: #444;
+            border-bottom: 1px solid #e4e4e4;
+            position: sticky;
+            top: 0;
+            z-index: 5;
+        }
+
+        .erp-table-wrapper td input,
+        .erp-table-wrapper td select {
+            width: 100%;
+            padding: 6px;
+            border: 1px solid #dcdcdc;
+            border-radius: 3px;
+            font-size: 12px;
+            background: #fff;
+        }
+
+        .erp-table-wrapper .numeric {
+            text-align: right;
+        }
+
+        .erp-summary {
+            background: #fff;
+            border: 1px solid #e6e6e6;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            padding: 14px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            align-items: center;
+        }
+
+        .erp-summary .block {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .erp-summary label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #666;
+        }
+
+        .erp-summary input {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 12px;
+            width: 100%;
+        }
+
+        .erp-summary .totals {
+            grid-column: span 2;
+            background: #f5f5f5;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 10px 12px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            row-gap: 8px;
+            column-gap: 12px;
+            font-weight: 700;
+        }
+
+        .erp-summary .totals .label {
+            color: #444;
+        }
+
+        .erp-summary .totals .value {
+            text-align: right;
+            color: #111;
+        }
+
+        .erp-summary .totals .total-row {
+            grid-column: span 2;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0 0;
+            border-top: 1px solid #ddd;
+            color: #c41e3a;
+            font-size: 16px;
+        }
+
+        .badge {
+            background: #fff3cd;
+            color: #8a6d3b;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 11px;
+            border: 1px solid #f0e1a0;
+        }
+
+        .erp-table-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            justify-content: flex-end;
+        }
+
+        .erp-table-actions button {
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 11px;
+        }
+
+        .link-btn {
+            color: #c41e3a;
+            background: transparent;
+        }
+    </style>
+    <script src="/static/js/sucursal_selector.js"></script>
+</head>
+
+<body>
+    <div class="top-bar">
+        <div style="display:flex;align-items:center;gap:12px">
+            <button class="btn" onclick="goBack()"
+                style="background:#fff;color:#c41e3a;padding:6px 12px;border:none;border-radius:4px;cursor:pointer;font-weight:600;">←
+                VOLVER</button>
+            <h1>📦 RECEPCIONES</h1>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px">
+            <span class="sucursal-badge" id="sucursalBadge">Sucursal</span>
+            <div style="font-size:12px">Usuario: <strong id="userName">Usuario</strong></div>
+        </div>
+    </div>
+
+    <div class="main-container erp-wrapper">
+        <div class="erp-container">
+            <!-- Toolbar principal -->
+            <div class="erp-toolbar">
+                <div class="left">
+                    <button class="erp-btn" onclick="revertirRecepcion()">↩ Revertir</button>
+                    <button class="erp-btn" onclick="abrirEtiquetas()">🏷️ Etiquetar</button>
+                </div>
+                <div class="center">
+                    <div class="chip">Folio <span id="folioLabel">B2800</span></div>
+                    <div style="font-weight:700;color:#c41e3a">DETALLE DE RECEPCIÓN</div>
+                </div>
+                <div class="right">
+                    <button class="erp-btn" onclick="moverDia(-1)">◀ Anterior</button>
+                    <input type="date" id="fechaRecepcion" style="width:150px">
+                    <button class="erp-btn" onclick="moverDia(1)">Siguiente ▶</button>
+                </div>
+            </div>
+
+            <!-- Datos principales -->
+            <div class="erp-grid">
+                <div class="erp-field">
+                    <label>Proveedor</label>
+                    <input type="text" id="proveedorInput" placeholder="Proveedor / razón social">
+                </div>
+                <div class="erp-field">
+                    <label># Factura</label>
+                    <input type="text" id="facturaInput" placeholder="Número de factura" oninput="sincronizarFactura()">
+                </div>
+                <div class="erp-field">
+                    <label>Recibido</label>
+                    <input type="date" id="recibidoDate">
+                </div>
+                <div class="erp-field">
+                    <label>Facturado</label>
+                    <input type="date" id="facturadoDate">
+                </div>
+            </div>
+
+            <!-- Acciones secundarias -->
+            <div class="erp-actions">
+                <div class="left">
+                    <button class="erp-btn muted" onclick="verAnterior()">⬅ Historial</button>
+                    <button class="erp-btn" onclick="agregarProductoRapido()">➕ Agregar productos</button>
+                    <span class="badge" id="badgeArticulos">0 artículos</span>
+                </div>
+                <div class="right">
+                    <button class="erp-btn muted" onclick="duplicarRecepcion()">📄 Duplicar</button>
+                    <button class="erp-btn primary" onclick="guardarRecepcion()">💾 Guardar</button>
+                    <button class="erp-btn" onclick="descartarRecepcion()">🗑 Descartar</button>
+                </div>
+            </div>
+
+            <!-- Tabla estilo ERP -->
+            <div class="erp-table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th># O.C.</th>
+                            <th># Fact</th>
+                            <th class="numeric">Precio</th>
+                            <th class="numeric">Descuento %</th>
+                            <th class="numeric">Recibido</th>
+                            <th class="numeric">Gastos</th>
+                            <th class="numeric">Subtotal</th>
+                            <th class="numeric">Costo</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="recepcionTbody"></tbody>
+                </table>
+            </div>
+
+            <!-- Resumen y ajustes -->
+            <div class="erp-summary">
+                <div class="block">
+                    <label>Otros Gastos</label>
+                    <input type="number" id="otrosGastos" value="0" min="0" step="0.01" oninput="recalcular()">
+                </div>
+                <div class="block">
+                    <label>Descuento factura %</label>
+                    <input type="number" id="descuentoFactura" value="0" min="0" max="100" step="0.01"
+                        oninput="recalcular()">
+                </div>
+                <div class="block">
+                    <label>Descuento factura $</label>
+                    <input type="number" id="descuentoFacturaMonto" value="0" min="0" step="0.01"
+                        oninput="recalcular()">
+                </div>
+                <div class="block" style="align-self:flex-end;display:flex;gap:8px;justify-content:flex-end;">
+                    <button class="erp-btn" onclick="agregarFila()">+ Nueva línea</button>
+                    <button class="erp-btn" onclick="recalcular()">Recalcular</button>
+                </div>
+
+                <div class="totals">
+                    <div class="label">Subtotal</div>
+                    <div class="value" id="lblSubtotal">$ 0.00</div>
+                    <div class="label">Descuento</div>
+                    <div class="value" id="lblDescuento">$ 0.00</div>
+                    <div class="label">IVA</div>
+                    <div class="value" id="lblIva">$ 0.00</div>
+                    <div class="label">Artículos</div>
+                    <div class="value" id="lblArticulos">0</div>
+                    <div class="total-row">
+                        <span>Total</span>
+                        <span id="lblTotal" style="font-size:20px">$ 0.00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api/v1';
+        const IVA = 0.16;
+        let folioActual = 'B2800';
+        let filas = [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            document.getElementById('userName').textContent = user.name || user.username || 'Usuario';
+
+            const hoy = new Date();
+            document.getElementById('recibidoDate').valueAsDate = hoy;
+            document.getElementById('facturadoDate').valueAsDate = hoy;
+            document.getElementById('fechaRecepcion').valueAsDate = hoy;
+
+            renderFilas();
+            recalcular();
+        });
+
+        function goBack() {
+            window.location.href = '/almacen';
+        }
+
+        function moverDia(delta) {
+            const input = document.getElementById('fechaRecepcion');
+            const base = input.value ? new Date(input.value) : new Date();
+            base.setDate(base.getDate() + delta);
+            input.valueAsDate = base;
+        }
+
+        function renderFilas() {
+            const tbody = document.getElementById('recepcionTbody');
+            tbody.innerHTML = filas.map((f, idx) => {
+                const base = f.precio * f.recibido;
+                const descMonto = base * (f.descuento / 100);
+                const subtotal = base - descMonto + f.gastos;
+                const costo = f.recibido > 0 ? subtotal / f.recibido : f.precio;
+                return `
+                    <tr>
+                        <td><input value="${f.producto || ''}" oninput="actualizarFila(${idx}, 'producto', this.value)"></td>
+                        <td><input value="${f.oc ?? ''}" oninput="actualizarFila(${idx}, 'oc', this.value)"></td>
+                        <td><input value="${f.factura || ''}" oninput="actualizarFila(${idx}, 'factura', this.value)"></td>
+                        <td class="numeric"><input type="number" step="0.01" min="0" value="${f.precio}" oninput="actualizarFila(${idx}, 'precio', parseFloat(this.value)||0)"></td>
+                        <td class="numeric"><input type="number" step="0.01" min="0" value="${f.descuento}" oninput="actualizarFila(${idx}, 'descuento', parseFloat(this.value)||0)"></td>
+                        <td class="numeric"><input type="number" step="1" min="0" value="${f.recibido}" oninput="actualizarFila(${idx}, 'recibido', parseFloat(this.value)||0)"></td>
+                        <td class="numeric"><input type="number" step="0.01" min="0" value="${f.gastos}" oninput="actualizarFila(${idx}, 'gastos', parseFloat(this.value)||0)"></td>
+                        <td class="numeric">${subtotal.toFixed(2)}</td>
+                        <td class="numeric">${costo.toFixed(2)}</td>
+                        <td class="erp-table-actions"><button class="link-btn" onclick="eliminarFila(${idx})">✕</button></td>
+                    </tr>
+                `;
+            }).join('');
+            actualizarBadges();
+        }
+
+        function actualizarFila(index, campo, valor) {
+            if (!filas[index]) return;
+            filas[index][campo] = valor;
+            recalcular();
+        }
+
+        function agregarFila() {
+            filas.push({ producto: '', oc: '', factura: document.getElementById('facturaInput').value || '', precio: 0, descuento: 0, recibido: 0, gastos: 0 });
+            renderFilas();
+            recalcular();
+        }
+
+        function eliminarFila(index) {
+            filas.splice(index, 1);
+            renderFilas();
+            recalcular();
+        }
+
+        function sincronizarFactura() {
+            const factura = document.getElementById('facturaInput').value;
+            filas = filas.map(f => ({ ...f, factura }));
+            renderFilas();
+        }
+
+        function recalcular() {
+            let subtotal = 0;
+            let descuento = 0;
+            let articulos = 0;
+
+            filas.forEach(f => {
+                const base = f.precio * f.recibido;
+                const desc = base * (f.descuento / 100);
+                const sub = base - desc + f.gastos;
+                subtotal += sub;
+                descuento += desc;
+                if (f.recibido > 0) articulos += f.recibido;
+            });
+
+            const otrosGastos = parseFloat(document.getElementById('otrosGastos').value) || 0;
+            const descPct = parseFloat(document.getElementById('descuentoFactura').value) || 0;
+            const descMonto = parseFloat(document.getElementById('descuentoFacturaMonto').value) || 0;
+
+            subtotal += otrosGastos;
+            const descFactura = subtotal * (descPct / 100) + descMonto;
+            descuento += descFactura;
+
+            const subtotalNeto = subtotal - descuento;
+            const iva = subtotalNeto * IVA;
+            const total = subtotalNeto + iva;
+
+            document.getElementById('lblSubtotal').textContent = `$ ${subtotal.toFixed(2)}`;
+            document.getElementById('lblDescuento').textContent = `$ ${descuento.toFixed(2)}`;
+            document.getElementById('lblIva').textContent = `$ ${iva.toFixed(2)}`;
+            document.getElementById('lblTotal').textContent = `$ ${total.toFixed(2)}`;
+            document.getElementById('lblArticulos').textContent = articulos;
+
+            renderFilas();
+        }
+
+        function actualizarBadges() {
+            document.getElementById('badgeArticulos').textContent = `${filas.length} artículos`;
+        }
+
+        async function guardarRecepcion() {
+            if (filas.length === 0) {
+                alert('Agrega al menos una línea.');
+                return;
+            }
+
+            const total = parseFloat(document.getElementById('lblTotal').textContent.replace('$', '')) || 0;
+            const subtotal = parseFloat(document.getElementById('lblSubtotal').textContent.replace('$', '')) || 0;
+            const descuento = parseFloat(document.getElementById('lblDescuento').textContent.replace('$', '')) || 0;
+            const iva = parseFloat(document.getElementById('lblIva').textContent.replace('$', '')) || 0;
+
+            const payload = {
+                folio: folioActual,
+                proveedor: document.getElementById('proveedorInput').value,
+                factura: document.getElementById('facturaInput').value,
+                fecha: document.getElementById('fechaRecepcion').value,
+                recibido: document.getElementById('recibidoDate').value,
+                facturado: document.getElementById('facturadoDate').value,
+                subtotal,
+                descuento,
+                iva,
+                total,
+                items: filas.map(f => ({
+                    producto: f.producto,
+                    oc: f.oc,
+                    factura: f.factura,
+                    precio: f.precio,
+                    descuento: f.descuento,
+                    cantidad: f.recibido,
+                    gastos: f.gastos
+                }))
+            };
+
+            try {
+                const resp = await fetch(`${API_BASE}/compras`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'accept': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                alert('Recepción guardada');
+            } catch (e) {
+                console.error(e);
+                alert('Error al guardar: ' + e.message);
+            }
+        }
+
+        function descartarRecepcion() {
+            if (!confirm('¿Descartar cambios?')) return;
+            filas = [...demoFilas];
+            renderFilas();
+            recalcular();
+        }
+
+        function duplicarRecepcion() {
+            filas = filas.map(f => ({ ...f }));
+            alert('Recepción duplicada en memoria.');
+        }
+
+        function verAnterior() {
+            alert('Ir al historial de recepciones');
+        }
+
+        function revertirRecepcion() {
+            if (!confirm('¿Está seguro de revertir esta recepción? Se perderán todos los datos ingresados.')) {
+                return;
+            }
+
+            // Limpiar array de filas
+            filas = [];
+
+            // Limpiar campos del header
+            document.getElementById('proveedorInput').value = '';
+            document.getElementById('facturaInput').value = '';
+
+            // Restaurar fechas a hoy
+            const hoy = new Date();
+            document.getElementById('recibidoDate').valueAsDate = hoy;
+            document.getElementById('facturadoDate').valueAsDate = hoy;
+            document.getElementById('fechaRecepcion').valueAsDate = hoy;
+
+            // Limpiar campos de descuento
+            document.getElementById('otrosGastosInput').value = '0';
+            document.getElementById('descFacturaPctInput').value = '0';
+            document.getElementById('descFacturaMontoInput').value = '0';
+
+            // Re-renderizar tabla vacía y recalcular totales
+            renderFilas();
+            recalcular();
+
+            alert('Recepción revertida. Todos los datos han sido limpiados.');
+        }
+
+        function abrirEtiquetas() {
+            window.location.href = '/static/impresion_etiquetas.html';
+        }
+
+        function agregarProductoRapido() {
+            agregarFila();
+        }
+
+        // Mostrar sucursal
+        const sucursalNombre = localStorage.getItem('sucursal_nombre');
+        if (sucursalNombre) {
+            document.getElementById('sucursalBadge').textContent = sucursalNombre;
+        }
+    </script>
+</body>
+
+</html>

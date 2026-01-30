@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Test Navegación</title>
+</head>
+
+<body>
+    <h1>Test de Navegación</h1>
+
+    <h2>Pruebas de botones:</h2>
+
+    <button onclick="test1()">Test 1: window.location.href = '/cajas'</button><br><br>
+    <button onclick="test2()">Test 2: window.location.href = '/static/cajas.html'</button><br><br>
+    <button onclick="test3()">Test 3: window.location.assign('/cajas')</button><br><br>
+
+    <p id="resultado"></p>
+
+    <script>
+        function test1() {
+            console.log('Navegando a /cajas');
+            document.getElementById('resultado').textContent = 'Navegando a /cajas...';
+            window.location.href = '/cajas';
+        }
+
+        function test2() {
+            console.log('Navegando a /static/cajas.html');
+            document.getElementById('resultado').textContent = 'Navegando a /static/cajas.html...';
+            window.location.href = '/static/cajas.html';
+        }
+
+        function test3() {
+            console.log('Navegando con assign a /cajas');
+            document.getElementById('resultado').textContent = 'Navegando con assign...';
+            window.location.assign('/cajas');
+        }
+    </script>
+</body>
+
+</html>

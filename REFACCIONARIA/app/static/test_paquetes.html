@@ -1,0 +1,73 @@
+1
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Test API Paquetes</title>
+</head>
+
+<body>
+    <h1>Test API Paquetes</h1>
+    <div id="output" style="white-space: pre-wrap; font-family: monospace;"></div>
+
+    <script>
+        const output = document.getElementById('output');
+
+        function log(msg) {
+            console.log(msg);
+            output.textContent += msg + '\n';
+        }
+
+        async function test() {
+            try {
+                const token = localStorage.getItem('token');
+                log('Token: ' + (token ? token.substring(0, 20) + '...' : 'NO ENCONTRADO'));
+
+                if (!token) {
+                    log('ERROR: No hay token. Debes iniciar sesión primero.');
+                    return;
+                }
+
+                log('\n=== Probando GET /api/v1/paquetes ===');
+                const response = await fetch('/api/v1/paquetes', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                log('Status: ' + response.status);
+                log('Status Text: ' + response.statusText);
+
+                const data = await response.json();
+                log('Response: ' + JSON.stringify(data, null, 2));
+
+                log('\n=== Probando POST /api/v1/paquetes ===');
+                const nuevoResponse = await fetch('/api/v1/paquetes', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        nombre: 'Test desde HTML ' + new Date().getTime(),
+                        descripcion: 'Descripción de prueba',
+                        clase: 'Test'
+                    })
+                });
+
+                log('Status: ' + nuevoResponse.status);
+                const nuevoData = await nuevoResponse.json();
+                log('Response: ' + JSON.stringify(nuevoData, null, 2));
+
+            } catch (error) {
+                log('ERROR: ' + error.message);
+                log('Stack: ' + error.stack);
+            }
+        }
+
+        // Ejecutar automáticamente
+        test();
+    </script>
+</body>
+
+</html>

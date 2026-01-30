@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ventas Detalladas - Reportes</title>
+    <link rel="icon" href="data:,">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #b8092f;
+            --primary-dark: #930725;
+            --accent: #0f9d58;
+            --card: #ffffff;
+            --bg: #f5f6fb;
+            --border: #e4e6ef;
+            --text: #1f2933;
+            --muted: #6b7280;
+            --shadow: 0 12px 30px rgba(0, 0, 0, 0.05);
+            --radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Manrope', 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .topbar {
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+            color: #fff;
+            padding: 14px 22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand {
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+
+        .back-btn,
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: #fff;
+            padding: 8px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.15s ease, background 0.2s ease;
+        }
+
+        .back-btn:hover,
+        .logout-btn:hover {
+            transform: translateY(-1px);
+            background: rgba(255, 255, 255, 0.22);
+        }
+
+        .sucursal-badge {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sucursal-badge::before {
+            content: "📍";
+        }
+
+        .page {
+            max-width: 1400px;
+            margin: 24px auto 40px;
+            padding: 0 18px;
+        }
+
+        .breadcrumb {
+            color: var(--muted);
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+
+        .title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .title {
+            font-size: 26px;
+            margin: 0;
+        }
+
+        .subtitle {
+            color: var(--muted);
+            margin: 4px 0 0;
+        }
+
+        .panel {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 24px;
+            margin-bottom: 18px;
+        }
+
+        .section-title {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--text);
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 8px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .field label {
+            font-size: 13px;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        .field input,
+        .field select {
+            height: 42px;
+            padding: 0 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: #fdfdfd;
+            font-size: 14px;
+            transition: border 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .field input:focus,
+        .field select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(184, 9, 47, 0.15);
+        }
+
+        .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin: 12px 0;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .radio-option input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+
+        .radio-option label {
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .btn {
+            border: 1px solid var(--border);
+            background: #fff;
+            color: var(--text);
+            height: 42px;
+            padding: 0 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-weight: 600;
+            transition: transform 0.12s ease, box-shadow 0.15s ease, border 0.15s ease;
+            white-space: nowrap;
+            font-size: 14px;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+            border-color: #d2d5e0;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
+        .btn-primary:hover {
+            background: #0d8a4d;
+            border-color: #0d8a4d;
+        }
+
+        .btn-generate {
+            width: 100%;
+            max-width: 300px;
+            margin: 20px auto;
+            display: flex;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        th {
+            background: #f9fafc;
+            color: var(--muted);
+            font-weight: 700;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        tbody tr:hover {
+            background: #f9fafc;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .totals-row {
+            background: #f0f9ff !important;
+            font-weight: 700;
+            border-top: 2px solid var(--primary);
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--muted);
+        }
+
+        .checkbox-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 8px 0;
+        }
+
+        .checkbox-option input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+
+        .checkbox-option label {
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .radio-group {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+    </style>
+    <script src="/static/js/sucursal_selector.js"></script>
+</head>
+
+<body>
+    <div class="topbar">
+        <div class="topbar-left">
+            <button class="back-btn" onclick="window.location.href='/static/reportes.html'">← Volver</button>
+            <div class="brand">Reporte de Ventas Detalladas</div>
+        </div>
+        <div class="topbar-left">
+            <span class="sucursal-badge" id="sucursalBadge">Sucursal</span>
+            <span id="userName">Usuario</span>
+            <button class="logout-btn" onclick="logout()">Cerrar sesión</button>
+        </div>
+    </div>
+
+    <div class="page">
+        <div class="breadcrumb">Menú Principal / Administración / Reportes / Ventas Detalladas</div>
+        <div class="title-row">
+            <div>
+                <h1 class="title">Reporte de Ventas Detalladas</h1>
+                <p class="subtitle">Seleccione las opciones para generar el reporte</p>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="section-title">Opciones del Reporte</div>
+
+            <!-- Opciones de detalle -->
+            <div class="field">
+                <label>Tipo de Detalle</label>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="detallarProductos" name="tipoDetalle" value="productos" checked>
+                        <label for="detallarProductos">Detallar Productos</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="detallarVendedores" name="tipoDetalle" value="vendedores">
+                        <label for="detallarVendedores">Detallar Vendedores</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fechas -->
+            <div class="section-title" style="margin-top: 24px;">Rango de Fechas</div>
+            <div class="form-grid">
+                <div class="field">
+                    <label>Fecha desde:</label>
+                    <input type="date" id="fechaDesde" value="">
+                </div>
+                <div class="field">
+                    <label>Hasta:</label>
+                    <input type="date" id="fechaHasta" value="">
+                </div>
+            </div>
+
+            <!-- Opciones de agrupación -->
+            <div class="section-title" style="margin-top: 24px;">Agrupar Por</div>
+            <div class="radio-group">
+                <div class="radio-option">
+                    <input type="radio" id="agruparMarca" name="agrupar" value="marca">
+                    <label for="agruparMarca">Agrupar por Marca</label>
+                </div>
+                <div class="radio-option">
+                    <input type="radio" id="agruparLinea" name="agrupar" value="linea">
+                    <label for="agruparLinea">Agrupar por Línea</label>
+                </div>
+                <div class="radio-option">
+                    <input type="radio" id="agruparGrupo" name="agrupar" value="grupo">
+                    <label for="agruparGrupo">Agrupar por Grupo (Relacionado)</label>
+                </div>
+                <div class="radio-option">
+                    <input type="radio" id="agruparProducto" name="agrupar" value="producto" checked>
+                    <label for="agruparProducto">Agrupar por Producto</label>
+                </div>
+            </div>
+
+            <!-- Filtros adicionales -->
+            <div class="section-title" style="margin-top: 24px;">Filtros Adicionales</div>
+            <div class="form-grid">
+                <div class="field">
+                    <label>Producto:</label>
+                    <input type="text" id="filtroProducto" placeholder="Buscar producto...">
+                </div>
+                <div class="field">
+                    <label>Marca:</label>
+                    <select id="filtroMarca">
+                        <option value="">Todas las marcas</option>
+                        <option value="BOSCH">BOSCH</option>
+                        <option value="GATES">GATES</option>
+                        <option value="MOTORCRAFT">MOTORCRAFT</option>
+                        <option value="ACDelco">ACDelco</option>
+                        <option value="NGK">NGK</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Opciones adicionales -->
+            <div class="section-title" style="margin-top: 24px;">Opciones Adicionales</div>
+            <div class="checkbox-option">
+                <input type="checkbox" id="incluirEncabezados" checked>
+                <label for="incluirEncabezados">Incluir Encabezados al copiar</label>
+            </div>
+
+            <!-- Botón Generar -->
+            <button class="btn btn-primary btn-generate" onclick="generarReporte()">
+                ✓ Generar Reporte
+            </button>
+        </div>
+
+        <!-- Resultados -->
+        <div class="panel" id="panelResultados" style="display: none;">
+            <div class="section-title">Resultado del Reporte</div>
+            <div class="table-container">
+                <table id="tablaResultados">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Ticket</th>
+                            <th>Producto</th>
+                            <th>Cantidad</th>
+                            <th>Precio Unit.</th>
+                            <th>Subtotal</th>
+                            <th>Vendedor</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultadosBody">
+                        <tr>
+                            <td colspan="7" class="loading">Cargando resultados...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('access_token');
+
+        if (!token) {
+            window.location.href = '/static/login.html';
+        }
+
+        const nombreUsuario = localStorage.getItem('nombre_usuario');
+        if (nombreUsuario) {
+            document.getElementById('userName').textContent = nombreUsuario;
+        }
+
+        // Mostrar sucursal
+        const sucursalNombre = localStorage.getItem('sucursal_nombre');
+        if (sucursalNombre) {
+            document.getElementById('sucursalBadge').textContent = sucursalNombre;
+        }
+
+        // Establecer fechas por defecto (primer día del mes actual hasta hoy)
+        const hoy = new Date();
+        const primerDiaMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+
+        document.getElementById('fechaDesde').value = primerDiaMes.toISOString().split('T')[0];
+        document.getElementById('fechaHasta').value = hoy.toISOString().split('T')[0];
+
+        function logout() {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('nombre_usuario');
+            window.location.href = '/static/login.html';
+        }
+
+        function generarReporte() {
+            const tipoDetalle = document.querySelector('input[name="tipoDetalle"]:checked').value;
+            const fechaDesde = document.getElementById('fechaDesde').value;
+            const fechaHasta = document.getElementById('fechaHasta').value;
+            const agrupar = document.querySelector('input[name="agrupar"]:checked').value;
+            const filtroProducto = document.getElementById('filtroProducto').value;
+            const filtroMarca = document.getElementById('filtroMarca').value;
+
+            if (!fechaDesde || !fechaHasta) {
+                alert('Por favor selecciona el rango de fechas');
+                return;
+            }
+
+            // Mostrar panel de resultados
+            document.getElementById('panelResultados').style.display = 'block';
+            document.getElementById('resultadosBody').innerHTML = '<tr><td colspan="7" class="loading">Generando reporte...</td></tr>';
+
+            // Simular carga de datos
+            setTimeout(() => {
+                mostrarResultadosEjemplo(tipoDetalle);
+            }, 1000);
+        }
+
+        function mostrarResultadosEjemplo(tipoDetalle) {
+            const datosEjemplo = [
+                { fecha: '2026-01-15', ticket: 'VZ7743', producto: 'FILTRO DE ACEITE', cantidad: 2, precioUnit: 125.00, subtotal: 250.00, vendedor: 'REINALDO OVIEDO CALIXTRO' },
+                { fecha: '2026-01-15', ticket: 'VZ7744', producto: 'BALATA DELANTERA', cantidad: 1, precioUnit: 680.00, subtotal: 680.00, vendedor: 'REINALDO OVIEDO CALIXTRO' },
+                { fecha: '2026-01-16', ticket: 'VZ7745', producto: '7-G SILICON', cantidad: 1, precioUnit: 112.00, subtotal: 112.00, vendedor: 'MARIA GONZALEZ' },
+                { fecha: '2026-01-16', ticket: 'VZ7746', producto: 'AMORTIGUADOR', cantidad: 2, precioUnit: 320.00, subtotal: 640.00, vendedor: 'REINALDO OVIEDO CALIXTRO' },
+                { fecha: '2026-01-17', ticket: 'VZ7747', producto: 'BUJIAS NGK', cantidad: 4, precioUnit: 70.00, subtotal: 280.00, vendedor: 'MARIA GONZALEZ' },
+                { fecha: '2026-01-17', ticket: 'VZ7748', producto: 'ACEITE MOTORCRAFT', cantidad: 3, precioUnit: 240.00, subtotal: 720.00, vendedor: 'REINALDO OVIEDO CALIXTRO' },
+                { fecha: '2026-01-18', ticket: 'VZ7749', producto: 'FILTRO DE AIRE', cantidad: 1, precioUnit: 180.00, subtotal: 180.00, vendedor: 'MARIA GONZALEZ' },
+                { fecha: '2026-01-18', ticket: 'VZ7750', producto: 'BANDA DE TIEMPO', cantidad: 1, precioUnit: 450.00, subtotal: 450.00, vendedor: 'REINALDO OVIEDO CALIXTRO' }
+            ];
+
+            let totalCantidad = 0;
+            let totalSubtotal = 0;
+
+            let html = '';
+            for (let i = 0; i < datosEjemplo.length; i++) {
+                const item = datosEjemplo[i];
+                totalCantidad += item.cantidad || 0;
+                totalSubtotal += item.subtotal || 0;
+
+                html += '<tr>';
+                html += '<td>' + (item.fecha || '') + '</td>';
+                html += '<td><strong>' + (item.ticket || '') + '</strong></td>';
+                html += '<td>' + (item.producto || '') + '</td>';
+                html += '<td>' + (item.cantidad || 0) + '</td>';
+                html += '<td>$ ' + (item.precioUnit || 0).toFixed(2) + '</td>';
+                html += '<td><strong>$ ' + (item.subtotal || 0).toFixed(2) + '</strong></td>';
+                html += '<td>' + (item.vendedor || '') + '</td>';
+                html += '</tr>';
+            }
+
+            // Agregar fila de totales
+            html += '<tr class="totals-row">';
+            html += '<td colspan="3"><strong>TOTAL:</strong></td>';
+            html += '<td><strong>' + totalCantidad + '</strong></td>';
+            html += '<td></td>';
+            html += '<td><strong>$ ' + totalSubtotal.toFixed(2) + '</strong></td>';
+            html += '<td></td>';
+            html += '</tr>';
+
+            document.getElementById('resultadosBody').innerHTML = html;
+        }
+    </script>
+</body>
+
+</html>

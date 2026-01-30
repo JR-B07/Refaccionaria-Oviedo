@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuevo Cierre de Caja</title>
+    <style>
+        :root {
+            --primary-red: #c41e3a;
+            --dark-red: #8b1428;
+            --light-bg: #f5f5f5;
+            --white: #fff;
+            --text: #333;
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--light-bg);
+            color: var(--text);
+        }
+
+        .top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--primary-red);
+            color: #fff;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 10
+        }
+
+        .top-bar h1 {
+            font-size: 18px;
+            margin: 0;
+            font-weight: 700
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, .2);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, .5);
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer
+        }
+
+        .sucursal-badge {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-left: auto;
+        }
+
+        .sucursal-badge::before {
+            content: "📍";
+        }
+
+        .main {
+            max-width: 1000px;
+            margin: 90px auto 40px;
+            padding: 20px
+        }
+
+        .card {
+            background: #fff;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, .06);
+            overflow: hidden
+        }
+
+        .card-header {
+            background: #f1f1f1;
+            padding: 12px 16px;
+            font-weight: 700
+        }
+
+        .card-body {
+            padding: 16px
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px
+        }
+
+        .field {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0
+        }
+
+        .field label {
+            min-width: 130px;
+            font-weight: 600
+        }
+
+        .field input[type="number"] {
+            flex: 1;
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px
+        }
+
+        .field input[disabled] {
+            background: #f7f7f7
+        }
+
+        .muted {
+            color: #777;
+            font-size: 13px
+        }
+
+        .totals {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            font-weight: 700
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            padding: 16px;
+            border-top: 1px solid #eee;
+            background: #fafafa
+        }
+
+        .btn {
+            border: none;
+            border-radius: 4px;
+            padding: 10px 16px;
+            cursor: pointer;
+            font-weight: 700
+        }
+
+        .btn-primary {
+            background: var(--primary-red);
+            color: #fff
+        }
+
+        .btn-primary:hover {
+            background: var(--dark-red)
+        }
+
+        .btn-secondary {
+            background: #ddd
+        }
+
+        .inline {
+            display: flex;
+            gap: 12px;
+            align-items: center
+        }
+
+        .small {
+            font-size: 12px
+        }
+    </style>
+</head>
+
+<body>
+    <div class="top-bar">
+        <button class="back-btn" onclick="window.location.href='/static/cajas_cierre.html'">← Volver</button>
+        <h1>Nuevo Cierre de Caja</h1>
+        <div style="margin-left:auto" id="userInfo" class="small"></div>
+    </div>
+
+    <div class="main">
+        <div class="card">
+            <div class="card-header">Datos del Cierre</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="field">
+                        <label for="caja">Caja</label>
+                        <input id="caja" placeholder="Ej. VENTAS01" />
+                    </div>
+                    <div class="field">
+                        <label>Fecha/Hora</label>
+                        <div class="inline"><span id="fecha"></span><span id="hora" class="muted"></span></div>
+                    </div>
+                    <div class="field">
+                        <label>Vendedor</label>
+                        <div id="vendedor" class="muted">-</div>
+                    </div>
+                    <div class="field">
+                        <label>Sucursal</label>
+                        <div id="sucursal" class="muted">-</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top:16px">
+            <div class="card-header">Seleccione las opciones correspondientes a su cierre</div>
+            <div class="card-body">
+                <div class="row">
+                    <div>
+                        <div class="field"><input type="checkbox" id="chk_efectivo"
+                                onchange="toggle('efectivo')" /><label>Efectivo</label><input type="number" step="0.01"
+                                id="efectivo" disabled value="0" oninput="recalcular()"></div>
+                        <div class="field"><input type="checkbox" id="chk_cheque"
+                                onchange="toggle('cheque')" /><label>Cheque</label><input type="number" step="0.01"
+                                id="cheque" disabled value="0" oninput="recalcular()"></div>
+                        <div class="field"><input type="checkbox" id="chk_tarjeta"
+                                onchange="toggle('tarjeta')" /><label>Tarjeta</label><input type="number" step="0.01"
+                                id="tarjeta" disabled value="0" oninput="recalcular()"></div>
+                        <div class="field"><input type="checkbox" id="chk_debito"
+                                onchange="toggle('debito')" /><label>Débito</label><input type="number" step="0.01"
+                                id="debito" disabled value="0" oninput="recalcular()"></div>
+                        <div class="field"><input type="checkbox" id="chk_deposito"
+                                onchange="toggle('deposito')" /><label>Depósito</label><input type="number" step="0.01"
+                                id="deposito" disabled value="0" oninput="recalcular()"></div>
+                    </div>
+                    <div>
+                        <div class="field"><input type="checkbox" id="chk_credito"
+                                onchange="toggle('credito')" /><label>Crédito</label><input type="number" step="0.01"
+                                id="credito" disabled value="0" oninput="recalcular()"></div>
+                        <div class="field"><input type="checkbox" id="chk_vale"
+                                onchange="toggle('vale')" /><label>Vale</label><input type="number" step="0.01"
+                                id="vale" disabled value="0" oninput="recalcular()"></div>
+                        <div class="field"><input type="checkbox" id="chk_lealtad"
+                                onchange="toggle('lealtad')" /><label>Lealtad</label><input type="number" step="0.01"
+                                id="lealtad" disabled value="0" oninput="recalcular()"></div>
+                        <div class="field"><input type="checkbox" id="chk_retiros"
+                                onchange="toggle('retiros')" /><label>Retiros</label><input type="number" step="0.01"
+                                id="retiros" disabled value="0" oninput="recalcular()"></div>
+                    </div>
+                </div>
+                <div class="totals">
+                    <div>Total ingresos (sin retiros)</div>
+                    <div id="totalIngresos">$0.00</div>
+                </div>
+                <div class="totals">
+                    <div>Total cierre (ingresos - retiros)</div>
+                    <div id="totalCierre">$0.00</div>
+                </div>
+                <div class="muted">Solo se consideran los conceptos marcados. El total se actualiza automáticamente.
+                </div>
+            </div>
+            <div class="actions">
+                <button class="btn btn-secondary"
+                    onclick="window.location.href='/static/cajas_cierre.html'">Cancelar</button>
+                <button class="btn btn-primary" onclick="guardar()">Procesar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function $(id) { return document.getElementById(id) }
+        function toggle(name) {
+            const chk = $("chk_" + name), inp = $(name);
+            inp.disabled = !chk.checked; if (!chk.checked) { inp.value = 0 }
+            recalcular();
+        }
+        function money(n) { return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(Number(n || 0)) }
+        function getVal(id) { const el = $(id); return el && !el.disabled ? Number(el.value || 0) : 0 }
+        function recalcular() {
+            const ingresos = ['efectivo', 'cheque', 'tarjeta', 'debito', 'deposito', 'credito', 'vale', 'lealtad']
+                .map(getVal).reduce((a, b) => a + b, 0);
+            const retiros = getVal('retiros');
+            $("totalIngresos").textContent = money(ingresos);
+            $("totalCierre").textContent = money(ingresos - retiros);
+        }
+
+        async function guardar() {
+            const token = localStorage.getItem('token') || localStorage.getItem('access_token');
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const payload = {
+                caja: $('caja').value || 'VENTAS01',
+                local_id: user.local_id || 1,
+                usuario_id: user.id || 1,
+                efectivo: getVal('efectivo'),
+                cheque: getVal('cheque'),
+                tarjeta: getVal('tarjeta'),
+                debito: getVal('debito'),
+                deposito: getVal('deposito'),
+                credito: getVal('credito'),
+                vale: getVal('vale'),
+                lealtad: getVal('lealtad'),
+                retiros: getVal('retiros')
+            };
+
+            try {
+                const res = await fetch('/api/v1/cajas/cierres', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+                    body: JSON.stringify(payload)
+                });
+                if (!res.ok) { const err = await res.json().catch(() => ({ detail: res.statusText })); throw new Error(err.detail || 'Error al guardar'); }
+                const data = await res.json();
+                alert('Cierre creado con éxito. Folio: ' + data.id + ' Total: ' + money(data.total_cierre));
+                window.location.href = '/static/cajas_cierre.html';
+            } catch (e) {
+                alert('No fue posible crear el cierre: ' + e.message);
+            }
+        }
+
+        function init() {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            $('vendedor').textContent = user.name || user.username || 'Usuario';
+            $('sucursal').textContent = (user.sucursal || 'REFACCIONARIA OVIEDO');
+            const d = new Date();
+            $('fecha').textContent = d.toLocaleDateString('es-MX');
+            $('hora').textContent = d.toLocaleTimeString('es-MX');
+            document.getElementById('userInfo').textContent = `Usuario: ${$('vendedor').textContent}`;
+
+            // Mostrar sucursal
+            const sucursalNombre = localStorage.getItem('sucursal_nombre');
+            if (sucursalNombre) {
+                document.getElementById('sucursalBadge').textContent = sucursalNombre;
+            }
+        }
+        document.addEventListener('DOMContentLoaded', () => { init(); });
+    </script>
+</body>
+
+</html>

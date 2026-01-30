@@ -1,0 +1,69 @@
+/* Estilos para Selector de Sucursal */
+
+.sucursal-selector-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 15px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    margin-bottom: 15px;
+}
+
+.sucursal-selector-container label {
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+    margin: 0;
+    white-space: nowrap;
+}
+
+.sucursal-selector-select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #fff;
+    font-weight: 600;
+    font-size: 14px;
+    min-width: 240px;
+    cursor: pointer;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.sucursal-selector-select:hover {
+    border-color: #c41e3a;
+}
+
+.sucursal-selector-select:focus {
+    outline: none;
+    border-color: #c41e3a;
+    box-shadow: 0 0 0 3px rgba(196, 30, 58, 0.1);
+}
+
+.sucursal-info-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    background-color: #c41e3a;
+    color: white;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-left: auto;
+}
+
+@media (max-width: 768px) {
+    .sucursal-selector-container {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .sucursal-selector-select {
+        width: 100%;
+    }
+
+    .sucursal-info-badge {
+        margin-left: 0;
+    }
+}

@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Registro de Paquetes de Productos</title>
+    <link rel="stylesheet" href="/static/css/login.css">
+    <style>
+        body {
+            font-family: Segoe UI, Arial, sans-serif;
+            background: #f6f6f6;
+            margin: 0;
+            padding: 0;
+        }
+
+        .top-bar {
+            background-color: #c41e3a;
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .top-bar h1 {
+            font-size: 20px;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .back-btn {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.8);
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            padding: 12px;
+            margin-top: 10px;
+        }
+
+        .panel {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
+        }
+
+        .panel h3 {
+            margin: 0;
+            padding: 10px 12px;
+            background: #f1f1f1;
+            border-bottom: 1px solid #ddd;
+            font-size: 14px;
+        }
+
+        .toolbar {
+            padding: 8px 12px;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .tb-btn {
+            padding: 6px 10px;
+            border: 1px solid #ccc;
+            background: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .tb-btn:hover {
+            background: #f7f7f7
+        }
+
+        .search {
+            margin-left: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 6px 8px;
+            border-bottom: 1px solid #eee;
+            font-size: 13px;
+        }
+
+        th {
+            background: #fafafa;
+            text-align: left;
+        }
+
+        tr.selected {
+            background: #e9f3ff
+        }
+
+        .footer {
+            padding: 8px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, .4);
+        }
+
+        .dialog {
+            width: 560px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .dialog h4 {
+            margin: 0;
+            padding: 10px 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .dialog .content {
+            padding: 12px
+        }
+
+        .dialog .actions {
+            padding: 8px 12px;
+            display: flex;
+            gap: 8px;
+            border-top: 1px solid #eee;
+            justify-content: flex-end
+        }
+    </style>
+</head>
+
+<body>
+    <div class="top-bar">
+        <button class="back-btn" onclick="window.history.back()">← VOLVER</button>
+        <h1>REFACCIONARIA - Paquetes de Productos</h1>
+        <div></div>
+    </div>
+
+    <div class="container">
+        <div class="panel">
+            <h3>Listado de paquetes</h3>
+            <div class="toolbar">
+                <button class="tb-btn" onclick="cargarPaquetes()" id="btnCargar" style="display:none;">⟳ Cargar
+                    paquetes</button>
+                <button class="tb-btn" onclick="nuevoPaquete()">Nuevo</button>
+                <button class="tb-btn" onclick="editarPaquete()">Editar</button>
+                <button class="tb-btn" onclick="eliminarPaquete()">Eliminar</button>
+                <input id="busqPaquetes" class="tb-btn search" placeholder="Buscar..." oninput="cargarPaquetes()" />
+            </div>
+            <table id="tablaPaquetes">
+                <thead>
+                    <tr>
+                        <th>Nombre / Descripción</th>
+                        <th>Clase</th>
+                        <th>Items</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <div class="footer">
+                <span id="paquetesTotal">0 registros</span>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h3 id="detalleTitulo">Productos dentro del Paquete</h3>
+            <div class="toolbar">
+                <button class="tb-btn" onclick="agregarItem()">Agregar producto</button>
+                <button class="tb-btn" onclick="editarItem()">Editar item</button>
+                <button class="tb-btn" onclick="eliminarItem()">Eliminar item</button>
+                <span class="search" id="precioPaquete">Precio: $0.00</span>
+            </div>
+            <table id="tablaItems">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Cant.</th>
+                        <th>Precio</th>
+                        <th>Total</th>
+                        <th>Descripción</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <div class="footer">
+                <span id="itemsTotal">0 registros</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Paquete -->
+    <div class="modal" id="modalPaquete">
+        <div class="dialog">
+            <h4 id="modalPaqueteTitulo">Nuevo Paquete</h4>
+            <div class="content">
+                <label>Nombre<br /><input id="pkgNombre" style="width:100%" /></label><br /><br />
+                <label>Clase<br /><input id="pkgClase" style="width:100%" /></label><br /><br />
+                <label>Descripción<br /><textarea id="pkgDesc" style="width:100%;height:90px"></textarea></label>
+            </div>
+            <div class="actions">
+                <button class="tb-btn" onclick="guardarPaquete()">Guardar</button>
+                <button class="tb-btn" onclick="cerrarModal('modalPaquete')">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Item -->
+    <div class="modal" id="modalItem">
+        <div class="dialog">
+            <h4 id="modalItemTitulo">Agregar producto</h4>
+            <div class="content">
+                <label>Buscar producto<br /><input id="itemBuscar" style="width:100%"
+                        oninput="buscarProducto()" /></label>
+                <div id="itemResultados" style="max-height:160px; overflow:auto; border:1px solid #eee; margin-top:8px">
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px">
+                    <label>Cantidad<br /><input id="itemCantidad" type="number" min="1" value="1" /></label>
+                    <label>Precio unitario<br /><input id="itemPrecio" type="number" step="0.01" min="0" /></label>
+                </div>
+                <input type="hidden" id="itemProductoId" />
+            </div>
+            <div class="actions">
+                <button class="tb-btn" onclick="guardarItem()">Guardar</button>
+                <button class="tb-btn" onclick="cerrarModal('modalItem')">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let paquetes = [];
+        let seleccionado = null; // paquete seleccionado
+        let itemSeleccionado = null;
+
+        async function cargarPaquetes() {
+            try {
+                console.log('=== Iniciando carga de paquetes ===');
+                const token = localStorage.getItem('token');
+                console.log('Token:', token ? 'Existe (longitud: ' + token.length + ')' : 'NO EXISTE');
+
+                if (!token) {
+                    console.log('No hay token, redirigiendo a login');
+                    window.location.href = '/static/login.html';
+                    return;
+                }
+
+                const url = `/api/v1/paquetes?q=${encodeURIComponent(q)}`;
+                console.log('URL:', url);
+
+                const r = await fetch(url, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                console.log('Response status:', r.status);
+                console.log('Response statusText:', r.statusText);
+
+                if (r.status === 401) {
+                    console.error('Error 401: No autorizado');
+                    alert('Sesión expirada. Por favor, inicia sesión nuevamente.');
+                    window.location.href = '/static/login.html';
+                    return;
+                }
+
+                if (!r.ok) {
+                    const errorText = await r.text();
+                    console.error('Error response:', errorText);
+                    throw new Error(`Error ${r.status}: ${r.statusText} - ${errorText}`);
+                }
+
+                const data = await r.json();
+                console.log('Datos recibidos:', data);
+                paquetes = data.items || [];
+                console.log('Total de paquetes:', paquetes.length);
+
+                const tbody = document.querySelector('#tablaPaquetes tbody');
+                tbody.innerHTML = paquetes.map(p => `<tr onclick="seleccionarPaquete(${p.id})"><td><strong>${p.nombre}</strong><br/>${p.descripcion || ''}</td><td>${p.clase || ''}</td><td style='text-align:right'>${p.total_items}</td><td style='text-align:right'>$${p.precio_total.toFixed(2)}</td></tr>`).join('');
+                document.getElementById('paquetesTotal').innerText = `${data.total} registros`;
+                console.log('=== Carga completada ===');
+            } catch (error) {
+                console.error('Error al cargar paquetes:', error);
+                console.error('Stack:', error.stack);
+                alert('Error al cargar paquetes: ' + error.message);
+            }
+        }
+
+        async function seleccionarPaquete(id) {
+            const rows = document.querySelectorAll('#tablaPaquetes tbody tr');
+            rows.forEach(r => r.classList.remove('selected'));
+            const idx = paquetes.findIndex(p => p.id === id);
+            if (idx >= 0) { rows[idx].classList.add('selected'); }
+            const token = localStorage.getItem('token');
+            const r = await fetch(`/api/v1/paquetes/${id}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const d = await r.json();
+            seleccionado = d; itemSeleccionado = null;
+            document.getElementById('detalleTitulo').innerText = `Productos dentro del Paquete: ${d.nombre}`;
+            const tbody = document.querySelector('#tablaItems tbody');
+            tbody.innerHTML = d.items.map(it => `<tr onclick="seleccionarItem(${it.id})"><td><strong>${it.codigo}</strong> - ${it.nombre}</td><td style='text-align:right'>${it.cantidad}</td><td style='text-align:right'>$${it.precio_unitario.toFixed(2)}</td><td style='text-align:right'>$${it.total.toFixed(2)}</td><td></td></tr>`).join('');
+            document.getElementById('itemsTotal').innerText = `${d.items.length} registros`;
+            document.getElementById('precioPaquete').innerText = `Precio: $${(d.precio_total || 0).toFixed(2)}`;
+        }
+
+        function seleccionarItem(id) {
+            const rows = document.querySelectorAll('#tablaItems tbody tr');
+            rows.forEach(r => r.classList.remove('selected'));
+            const idx = seleccionado.items.findIndex(i => i.id === id);
+            if (idx >= 0) { rows[idx].classList.add('selected'); itemSeleccionado = seleccionado.items[idx]; }
+        }
+
+        function nuevoPaquete() {
+            try {
+                console.log('=== Botón NUEVO presionado ===');
+                console.log('Abriendo modal para nuevo paquete...');
+                document.getElementById('modalPaqueteTitulo').innerText = 'Nuevo Paquete';
+                document.getElementById('pkgNombre').value = '';
+                document.getElementById('pkgClase').value = '';
+                document.getElementById('pkgDesc').value = '';
+                const modal = document.getElementById('modalPaquete');
+                console.log('Modal element:', modal);
+                modal.style.display = 'flex';
+                console.log('Modal display:', modal.style.display);
+                console.log('Modal abierto exitosamente');
+            } catch (e) {
+                console.error('Error al abrir modal:', e);
+                console.error('Stack:', e.stack);
+                alert('Error al abrir modal: ' + e.message);
+            }
+        }
+        function editarPaquete() {
+            if (!seleccionado) { alert('Selecciona un paquete'); return; }
+            document.getElementById('modalPaqueteTitulo').innerText = 'Editar Paquete';
+            document.getElementById('pkgNombre').value = seleccionado.nombre;
+            document.getElementById('pkgClase').value = seleccionado.clase || '';
+            document.getElementById('pkgDesc').value = seleccionado.descripcion || '';
+            abrirModal('modalPaquete');
+        }
+        async function guardarPaquete() {
+            try {
+                const nombre = document.getElementById('pkgNombre').value.trim();
+                const clase = document.getElementById('pkgClase').value.trim();
+                const descripcion = document.getElementById('pkgDesc').value.trim();
+                if (!nombre) {
+                    alert('Nombre requerido');
+                    return;
+                }
+                const token = localStorage.getItem('token');
+                if (document.getElementById('modalPaqueteTitulo').innerText.includes('Nuevo')) {
+                    const r = await fetch('/api/v1/paquetes', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                        body: JSON.stringify({ nombre, clase, descripcion })
+                    });
+                    if (r.status === 401) {
+                        alert('Sesión expirada');
+                        window.location.href = '/static/login.html';
+                        return;
+                    }
+                    if (r.ok) {
+                        cerrarModal('modalPaquete');
+                        await cargarPaquetes();
+                        alert('Paquete creado exitosamente');
+                    } else {
+                        const error = await r.text();
+                        alert('Error al crear: ' + error);
+                    }
+                } else {
+                    const r = await fetch(`/api/v1/paquetes/${seleccionado.id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                        body: JSON.stringify({ nombre, clase, descripcion })
+                    });
+                    if (r.status === 401) {
+                        alert('Sesión expirada');
+                        window.location.href = '/static/login.html';
+                        return;
+                    }
+                    if (r.ok) {
+                        cerrarModal('modalPaquete');
+                        await cargarPaquetes();
+                        await seleccionarPaquete(seleccionado.id);
+                        alert('Paquete actualizado exitosamente');
+                    } else {
+                        const error = await r.text();
+                        alert('Error al actualizar: ' + error);
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error: ' + error.message);
+            }
+        }
+        async function eliminarPaquete() {
+            if (!seleccionado) { alert('Selecciona un paquete'); return; }
+            if (!confirm('¿Eliminar paquete?')) return;
+            const token = localStorage.getItem('token');
+            const r = await fetch(`/api/v1/paquetes/${seleccionado.id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+            if (r.ok) { seleccionado = null; await cargarPaquetes(); document.querySelector('#tablaItems tbody').innerHTML = ''; document.getElementById('detalleTitulo').innerText = 'Productos dentro del Paquete'; document.getElementById('precioPaquete').innerText = 'Precio: $0.00'; }
+            else { alert('Error al eliminar'); }
+        }
+
+        function agregarItem() {
+            if (!seleccionado) { alert('Selecciona un paquete'); return; }
+            document.getElementById('modalItemTitulo').innerText = 'Agregar producto';
+            document.getElementById('itemBuscar').value = '';
+            document.getElementById('itemCantidad').value = '1';
+            document.getElementById('itemPrecio').value = '';
+            document.getElementById('itemProductoId').value = '';
+            document.getElementById('itemResultados').innerHTML = '';
+            abrirModal('modalItem');
+        }
+        function editarItem() {
+            if (!itemSeleccionado) { alert('Selecciona un item'); return; }
+            document.getElementById('modalItemTitulo').innerText = 'Editar item';
+            document.getElementById('itemBuscar').value = `${itemSeleccionado.codigo} - ${itemSeleccionado.nombre}`;
+            document.getElementById('itemCantidad').value = itemSeleccionado.cantidad;
+            document.getElementById('itemPrecio').value = itemSeleccionado.precio_unitario;
+            document.getElementById('itemProductoId').value = itemSeleccionado.producto_id;
+            document.getElementById('itemResultados').innerHTML = '';
+            abrirModal('modalItem');
+        }
+        async function guardarItem() {
+            const pid = seleccionado.id;
+            const producto_id = parseInt(document.getElementById('itemProductoId').value);
+            const cantidad = parseInt(document.getElementById('itemCantidad').value);
+            const precio_unitario = parseFloat(document.getElementById('itemPrecio').value);
+            if (!producto_id || !cantidad || isNaN(precio_unitario)) { alert('Completa producto, cantidad y precio'); return; }
+            const token = localStorage.getItem('token');
+            if (document.getElementById('modalItemTitulo').innerText.includes('Agregar')) {
+                const r = await fetch(`/api/v1/paquetes/${pid}/items`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ producto_id, cantidad, precio_unitario }) });
+                if (r.ok) { cerrarModal('modalItem'); await seleccionarPaquete(pid); }
+                else { alert('Error al agregar'); }
+            } else {
+                const r = await fetch(`/api/v1/paquetes/${pid}/items/${itemSeleccionado.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ cantidad, precio_unitario }) });
+                if (r.ok) { cerrarModal('modalItem'); await seleccionarPaquete(pid); }
+                else { alert('Error al actualizar'); }
+            }
+        }
+        async function eliminarItem() {
+            if (!itemSeleccionado) { alert('Selecciona un item'); return; }
+            if (!confirm('¿Eliminar item?')) return;
+            const token = localStorage.getItem('token');
+            const r = await fetch(`/api/v1/paquetes/${seleccionado.id}/items/${itemSeleccionado.id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+            if (r.ok) { await seleccionarPaquete(seleccionado.id); }
+            else { alert('Error al eliminar'); }
+        }
+
+        async function buscarProducto() {
+            const q = document.getElementById('itemBuscar').value.trim();
+            if (q.length < 2) { document.getElementById('itemResultados').innerHTML = ''; return; }
+            const token = localStorage.getItem('token');
+            const r = await fetch(`/api/v1/productos?q=${encodeURIComponent(q)}&limit=10`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const d = await r.json();
+            const html = (d.items || []).map(p => `<div style='padding:6px 8px; border-bottom:1px solid #eee; cursor:pointer' onclick='seleccionarProducto(${p.id},"${p.codigo}","${p.nombre}",${p.precio_venta || 0})'><strong>${p.codigo}</strong> - ${p.nombre} <span style='float:right'>$${(p.precio_venta || 0).toFixed(2)}</span></div>`).join('');
+            document.getElementById('itemResultados').innerHTML = html;
+        }
+        function seleccionarProducto(id, codigo, nombre, precio) {
+            document.getElementById('itemProductoId').value = id;
+            document.getElementById('itemBuscar').value = `${codigo} - ${nombre}`;
+            if (!document.getElementById('itemPrecio').value) { document.getElementById('itemPrecio').value = precio; }
+            document.getElementById('itemResultados').innerHTML = '';
+        }
+
+        function abrirModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function cerrarModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        // Inicio - Verificar que el script se carga
+        console.log('========================================');
+        console.log('SCRIPT DE PAQUETES CARGADO');
+        console.log('========================================');
+
+        // Cargar paquetes al inicio, pero solo si hay token
+        if (localStorage.getItem('token')) {
+            cargarPaquetes();
+            document.getElementById('btnCargar').style.display = 'none';
+        } else {
+            console.log('No hay token, esperando a que el usuario inicie sesión');
+            document.getElementById('btnCargar').style.display = 'inline-block';
+            document.getElementById('paquetesTotal').textContent = 'Por favor, recarga la página después de iniciar sesión';
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REFACCIONARIA - Checador</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --primary-red: #c41e3a;
+            --dark-red: #8b1428;
+            --light-bg: #f5f5f5;
+            --white: #ffffff;
+            --text-dark: #333333;
+            --muted: #6b7280;
+            --border: #e2e5ec;
+            --shadow: 0 18px 36px rgba(0, 0, 0, 0.08);
+            --radius: 12px;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--light-bg);
+            color: var(--text-dark);
+            min-height: 100vh;
+        }
+
+        .top-bar {
+            background: var(--primary-red);
+            color: #fff;
+            padding: 15px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.18);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.26);
+        }
+
+        .sucursal-badge {
+            background: rgba(255, 255, 255, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            color: #fff;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sucursal-badge::before {
+            content: "📍";
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .logout-btn {
+            background: #fff;
+            color: var(--dark-red);
+            border: none;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .main {
+            max-width: 1200px;
+            margin: 28px auto;
+            padding: 0 18px 40px;
+        }
+
+        .breadcrumb {
+            color: var(--muted);
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .breadcrumb a {
+            color: var(--primary-red);
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .title {
+            font-size: 28px;
+            margin: 4px 0 12px;
+            color: var(--primary-red);
+        }
+
+        .subtitle {
+            color: var(--muted);
+            margin-bottom: 14px;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 16px;
+            align-items: start;
+        }
+
+        .card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 18px;
+        }
+
+        .clock-box {
+            text-align: center;
+            padding: 22px;
+            background: linear-gradient(145deg, #fefefe, #f2f4f8);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+        }
+
+        .clock {
+            font-size: 64px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: var(--primary-red);
+        }
+
+        .date {
+            margin-top: 6px;
+            font-size: 16px;
+            color: var(--muted);
+        }
+
+        .actions-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .action {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #fafafa;
+            cursor: pointer;
+            transition: border 0.15s ease, transform 0.15s ease;
+        }
+
+        .action input {
+            margin: 0;
+        }
+
+        .action:hover {
+            border-color: var(--primary-red);
+            transform: translateY(-1px);
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 12px;
+        }
+
+        .field label {
+            font-size: 13px;
+            color: var(--muted);
+            font-weight: 700;
+        }
+
+        .field input,
+        .field select {
+            height: 42px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            padding: 0 12px;
+            font-size: 14px;
+            background: #fff;
+        }
+
+        .field input:focus,
+        .field select:focus {
+            outline: none;
+            border-color: var(--primary-red);
+            box-shadow: 0 0 0 3px rgba(196, 30, 58, 0.15);
+        }
+
+        .checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .scan-panel {
+            margin-top: 14px;
+            padding: 14px;
+            border: 1px dashed var(--border);
+            border-radius: 10px;
+            background: #fff7f7;
+            color: var(--dark-red);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .scan-btn {
+            background: var(--primary-red);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .scan-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+        }
+
+        .status {
+            margin-top: 10px;
+            font-weight: 700;
+            color: var(--primary-red);
+        }
+
+        .table-box {
+            margin-top: 16px;
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+            text-align: left;
+        }
+
+        th {
+            background: #faf4ea;
+            color: var(--muted);
+            font-weight: 700;
+        }
+
+        tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .badge-ok {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-err {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        @media (max-width: 1000px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .clock {
+                font-size: 52px;
+            }
+        }
+    </style>
+    <script src="/static/js/sucursal_selector.js"></script>
+</head>
+
+<body>
+    <div class="top-bar">
+        <button class="back-btn" onclick="window.location.href='/static/rrhh.html'">← VOLVER</button>
+        <div class="user-info">
+            <span class="sucursal-badge" id="sucursalBadge">Sucursal</span>
+            <span id="userName">Usuario</span>
+            <button class="logout-btn" onclick="logout()">CERRAR SESIÓN</button>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="breadcrumb">
+            <a onclick="window.location.href='/static/dashboard.html'">Menú Principal</a> >
+            <a onclick="window.location.href='/static/rrhh.html'">Recursos Humanos</a> >
+            <span>Checador</span>
+        </div>
+        <h1 class="title">Registro de asistencia</h1>
+        <p class="subtitle">Selecciona el tipo de marcaje, coloca la huella y confirma.</p>
+
+        <div class="layout">
+            <div class="card">
+                <div class="clock-box">
+                    <div id="clock" class="clock">00:00:00</div>
+                    <div id="date" class="date"></div>
+                </div>
+
+                <div class="actions-row" role="group" aria-label="Tipo de marcaje">
+                    <label class="action"><input type="radio" name="accion" value="Entrada" checked> Entrada</label>
+                    <label class="action"><input type="radio" name="accion" value="Comida"> Comida</label>
+                    <label class="action"><input type="radio" name="accion" value="Regreso"> Regreso</label>
+                    <label class="action"><input type="radio" name="accion" value="Salida"> Salida</label>
+                </div>
+
+                <div class="field">
+                    <label>ID / Nombre empleado</label>
+                    <input type="text" id="inputEmpleado" placeholder="Escanea huella o escribe para buscar"
+                        autocomplete="off">
+                </div>
+                <div class="field">
+                    <label>Sucursal</label>
+                    <select id="inputSucursal">
+                        <option value="MATRIZ">MATRIZ</option>
+                        <option value="CEDIS">CEDIS</option>
+                        <option value="SUCURSAL 2">SUCURSAL 2</option>
+                    </select>
+                </div>
+
+                <div class="checkbox-row">
+                    <input type="checkbox" id="overwriteCheck">
+                    <label for="overwriteCheck">Sobre-escribir último marcaje</label>
+                </div>
+
+                <div class="scan-panel">
+                    <div style="font-size: 26px;">🖐️</div>
+                    <div>
+                        <strong>Coloca tu dedo en el lector</strong><br>
+                        También puedes presionar ENTER para simular lectura.
+                    </div>
+                    <div style="margin-left:auto;">
+                        <button class="scan-btn" onclick="iniciarLectura()">Leer huella</button>
+                    </div>
+                </div>
+                <div id="estadoLectura" class="status">Esperando huella...</div>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom:10px;">Últimos registros</h3>
+                <div class="table-box">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Hora</th>
+                                <th>Empleado</th>
+                                <th>Acción</th>
+                                <th>Resultado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historialBody">
+                            <tr>
+                                <td colspan="4" class="muted">Sin registros</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('access_token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const empleadosDemo = [
+            { id: '001', nombre: 'ADMINISTRADOR PRINCIPAL', sucursal: 'MATRIZ' },
+            { id: '002', nombre: 'CESAR MIGUEL RAMOS BARCENAS', sucursal: 'MATRIZ' },
+            { id: '003', nombre: 'KAREN SOTO', sucursal: 'CEDIS' },
+            { id: '004', nombre: 'ALFREDO PEREZ', sucursal: 'CEDIS' }
+        ];
+        let historial = [];
+
+        if (!token) {
+            window.location.href = '/static/login.html';
+        }
+        document.getElementById('userName').textContent = user.name || user.username || 'Usuario';
+
+        // Mostrar sucursal
+        const sucursalNombre = localStorage.getItem('sucursal_nombre');
+        if (sucursalNombre) {
+            document.getElementById('sucursalBadge').textContent = sucursalNombre;
+        }
+
+        function logout() {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('token_type');
+            localStorage.removeItem('user');
+            window.location.href = '/static/login.html';
+        }
+
+        function actualizarReloj() {
+            const now = new Date();
+            const hh = String(now.getHours()).padStart(2, '0');
+            const mm = String(now.getMinutes()).padStart(2, '0');
+            const ss = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('clock').textContent = hh + ':' + mm + ':' + ss;
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('date').textContent = now.toLocaleDateString('es-ES', options);
+        }
+        setInterval(actualizarReloj, 1000);
+        actualizarReloj();
+
+        function iniciarLectura() {
+            const estado = document.getElementById('estadoLectura');
+            estado.textContent = 'Leyendo huella...';
+            estado.style.color = 'var(--primary-red)';
+            setTimeout(() => {
+                procesarHuella();
+            }, 1200);
+        }
+
+        async function procesarHuella() {
+            const input = document.getElementById('inputEmpleado');
+            const accion = document.querySelector('input[name="accion"]:checked').value;
+            const sucursal = document.getElementById('inputSucursal').value;
+            const overwrite = document.getElementById('overwriteCheck').checked;
+            const estado = document.getElementById('estadoLectura');
+            const texto = input.value.trim().toLowerCase();
+            let empleado = null;
+            for (let i = 0; i < empleadosDemo.length; i++) {
+                const e = empleadosDemo[i];
+                if (e.id === texto || (e.nombre && e.nombre.toLowerCase().indexOf(texto) >= 0)) {
+                    empleado = e;
+                    break;
+                }
+            }
+            if (!empleado) {
+                empleado = empleadosDemo[0];
+            }
+            const now = new Date();
+            const hora24 = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+            try {
+                const payload = {
+                    nombre: empleado.nombre,
+                    sucursal: sucursal,
+                    accion: accion,
+                    fecha: now.toISOString().slice(0, 10),
+                    hora: hora24
+                };
+                const res = await fetch('/api/v1/asistencia/registrar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                const registro = {
+                    hora: now.toLocaleTimeString('es-ES'),
+                    empleado: empleado.nombre,
+                    accion: accion,
+                    resultado: (data && data.ok) ? (overwrite ? 'Sobrescrito' : 'Registrado') : 'Error'
+                };
+                historial.unshift(registro);
+                if (historial.length > 8) historial.pop();
+                pintarHistorial();
+                estado.textContent = 'Huella registrada para ' + empleado.nombre + ' (' + accion + ')';
+                estado.style.color = '#0b8a42';
+            } catch (e) {
+                historial.unshift({ hora: now.toLocaleTimeString('es-ES'), empleado: empleado.nombre, accion, resultado: 'Error' });
+                pintarHistorial();
+                estado.textContent = 'Error al registrar';
+                estado.style.color = '#a33';
+                console.error('Registrar asistencia error:', e);
+            }
+            input.value = '';
+        }
+
+        function pintarHistorial() {
+            const tbody = document.getElementById('historialBody');
+            if (historial.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="muted">Sin registros</td></tr>';
+                return;
+            }
+            let html = '';
+            for (let i = 0; i < historial.length; i++) {
+                const r = historial[i];
+                const badge = r.resultado === 'Registrado' ? '<span class="badge badge-ok">Registrado</span>' : '<span class="badge badge-err">Sobrescrito</span>';
+                html += '<tr>';
+                html += '<td>' + r.hora + '</td>';
+                html += '<td>' + r.empleado + '</td>';
+                html += '<td>' + r.accion + '</td>';
+                html += '<td>' + badge + '</td>';
+                html += '</tr>';
+            }
+            tbody.innerHTML = html;
+        }
+
+        document.addEventListener('keydown', function (ev) {
+            if (ev.key === 'Enter') {
+                ev.preventDefault();
+                iniciarLectura();
+            }
+        });
+    </script>
+</body>
+
+</html>

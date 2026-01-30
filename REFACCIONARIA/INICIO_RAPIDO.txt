@@ -1,0 +1,190 @@
+🚀 GUÍA RÁPIDA DE INICIO
+═══════════════════════════════════════════════════════════════════════════════
+
+¿Qué necesitas hacer?
+
+┌─ SI QUIERES...                              → ACCEDE A:
+├─────────────────────────────────────────────────────────────────────────────
+├─ Ver el ticket en el navegador              → http://localhost:8000/preview_ticket.html
+├─ Usar la API REST                           → POST /api/v1/tickets/generar-formato
+├─ Usar Python                                → from app.utils.ticket_printer import TicketPrinter
+├─ Ver una demo                               → python demo_ticket.py
+├─ Leer la documentación completa             → TICKET_DESIGN_UPDATE.md
+├─ Cambiar promociones                        → app/utils/ticket_printer.py (línea ~26)
+├─ Cambiar políticas                          → app/utils/ticket_printer.py (línea ~30)
+├─ Ver ejemplos JSON                          → EJEMPLOS_TICKETS_API.json
+├─ Ejecutar pruebas                           → python test_ticket_nuevo_diseño.py
+└─ Revisar archivos creados                   → INDICE_ARCHIVOS_TICKETS.md
+
+
+PASOS RÁPIDOS
+═══════════════════════════════════════════════════════════════════════════════
+
+1️⃣  OPCIÓN WEB (RECOMENDADA PARA PRUEBAS)
+    ────────────────────────────────────────
+    Abre tu navegador en:
+    http://localhost:8000/preview_ticket.html
+    
+    ✓ Llena los datos
+    ✓ Haz clic en "Generar Vista Previa"
+    ✓ Haz clic en "Imprimir"
+
+
+2️⃣  OPCIÓN API REST
+    ────────────────────────────────────────
+    Abre terminal y ejecuta:
+    
+    curl -X POST "http://localhost:8000/api/v1/tickets/generar-formato" \
+      -H "Content-Type: application/json" \
+      -d '{"folio": "VZ0001", "items": [...], ...}'
+
+
+3️⃣  OPCIÓN PYTHON
+    ────────────────────────────────────────
+    from app.utils.ticket_printer import TicketPrinter
+    
+    items = [{'descripcion': 'Producto', 'cantidad': 1, 'precio': 100}]
+    ticket = TicketPrinter.generate_venta_rapida_ticket(
+        folio='VZ0001',
+        items=items,
+        subtotal=100,
+        descuento=0,
+        total=116
+    )
+    print(ticket)
+
+
+4️⃣  OPCIÓN DEMO
+    ────────────────────────────────────────
+    python demo_ticket.py
+
+
+¿QUÉ VAS A VER?
+═══════════════════════════════════════════════════════════════════════════════
+
+Un ticket profesional con:
+
+  ✓ Encabezado: REFACCIONARIA OVIEDO
+  ✓ Lema: NUESTRA EXPERIENCIA MARCA LA DIFERENCIA
+  ✓ Detalles: Artículos, cantidades, precios
+  ✓ Totales: Subtotal, descuento, IVA, TOTAL
+  ✓ PROMOCIONES: Lavado y diagnóstico de inyectores $50 c/u ← NUEVO
+  ✓ POLÍTICAS: A, B, C sobre devoluciones ← NUEVO
+  ✓ Pie: ¡GRACIAS POR SU COMPRA!
+
+
+PERSONALIZACIÓN (FÁCIL)
+═══════════════════════════════════════════════════════════════════════════════
+
+Cambiar promociones:
+  Abre: app/utils/ticket_printer.py
+  Busca: PROMOCIONES = [
+  Cambia el contenido
+
+Cambiar políticas:
+  Abre: app/utils/ticket_printer.py
+  Busca: POLITICAS_DEVOLUCION = [
+  Cambia el contenido
+
+Cambiar nombre de empresa:
+  Abre: app/utils/ticket_printer.py
+  Busca: EMPRESA_NOMBRE, EMPRESA_SLOGAN, EMPRESA_LEMA
+  Cambia los valores
+
+
+ARCHIVOS IMPORTANTE
+═══════════════════════════════════════════════════════════════════════════════
+
+  📄 README_TICKETS.md ...................... Inicio rápido (ESTE)
+  📚 TICKET_DESIGN_UPDATE.md ............... Documentación técnica
+  🔧 app/utils/ticket_printer.py .......... Motor principal
+  🌐 app/static/preview_ticket.html ....... Interfaz web
+  📡 app/api/v1/endpoints/tickets.py ...... API endpoints
+  📋 EJEMPLOS_TICKETS_API.json ............ Ejemplos JSON
+  🧪 demo_ticket.py ....................... Demostración
+
+
+PREGUNTAS FRECUENTES
+═══════════════════════════════════════════════════════════════════════════════
+
+P: ¿Dónde está el motor de generación?
+R: app/utils/ticket_printer.py
+
+P: ¿Cómo cambio las promociones?
+R: Edita app/utils/ticket_printer.py - variable PROMOCIONES
+
+P: ¿Cómo cambio las políticas?
+R: Edita app/utils/ticket_printer.py - variable POLITICAS_DEVOLUCION
+
+P: ¿Cómo accedo desde mi código Python?
+R: from app.utils.ticket_printer import TicketPrinter
+
+P: ¿Cómo uso la API?
+R: POST /api/v1/tickets/generar-formato
+
+P: ¿Hay ejemplos?
+R: Sí, en EJEMPLOS_TICKETS_API.json
+
+P: ¿Cómo lo pruebo rápido?
+R: python demo_ticket.py
+
+P: ¿Hay una interfaz web?
+R: Sí, http://localhost:8000/preview_ticket.html
+
+P: ¿Necesito instalar algo?
+R: No, usa lo que ya está instalado
+
+P: ¿Es apto para producción?
+R: Sí, está completo y probado
+
+
+INTEGRACIÓN CON VENTAS
+═══════════════════════════════════════════════════════════════════════════════
+
+En tu código de venta, agrega:
+
+  from app.utils.ticket_printer import TicketPrinter
+  
+  # Después de procesar la venta
+  ticket_formato = TicketPrinter.generate_venta_rapida_ticket(
+      folio=folio,
+      items=items,
+      subtotal=subtotal,
+      descuento=descuento,
+      total=total,
+      vendedor=vendedor
+  )
+  
+  # Enviar a impresora térmica
+  # print_to_printer(ticket_formato)
+
+
+SOPORTE RÁPIDO
+═══════════════════════════════════════════════════════════════════════════════
+
+Documentación:     Lee TICKET_DESIGN_UPDATE.md
+Ejemplos:          Mira EJEMPLOS_TICKETS_API.json
+Verificación:      Lee VERIFICACION_FINAL_TICKETS.md
+Checklist:         Lee CHECKLIST_COMPLETACION.txt
+Archivos:          Lee INDICE_ARCHIVOS_TICKETS.md
+
+
+═══════════════════════════════════════════════════════════════════════════════
+
+¡LISTO! Ya puedes:
+
+  ✅ Generar tickets con promociones
+  ✅ Generar tickets con políticas de devolución
+  ✅ Usar web, API, Python o CLI
+  ✅ Personalizar sin editar código
+  ✅ Imprimir en impresoras térmicas
+
+Comienza con: http://localhost:8000/preview_ticket.html
+
+═══════════════════════════════════════════════════════════════════════════════
+
+¡Gracias por usar el sistema de tickets actualizado!
+
+Versión: 1.0
+Fecha: 22 de Enero de 2026
+Empresa: Refaccionaria Oviedo

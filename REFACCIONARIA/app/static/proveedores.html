@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>REFACCIONARIA - Proveedores</title>
+    <style>
+        :root {
+            --primary-red: #c41e3a;
+            --dark-red: #8b1428;
+            --light-bg: #f5f5f5;
+            --white: #fff;
+            --text-dark: #333
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--light-bg);
+            color: var(--text-dark);
+            margin: 0
+        }
+
+        .top-bar {
+            background: var(--primary-red);
+            color: var(--white);
+            padding: 15px 30px;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000
+        }
+
+        .main-content {
+            margin-top: 70px;
+            padding: 40px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto
+        }
+
+        h2 {
+            color: var(--text-dark);
+            margin-bottom: 10px
+        }
+
+        .breadcrumb {
+            color: #666;
+            margin-bottom: 20px
+        }
+
+        .card {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, .05);
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 15px
+        }
+
+        .btn {
+            background: var(--primary-red);
+            color: var(--white);
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer
+        }
+
+        .btn-back {
+            background: rgba(196, 30, 58, 0.1);
+            color: var(--primary-red);
+            border: 1px solid var(--primary-red);
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+
+        .btn-back:hover {
+            background: var(--primary-red);
+            color: var(--white);
+        }
+
+        .sucursal-badge {
+            background: rgba(196, 30, 58, 0.15);
+            border: 1px solid var(--primary-red);
+            color: var(--primary-red);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .sucursal-badge::before {
+            content: "📍";
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse
+        }
+
+        th,
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            text-align: left
+        }
+
+        thead {
+            background: #f8f8f8
+        }
+
+        .empty {
+            color: #999;
+            padding: 30px;
+            text-align: center
+        }
+    </style>
+    <script src="/static/js/sucursal_selector.js"></script>
+</head>
+
+<body>
+    <div class="top-bar">
+        <strong>REFACCIONARIA - ACCESO RAPIDO</strong>
+    </div>
+    <div class="main-content">
+        <button class="btn-back" onclick="window.location.href='/static/compras.html'">← VOLVER</button>
+        <span class="sucursal-badge" id="sucursalBadge">Sucursal</span>
+        <div class="breadcrumb"><a href="/admin"
+                style="color:var(--primary-red);text-decoration:none">Administración</a> &gt;
+            <strong>Proveedores</strong>
+        </div>
+        <h2>Proveedores</h2>
+
+        <div class="card">
+            <div class="controls">
+                <input id="searchInput" placeholder="Buscar proveedor..."
+                    style="flex:1;padding:8px;border:1px solid #ddd;border-radius:4px" />
+                <button class="btn" onclick="openNew()">Nuevo</button>
+                <button class="btn" onclick="exportTable()">Exportar CSV</button>
+            </div>
+
+            <table id="proveedoresTable">
+                <thead>
+                    <tr>
+                        <th>CLAVE</th>
+                        <th>NOMBRE</th>
+                        <th>RFC</th>
+                        <th>TELEFONO</th>
+                        <th>CONTACTO</th>
+                        <th>DESCUENTO FINAL</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                </tbody>
+            </table>
+            <div id="empty" class="empty">No hay proveedores. Usa "Nuevo" para crear.</div>
+        </div>
+
+        <!-- Modal para crear/editar proveedor -->
+        <div id="modal"
+            style="display:none; position:fixed; left:0; top:0; right:0; bottom:0; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:2000;">
+            <div
+                style="background:var(--white); padding:20px; border-radius:8px; width:420px; max-width:90%; box-shadow:0 6px 18px rgba(0,0,0,0.2);">
+                <h3 id="modalTitle">Nuevo proveedor</h3>
+                <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;">
+                    <input id="provId" type="hidden" />
+                    <label style="font-size:13px;color:#444">Clave</label>
+                    <input id="provClave" style="padding:8px;border:1px solid #ddd;border-radius:4px" />
+                    <label style="font-size:13px;color:#444">Nombre</label>
+                    <input id="provNombre" style="padding:8px;border:1px solid #ddd;border-radius:4px" />
+                    <label style="font-size:13px;color:#444">RFC</label>
+                    <input id="provRFC" style="padding:8px;border:1px solid #ddd;border-radius:4px" />
+                    <label style="font-size:13px;color:#444">Teléfono</label>
+                    <input id="provTelefono" style="padding:8px;border:1px solid #ddd;border-radius:4px" />
+                    <label style="font-size:13px;color:#444">Contacto</label>
+                    <input id="provContacto" style="padding:8px;border:1px solid #ddd;border-radius:4px" />
+                    <label style="font-size:13px;color:#444">Descuento Final</label>
+                    <input id="provDescuentoFinal" style="padding:8px;border:1px solid #ddd;border-radius:4px" />
+                </div>
+                <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:15px;">
+                    <button class="btn" onclick="closeModal()" style="background:#777">Cancelar</button>
+                    <button class="btn" onclick="saveProveedor()">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <script>
+        let proveedores = [];
+
+        async function cargarProveedores() {
+            try {
+                const token = localStorage.getItem('access_token');
+                const headers = {
+                    'Content-Type': 'application/json'
+                };
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
+
+                const response = await fetch('/api/v1/proveedores', {
+                    method: 'GET',
+                    headers: headers
+                });
+
+                if (response.ok) {
+                    proveedores = await response.json();
+                    render();
+                } else {
+                    console.error('Error al cargar proveedores');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function render() {
+            const tbody = document.getElementById('tableBody');
+            const empty = document.getElementById('empty');
+            tbody.innerHTML = '';
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            const results = proveedores.filter(p =>
+                (p.nombre && p.nombre.toLowerCase().includes(q)) ||
+                (p.clave && p.clave.toLowerCase().includes(q)) ||
+                (p.rfc && p.rfc.toLowerCase().includes(q)) ||
+                (p.contacto_compras_nombre && p.contacto_compras_nombre.toLowerCase().includes(q))
+            );
+            if (results.length === 0) {
+                empty.style.display = 'block';
+                return;
+            } else {
+                empty.style.display = 'none';
+            }
+            results.forEach(p => {
+                const tr = document.createElement('tr');
+                const telefono = p.contacto_compras_telefono || '-';
+                const contacto = p.contacto_compras_nombre || '-';
+                const descuento = p.descuento_factura ? `${p.descuento_factura}%` : '0%';
+                tr.innerHTML = `<td>${p.clave || '-'}</td><td>${p.nombre || '-'}</td><td>${p.rfc || '-'}</td><td>${telefono}</td><td>${contacto}</td><td>${descuento}</td><td><button onclick="edit(${p.id})">Editar</button> <button onclick="remove(${p.id})">Eliminar</button></td>`;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function openNew() {
+            // Redirigir a la vista detallada para crear nuevo proveedor
+            window.location.href = '/proveedor-detalle';
+        }
+
+        function edit(id) {
+            // Redirigir a la vista detallada de edición
+            window.location.href = `/proveedor-detalle?id=${id}`;
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+
+        function saveProveedor() {
+            const idVal = document.getElementById('provId').value;
+            const clave = document.getElementById('provClave').value.trim();
+            const nombre = document.getElementById('provNombre').value.trim();
+            const rfc = document.getElementById('provRFC').value.trim();
+            const telefono = document.getElementById('provTelefono').value.trim();
+            const contacto = document.getElementById('provContacto').value.trim();
+            const descuentoFinal = document.getElementById('provDescuentoFinal').value.trim();
+            if (!clave || !nombre) { alert('Clave y Nombre son requeridos'); if (!clave) document.getElementById('provClave').focus(); else document.getElementById('provNombre').focus(); return; }
+
+            if (idVal) {
+                const id = parseInt(idVal, 10);
+                const p = proveedores.find(x => x.id === id);
+                if (p) { p.clave = clave; p.nombre = nombre; p.rfc = rfc; p.telefono = telefono; p.contacto = contacto; p.descuentoFinal = descuentoFinal; }
+            } else {
+                const id = Math.max(0, ...proveedores.map(p => p.id)) + 1;
+                proveedores.unshift({ id, clave, nombre, rfc, telefono, contacto, descuentoFinal });
+            }
+
+            closeModal(); render();
+        }
+
+        async function remove(id) {
+            if (!confirm('¿Está seguro de eliminar este proveedor?')) return;
+
+            try {
+                const token = localStorage.getItem('access_token');
+                const headers = {
+                    'Content-Type': 'application/json'
+                };
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
+
+                const response = await fetch(`/api/v1/proveedores/${id}`, {
+                    method: 'DELETE',
+                    headers: headers
+                });
+
+                if (response.ok) {
+                    await cargarProveedores();
+                } else {
+                    alert('Error al eliminar el proveedor');
+                }
+            } catch (error) {
+                alert('Error al eliminar: ' + error.message);
+            }
+        }
+
+        function exportTable() {
+            const rows = [['CLAVE', 'NOMBRE', 'RFC', 'TELEFONO', 'CONTACTO', 'DESCUENTO FINAL']];
+            proveedores.forEach(p => rows.push([p.clave, p.nombre, p.rfc, p.telefono, p.contacto, p.descuentoFinal]));
+            const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' }); const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = 'proveedores.csv'; document.body.appendChild(a); a.click(); URL.revokeObjectURL(url); a.remove();
+        }
+
+        // busqueda en tiempo real
+        document.getElementById('searchInput').addEventListener('input', render);
+        // cerrar modal con ESC
+        document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
+        // inicializar
+        document.addEventListener('DOMContentLoaded', () => {
+            cargarProveedores();
+
+            // Mostrar sucursal
+            const sucursalNombre = localStorage.getItem('sucursal_nombre');
+            if (sucursalNombre) {
+                document.getElementById('sucursalBadge').textContent = sucursalNombre;
+            }
+        });
+    </script>
+</body>
+
+</html>

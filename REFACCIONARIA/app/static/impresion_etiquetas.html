@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Impresión de Etiquetas</title>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #e8eef5;
+            color: #333;
+        }
+
+        .top-bar {
+            background: #c41e3a;
+            color: #fff;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .top-bar h1 {
+            font-size: 18px;
+        }
+
+        .main-container {
+            margin-top: 60px;
+            min-height: calc(100vh - 60px);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: #fff;
+            padding: 15px 20px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h2 {
+            color: #c41e3a;
+            font-size: 18px;
+        }
+
+        .filters {
+            background: #fff;
+            padding: 15px 20px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: 3fr 1fr;
+            gap: 12px;
+            align-items: flex-end;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .filter-group label {
+            font-weight: 700;
+            font-size: 12px;
+        }
+
+        .filter-group input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .filter-btn {
+            background: #c41e3a;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            align-self: flex-end;
+        }
+
+        .filter-btn:hover {
+            background: #a81530;
+        }
+
+        .result-info {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-size: 13px;
+        }
+
+        .table-wrapper {
+            background: #fff;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table thead {
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        table th {
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 700;
+            font-size: 12px;
+            color: #495057;
+        }
+
+        table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #dee2e6;
+            font-size: 13px;
+        }
+
+        table tbody tr:hover {
+            background: #f9f9f9;
+        }
+
+        .checkbox-cell {
+            width: 40px;
+            text-align: center;
+        }
+
+        .cantidad-input {
+            width: 70px;
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+
+        .btn-quick {
+            background: #17a2b8;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 11px;
+        }
+
+        .btn-quick:hover {
+            background: #138496;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+        }
+
+        .actions {
+            background: #fff;
+            padding: 20px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .actions .left,
+        .actions .right {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .actions .count {
+            background: #ffc107;
+            color: #000;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        .btn-print {
+            background: #28a745;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .btn-print:hover {
+            background: #218838;
+        }
+
+        .btn-printer {
+            background: #6c757d;
+            color: #fff;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .btn-printer:hover {
+            background: #5a6268;
+        }
+
+        /* Modal de Vista Previa */
+        .modal-preview {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .modal-preview.active {
+            display: flex;
+        }
+
+        .preview-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 900px;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .preview-header {
+            background: #c41e3a;
+            color: white;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .preview-header h3 {
+            margin: 0;
+            font-size: 16px;
+        }
+
+        .preview-close {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+        }
+
+        .preview-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .etiquetas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+        }
+
+        .etiqueta-print {
+            width: 280px;
+            height: 180px;
+            background: white;
+            border: 2px solid #c41e3a;
+            border-radius: 4px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            font-family: 'Arial', sans-serif;
+            page-break-inside: avoid;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        .etiqueta-logo {
+            text-align: center;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 10px;
+        }
+
+        .etiqueta-logo img {
+            max-width: 100%;
+            max-height: 50px;
+            object-fit: contain;
+        }
+
+        .etiqueta-code {
+            font-size: 24px;
+            font-weight: 800;
+            color: #000;
+            text-align: left;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 2px;
+            margin: 8px 0;
+        }
+
+        .etiqueta-barcode {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex: 1;
+        }
+
+        .etiqueta-barcode svg {
+            max-width: 100%;
+            max-height: 60px;
+        }
+
+        .preview-footer {
+            padding: 16px;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            background: #f9f9f9;
+        }
+
+        .btn-cancel {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .btn-cancel:hover {
+            background: #5a6268;
+        }
+
+        .btn-print-action {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .btn-print-action:hover {
+            background: #218838;
+        }
+
+        @media print {
+            body * {
+                display: none !important;
+            }
+
+            #printContainer {
+                display: block !important;
+            }
+
+            #printContainer * {
+                display: block !important;
+            }
+        }
+
+        .print-page {
+            width: 80mm;
+            height: 50mm;
+            background: white;
+            padding: 4mm;
+            margin: 0;
+            display: block;
+            page-break-after: always;
+            page-break-inside: avoid;
+            font-family: 'Arial', sans-serif;
+            box-sizing: border-box;
+        }
+
+        .print-page-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .print-logo {
+            text-align: center;
+            line-height: 1;
+        }
+
+        .print-logo-text {
+            font-size: 7px;
+            letter-spacing: 0.5px;
+            color: #c41e3a;
+        }
+
+        .print-logo-name {
+            font-size: 8px;
+            font-weight: 800;
+            color: #000;
+        }
+
+        .print-code {
+            font-size: 18px;
+            font-weight: 800;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 1px;
+            color: #000;
+            margin: 3mm 0;
+        }
+
+        .print-barcode {
+            text-align: center;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .print-barcode svg {
+            max-width: 100%;
+            max-height: 28px;
+        }
+
+        /* Modal para crear/editar productos */
+        .modal-producto {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 2001;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-producto.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 400px;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            background: #c41e3a;
+            color: white;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 16px;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 6px;
+            font-size: 13px;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .modal-footer {
+            padding: 16px;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .btn-modal-save {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .btn-modal-save:hover {
+            background: #218838;
+        }
+
+        .btn-modal-cancel {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .btn-modal-cancel:hover {
+            background: #5a6268;
+        }
+
+        .btn-crear-producto {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            margin-right: 10px;
+        }
+
+        .btn-crear-producto:hover {
+            background: #218838;
+        }
+
+        .btn-edit-small {
+            background: #ffc107;
+            color: #333;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 11px;
+            margin-right: 4px;
+        }
+
+        .btn-edit-small:hover {
+            background: #e0a800;
+        }
+
+        .btn-delete-small {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 11px;
+        }
+
+        .btn-delete-small:hover {
+            background: #c82333;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="top-bar">
+        <h1>🏷️ IMPRESIÓN DE ETIQUETAS</h1>
+        <button class="header-btn" onclick="goBack()"
+            style="background:#fff;color:#c41e3a;border:none;padding:6px 12px;border-radius:4px;cursor:pointer;font-weight:600">←
+            VOLVER</button>
+    </div>
+
+    <div class="main-container">
+        <div class="container">
+            <!-- Header -->
+            <div class="header">
+                <h2>Generar Etiquetas de Productos</h2>
+                <div class="header-actions">
+                    <button class="btn-crear-producto" onclick="abrirModalProducto()">+ Crear Producto</button>
+                </div>
+            </div>
+
+            <!-- Filtros -->
+            <div class="filters">
+                <div class="filter-group">
+                    <label>Producto (Código o Nombre)</label>
+                    <input type="text" id="buscarProducto" placeholder="Ej: GC-1, GC-149..."
+                        onkeyup="filtrarProductos()">
+                </div>
+                <button class="filter-btn" onclick="filtrarProductos()">🔍 Buscar</button>
+            </div>
+
+            <!-- Info de resultados -->
+            <div id="resultInfo" class="result-info" style="display:none;"></div>
+
+            <!-- Tabla de productos -->
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" id="selectAll" onchange="seleccionarTodos()"
+                                    style="width:18px;height:18px"></th>
+                            <th>Producto</th>
+                            <th>Código</th>
+                            <th>Cantidad</th>
+                            <th>Vista Previa</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productosTabla">
+                        <tr>
+                            <td colspan="6" class="empty-state" style="padding:40px">
+                                <p>Busca un producto o haz clic en Buscar</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Acciones -->
+            <div class="actions">
+                <div class="left">
+                    <button class="btn-printer" onclick="seleccionarImpresora()">🖨️ Seleccionar Impresora</button>
+                </div>
+                <div class="right">
+                    <div class="count" id="contadorSeleccionadas">0 etiquetas</div>
+                    <button class="btn-print" onclick="generarEtiquetas()">🖨️ GENERAR ETIQUETAS</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Vista Previa -->
+    <div id="previewModal" class="modal-preview">
+        <div class="preview-container">
+            <div class="preview-header">
+                <h3>📋 Vista Previa de Etiquetas</h3>
+                <button class="preview-close" onclick="cerrarPreview()">&times;</button>
+            </div>
+            <div class="preview-body">
+                <div id="etiquetasPreview" class="etiquetas-grid"></div>
+            </div>
+            <div class="preview-footer">
+                <button class="btn-cancel" onclick="cerrarPreview()">Cancelar</button>
+                <button class="btn-print-action" onclick="imprimirEtiquetas()">🖨️ IMPRIMIR ETIQUETAS</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para crear/editar productos -->
+    <div id="productoModal" class="modal-producto">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Crear Nuevo Producto</h3>
+                <button class="modal-close" onclick="cerrarModalProducto()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form onsubmit="guardarProducto(event)">
+                    <div class="form-group">
+                        <label for="productoCodigo">Código del Producto *</label>
+                        <input type="text" id="productoCodigo" required placeholder="Ej: GC-1">
+                    </div>
+                    <div class="form-group">
+                        <label for="productoNombre">Nombre del Producto *</label>
+                        <input type="text" id="productoNombre" required placeholder="Ej: Filtro de Aire">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn-modal-cancel" onclick="cerrarModalProducto()">Cancelar</button>
+                        <button type="submit" class="btn-modal-save">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenedor oculto para impresión -->
+    <div id="printContainer" style="display:none;"></div>
+
+    <script>
+        const API_BASE = '/api/v1';
+        let productosCache = [];
+        let etiquetasSeleccionadas = new Map();
+
+        // Datos de ejemplo de productos
+        const datosEjemplo = [
+            { id: 1, codigo: 'GC-1', nombre: 'Filtro de Aire' },
+            { id: 2, codigo: 'GC-3', nombre: 'Filtro de Aceite' },
+            { id: 3, codigo: 'GC-149', nombre: 'Pastillas de Freno' },
+            { id: 4, codigo: 'GC-406', nombre: 'Bujía Standard' },
+            { id: 5, codigo: 'GC-46', nombre: 'Correa Serpentín' },
+            { id: 6, codigo: 'GC-81', nombre: 'Tensor de Cadena' },
+            { id: 7, codigo: 'GC-3600', nombre: 'Bomba de Agua' },
+            { id: 8, codigo: 'GC-150', nombre: 'Amortiguador Delantero' },
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            productosCache = [...datosEjemplo];
+            filtrarProductos();
+        });
+
+        function goBack() {
+            window.location.href = '/recepciones';
+        }
+
+        function filtrarProductos() {
+            const busqueda = document.getElementById('buscarProducto').value.toLowerCase().trim();
+            let filtrados = productosCache;
+
+            if (busqueda) {
+                filtrados = filtrados.filter(p =>
+                    p.codigo.toLowerCase().includes(busqueda) ||
+                    p.nombre.toLowerCase().includes(busqueda)
+                );
+            }
+
+            renderProductosTabla(filtrados);
+        }
+
+        function renderProductosTabla(productos) {
+            const tbody = document.getElementById('productosTabla');
+            const resultInfo = document.getElementById('resultInfo');
+
+            if (productos.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="empty-state" style="padding:40px">
+                            <p>No se encontraron productos</p>
+                        </td>
+                    </tr>
+                `;
+                resultInfo.style.display = 'none';
+                return;
+            }
+
+            resultInfo.innerHTML = `✓ ${productos.length} producto(s) encontrado(s)`;
+            resultInfo.style.display = 'block';
+
+            tbody.innerHTML = productos.map(p => `
+                <tr>
+                    <td class="checkbox-cell">
+                        <input type="checkbox" class="producto-checkbox" data-id="${p.id}" onchange="actualizarSeleccion()">
+                    </td>
+                    <td><strong>${p.nombre}</strong></td>
+                    <td><code style="background:#f0f0f0;padding:4px 8px;border-radius:3px;">${p.codigo}</code></td>
+                    <td>
+                        <input type="number" class="cantidad-input" data-id="${p.id}" value="1" min="1" max="100">
+                    </td>
+                    <td>
+                        <button class="btn-quick" onclick="generarUnaEtiqueta(${p.id})">👁️ Vista Previa</button>
+                    </td>
+                    <td>
+                        <button class="btn-edit-small" onclick="editarProducto(${p.id}); event.stopPropagation();">✏️ Editar</button>
+                        <button class="btn-delete-small" onclick="eliminarProducto(${p.id}); event.stopPropagation();">🗑️ Eliminar</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function seleccionarTodos() {
+            const selectAll = document.getElementById('selectAll');
+            const checkboxes = document.querySelectorAll('.producto-checkbox');
+            checkboxes.forEach(cb => cb.checked = selectAll.checked);
+            actualizarSeleccion();
+        }
+
+        function actualizarSeleccion() {
+            const checkboxes = document.querySelectorAll('.producto-checkbox:checked');
+            etiquetasSeleccionadas.clear();
+
+            checkboxes.forEach(cb => {
+                const id = parseInt(cb.getAttribute('data-id'));
+                const cantidad = parseInt(document.querySelector(`.cantidad-input[data-id="${id}"]`).value) || 1;
+                etiquetasSeleccionadas.set(id, cantidad);
+            });
+
+            const total = Array.from(etiquetasSeleccionadas.values()).reduce((sum, qty) => sum + qty, 0);
+            document.getElementById('contadorSeleccionadas').textContent = `${total} etiqueta${total !== 1 ? 's' : ''}`;
+        }
+
+        function generarUnaEtiqueta(productId) {
+            const map = new Map();
+            map.set(productId, 1);
+            mostrarPreview(map);
+        }
+
+        function generarEtiquetas() {
+            if (etiquetasSeleccionadas.size === 0) {
+                alert('⚠️ Selecciona al menos un producto para generar etiquetas');
+                return;
+            }
+            mostrarPreview(etiquetasSeleccionadas);
+        }
+
+        function mostrarPreview(seleccionadas) {
+            const previewDiv = document.getElementById('etiquetasPreview');
+            let html = '';
+
+            seleccionadas.forEach((cantidad, productId) => {
+                const producto = productosCache.find(p => p.id === productId);
+                if (!producto) return;
+
+                for (let i = 0; i < cantidad; i++) {
+                    const uniqueId = `barcode-${productId}-${i}`;
+                    html += `
+                        <div class="etiqueta-print">
+                            <div class="etiqueta-logo">
+                                <img src="/static/images/logo-refaccionaria.PNG" alt="Logo Refaccionaria">
+                            </div>
+                            <div class="etiqueta-code">${producto.codigo}</div>
+                            <div class="etiqueta-barcode">
+                                <svg id="${uniqueId}"></svg>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            previewDiv.innerHTML = html;
+
+            // Generar códigos de barras
+            setTimeout(() => {
+                seleccionadas.forEach((cantidad, productId) => {
+                    const producto = productosCache.find(p => p.id === productId);
+                    for (let i = 0; i < cantidad; i++) {
+                        const uniqueId = `barcode-${productId}-${i}`;
+                        try {
+                            JsBarcode(`#${uniqueId}`, producto.codigo, {
+                                format: "CODE128",
+                                width: 2,
+                                height: 50,
+                                margin: 2,
+                                displayValue: false
+                            });
+                        } catch (e) {
+                            console.error('Error generando código de barras:', e);
+                        }
+                    }
+                });
+            }, 100);
+
+            document.getElementById('previewModal').classList.add('active');
+        }
+
+        function cerrarPreview() {
+            document.getElementById('previewModal').classList.remove('active');
+        }
+
+        function imprimirEtiquetas() {
+            const previewDiv = document.getElementById('etiquetasPreview');
+            const etiquetas = previewDiv.querySelectorAll('.etiqueta-print');
+
+            if (etiquetas.length === 0) {
+                alert('No hay etiquetas para imprimir');
+                return;
+            }
+
+            const printContainer = document.getElementById('printContainer');
+            let printHtml = `
+                <html>
+                <head>
+                    <style>
+                        @page {
+                            size: 80mm 50mm;
+                            margin: 0;
+                            padding: 0;
+                        }
+                        body {
+                            margin: 0;
+                            padding: 0;
+                        }
+                        .print-page {
+                            width: 80mm;
+                            height: 50mm;
+                            background: white;
+                            padding: 4mm;
+                            margin: 0;
+                            display: block;
+                            page-break-after: always;
+                            page-break-inside: avoid;
+                            font-family: 'Arial', sans-serif;
+                            box-sizing: border-box;
+                        }
+                        .print-page-content {
+                            display: flex;
+                            flex-direction: column;
+                            justify-content: space-between;
+                            height: 100%;
+                            font-family: 'Arial', sans-serif;
+                        }
+                        .print-logo {
+                            text-align: center;
+                            line-height: 1;
+                        }
+                        .print-logo img {
+                            max-width: 100%;
+                            max-height: 20px;
+                            object-fit: contain;
+                        }
+                        .print-code {
+                            font-size: 18px;
+                            font-weight: 800;
+                            font-family: 'Courier New', monospace;
+                            letter-spacing: 1px;
+                            color: #000;
+                            margin: 3mm 0;
+                        }
+                        .print-barcode {
+                            text-align: center;
+                            flex: 1;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                        }
+                        .print-barcode svg {
+                            max-width: 100%;
+                            max-height: 28px;
+                        }
+                    </style>
+                </head>
+                <body>
+            `;
+
+            etiquetas.forEach((etiqueta, idx) => {
+                const codigo = etiqueta.querySelector('.etiqueta-code').textContent;
+                const barcodeId = `print-barcode-${idx}`;
+
+                printHtml += `
+                    <div class="print-page">
+                        <div class="print-page-content">
+                            <div class="print-logo">
+                                <img src="/static/images/logo-refaccionaria.PNG" alt="Logo Refaccionaria">
+                            </div>
+                            <div class="print-code">${codigo}</div>
+                            <div class="print-barcode">
+                                <svg id="${barcodeId}"></svg>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            printHtml += `
+                </body>
+                </html>
+            `;
+
+            printContainer.innerHTML = printHtml;
+
+            // Generar códigos de barras en el contenedor de impresión
+            setTimeout(() => {
+                etiquetas.forEach((etiqueta, idx) => {
+                    const codigo = etiqueta.querySelector('.etiqueta-code').textContent;
+                    const barcodeId = `print-barcode-${idx}`;
+                    const element = document.getElementById(barcodeId);
+
+                    if (element) {
+                        try {
+                            JsBarcode(`#${barcodeId}`, codigo, {
+                                format: "CODE128",
+                                width: 2,
+                                height: 28,
+                                margin: 1,
+                                displayValue: false
+                            });
+                        } catch (e) {
+                            console.error('Error en impresión:', e);
+                        }
+                    }
+                });
+
+                // Enviar a imprimir
+                window.print();
+            }, 200);
+        }
+
+        function seleccionarImpresora() {
+            alert('📋 Se utilizará la impresora predeterminada del sistema.\n\nPuedes cambiarla durante el diálogo de impresión.');
+        }
+
+        // ===== FUNCIONES CRUD DE PRODUCTOS =====
+
+        let productoEditandoId = null;
+
+        function abrirModalProducto() {
+            productoEditandoId = null;
+            document.getElementById('modalTitle').textContent = 'Crear Nuevo Producto';
+            document.getElementById('productoCodigo').value = '';
+            document.getElementById('productoNombre').value = '';
+            document.getElementById('productoModal').classList.add('active');
+        }
+
+        function cerrarModalProducto() {
+            document.getElementById('productoModal').classList.remove('active');
+            productoEditandoId = null;
+        }
+
+        function editarProducto(id) {
+            const producto = productosCache.find(p => p.id === id);
+            if (!producto) return;
+
+            productoEditandoId = id;
+            document.getElementById('modalTitle').textContent = 'Editar Producto';
+            document.getElementById('productoCodigo').value = producto.codigo;
+            document.getElementById('productoNombre').value = producto.nombre;
+            document.getElementById('productoModal').classList.add('active');
+        }
+
+        function guardarProducto(event) {
+            event.preventDefault();
+
+            const codigo = document.getElementById('productoCodigo').value.trim();
+            const nombre = document.getElementById('productoNombre').value.trim();
+
+            if (!codigo || !nombre) {
+                alert('⚠️ Todos los campos son requeridos');
+                return;
+            }
+
+            if (productoEditandoId) {
+                // Editar existente
+                const producto = productosCache.find(p => p.id === productoEditandoId);
+                if (producto) {
+                    producto.codigo = codigo;
+                    producto.nombre = nombre;
+                    alert('✓ Producto actualizado correctamente');
+                }
+            } else {
+                // Crear nuevo
+                const nuevoId = Math.max(...productosCache.map(p => p.id), 0) + 1;
+                productosCache.push({
+                    id: nuevoId,
+                    codigo: codigo,
+                    nombre: nombre
+                });
+                alert('✓ Producto creado correctamente');
+            }
+
+            cerrarModalProducto();
+            filtrarProductos();
+        }
+
+        function eliminarProducto(id) {
+            const producto = productosCache.find(p => p.id === id);
+            if (!producto) {
+                alert('Producto no encontrado');
+                return;
+            }
+
+            if (confirm(`¿Estás seguro de que deseas eliminar "${producto.nombre}"?`)) {
+                const index = productosCache.findIndex(p => p.id === id);
+                if (index > -1) {
+                    productosCache.splice(index, 1);
+                    alert('✓ Producto eliminado correctamente');
+                    filtrarProductos();
+                } else {
+                    alert('Error al eliminar el producto');
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>
