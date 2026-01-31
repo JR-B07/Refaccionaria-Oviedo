@@ -87,12 +87,18 @@ async def crear_paquete(data: PaqueteCreate, db: Session = Depends(get_db)):
             nombre=data.nombre,
             descripcion=data.descripcion,
             clase=data.clase,
+            codigo_barras=data.codigo_barras if hasattr(data, 'codigo_barras') else None,
             activo=data.activo if data.activo is not None else True
         )
         db.add(nuevo)
         db.commit()
         db.refresh(nuevo)
-        return {"message": "Paquete creado", "id": nuevo.id}
+        # Si no se proporcionó código de barras, lo generamos
+        if not nuevo.codigo_barras:
+            nuevo.codigo_barras = f"PAQ-{nuevo.id:06d}"
+            db.commit()
+            db.refresh(nuevo)
+        return {"message": "Paquete creado", "id": nuevo.id, "codigo_barras": nuevo.codigo_barras}
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))

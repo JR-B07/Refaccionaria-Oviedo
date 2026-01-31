@@ -26,6 +26,23 @@ class ProductoCreate(BaseModel):
     ubicacion_columna: Optional[str] = None
 
 
+# Schema para editar producto
+class ProductoUpdate(BaseModel):
+    nombre: Optional[str] = None
+    descripcion: Optional[str] = None
+    marca: Optional[str] = None
+    modelo: Optional[str] = None
+    categoria: Optional[str] = None
+    precio_compra: Optional[float] = None
+    precio_venta: Optional[float] = None
+    precio_venta_credito: Optional[float] = None
+    stock_minimo: Optional[int] = None
+    stock_total: Optional[int] = None
+    ubicacion_estante: Optional[str] = None
+    ubicacion_fila: Optional[str] = None
+    ubicacion_columna: Optional[str] = None
+
+
 # --- Listado de productos filtrado por sucursal del usuario autenticado ---
 @router.get("/", tags=["Productos"])
 async def listar_productos(
@@ -124,20 +141,72 @@ async def crear_producto(producto: ProductoCreate, db: Session = Depends(get_db)
             ubicacion_fila=producto.ubicacion_fila,
             ubicacion_columna=producto.ubicacion_columna
         )
-        
         db.add(nuevo_producto)
         db.commit()
         db.refresh(nuevo_producto)
-        
+        # Si no se proporcionó código de barras, lo generamos
+        if not nuevo_producto.codigo_barras:
+            nuevo_producto.codigo_barras = f"PROD-{nuevo_producto.id:06d}"
+            db.commit()
+            db.refresh(nuevo_producto)
         return {
             "message": "Producto creado exitosamente",
             "id": nuevo_producto.id,
             "codigo": nuevo_producto.codigo,
-            "nombre": nuevo_producto.nombre
+            "nombre": nuevo_producto.nombre,
+            "codigo_barras": nuevo_producto.codigo_barras
         }
     except HTTPException:
         raise
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Error al crear el producto: {str(e)}")
+
+
+@router.get("/{producto_id}", tags=["Productos"])
+async def obtener_producto(producto_id: int, db: Session = Depends(get_db)):
+    """Obtener un producto por su ID."""
+    prod = db.query(Producto).filter(Producto.id == producto_id).first()
+    if not prod:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+    return {
+        "id": prod.id,
+        "codigo": prod.codigo,
+        "codigo_barras": prod.codigo_barras,
+        "nombre": prod.nombre,
+        "descripcion": prod.descripcion,
+        "marca": prod.marca,
+        "modelo": prod.modelo,
+        "categoria": prod.categoria,
+        "precio_compra": float(prod.precio_compra) if prod.precio_compra is not None else None,
+        "precio_venta": float(prod.precio_venta) if prod.precio_venta is not None else None,
+        "stock_minimo": prod.stock_minimo,
+        "stock_total": prod.stock_total,
+        "ubicacion_estante": prod.ubicacion_estante,
+        "ubicacion_fila": prod.ubicacion_fila,
+        "ubicacion_columna": prod.ubicacion_columna
+    }
+
+@router.put("/{producto_id}", tags=["Productos"])
+async def editar_producto(producto_id: int, producto: ProductoUpdate, db: Session = Depends(get_db)):
+    """Editar un producto existente."""
+    try:
+        prod = db.query(Producto).filter(Producto.id == producto_id).first()
+        if not prod:
+            raise HTTPException(status_code=404, detail="Producto no encontrado")
+        for field, value in producto.dict(exclude_unset=True).items():
+            setattr(prod, field, value)
+        db.commit()
+        db.refresh(prod)
+        return {
+            "message": "Producto editado exitosamente",
+            "id": prod.id,
+            "codigo": prod.codigo,
+            "nombre": prod.nombre
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Error al editar el producto: {str(e)}")
 

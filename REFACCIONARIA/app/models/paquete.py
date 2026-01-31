@@ -9,6 +9,7 @@ class Paquete(ModeloBase):
     nombre = Column(String(200), nullable=False, index=True)
     descripcion = Column(Text)
     clase = Column(String(100), index=True)  # Ej: Afinación, Kit Frenos, etc.
+    codigo_barras = Column(String(100), unique=True, index=True)
     activo = Column(Boolean, default=True)
 
     # Relaciones
