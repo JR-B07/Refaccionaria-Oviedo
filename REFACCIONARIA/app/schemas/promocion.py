@@ -18,7 +18,7 @@ class PromocionUpdate(BaseModel):
 class PromocionInDBBase(PromocionBase):
     id: int
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class Promocion(PromocionInDBBase):
     pass
