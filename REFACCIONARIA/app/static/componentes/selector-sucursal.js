@@ -3,17 +3,39 @@
  * Uso: Incluir en el HTML y llamar a inicializarSelectorSucursal()
  */
 
-const SUCURSALES = [
-    { id: 1, nombre: 'REFACCIONARIA OVIEDO' },
-    { id: 2, nombre: 'FILTROS Y LUBRICANTES' }
-];
+let SUCURSALES = [];
+
+// Cargar sucursales desde la API al iniciar
+async function cargarSucursales() {
+    try {
+        const token = localStorage.getItem('access_token');
+        const response = await fetch('/api/v1/locales/', {
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        if (response.ok) {
+            SUCURSALES = await response.json();
+            console.log('✅ Sucursales cargadas desde API:', SUCURSALES);
+        } else {
+            console.error('Error al cargar sucursales:', response.status);
+            SUCURSALES = [];
+        }
+    } catch (error) {
+        console.error('Error conectando a la API de sucursales:', error);
+        SUCURSALES = [];
+    }
+}
 
 /**
  * Inicializa el selector de sucursal
  * @param {string} selectId - ID del elemento select
  * @param {function} callback - Función a ejecutar cuando cambie la sucursal
  */
-function inicializarSelectorSucursal(selectId = 'sucursalSelect', callback = null) {
+async function inicializarSelectorSucursal(selectId = 'sucursalSelect', callback = null) {
+    // Cargar sucursales si no están cargadas
+    if (SUCURSALES.length === 0) {
+        await cargarSucursales();
+    }
+
     const select = document.getElementById(selectId);
     if (!select) {
         console.warn(`Selector con ID "${selectId}" no encontrado`);
@@ -43,6 +65,7 @@ function inicializarSelectorSucursal(selectId = 'sucursalSelect', callback = nul
         });
     }
 
+    console.log(`✅ Selector ${selectId} inicializado`);
     return localIdDefecto;
 }
 

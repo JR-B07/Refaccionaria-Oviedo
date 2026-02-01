@@ -228,6 +228,55 @@ def crear_ticket(ticket: TicketCreate):
     tickets_db.append(nuevo_ticket)
     return nuevo_ticket
 
+@router.post("/", response_model=TicketResponse, status_code=status.HTTP_201_CREATED, tags=["Tickets"])
+def crear_ticket_desde_raiz(ticket: TicketCreate):
+    """Crea un nuevo vale/ticket."""
+    return crear_ticket(ticket)
+
+@router.put("/{folio}", response_model=TicketResponse, tags=["Tickets"])
+def editar_ticket_completo(folio: str, datos: TicketCreate):
+    """
+    Edita un vale/ticket existente.
+    
+    - **folio**: Folio del ticket a editar
+    - **datos**: Datos completos del ticket
+    """
+    ticket = next((t for t in tickets_db if t["folio"].upper() == folio.upper()), None)
+    if not ticket:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Ticket {folio} no encontrado"
+        )
+    
+    # Actualizar todos los campos
+    ticket["folio"] = datos.folio
+    ticket["partidas"] = datos.partidas
+    ticket["articulo"] = datos.articulo
+    ticket["cliente"] = datos.cliente
+    ticket["fecha"] = datos.fecha
+    ticket["estatus"] = datos.estatus
+    ticket["updated_at"] = datetime.now()
+    
+    return ticket
+
+@router.delete("/{folio}", status_code=status.HTTP_204_NO_CONTENT, tags=["Tickets"])
+def eliminar_ticket(folio: str):
+    """
+    Elimina un vale/ticket.
+    
+    - **folio**: Folio del ticket a eliminar
+    """
+    global tickets_db
+    ticket = next((t for t in tickets_db if t["folio"].upper() == folio.upper()), None)
+    if not ticket:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Ticket {folio} no encontrado"
+        )
+    
+    tickets_db = [t for t in tickets_db if t["folio"].upper() != folio.upper()]
+    return None
+
 @router.patch("/{folio}", response_model=TicketResponse, tags=["Tickets"])
 def actualizar_ticket(folio: str, datos: TicketUpdate):
     """

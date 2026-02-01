@@ -1,6 +1,6 @@
 from pydantic import BaseModel
-from typing import Optional, List
-from datetime import datetime
+from typing import Optional, List, Union
+from datetime import datetime, date
 
 class DetalleTraspasoBase(BaseModel):
     producto_id: int
@@ -22,7 +22,7 @@ class DetalleTraspasoResponse(DetalleTraspasoBase):
 
 class TraspasoBase(BaseModel):
     folio: str
-    fecha: datetime
+    fecha: Union[datetime, date, str]
     origen_id: int
     destino_id: int
     notas: Optional[str] = None
@@ -34,7 +34,7 @@ class TraspasoCreate(TraspasoBase):
 
 class TraspasoUpdate(BaseModel):
     folio: Optional[str] = None
-    fecha: Optional[datetime] = None
+    fecha: Optional[Union[datetime, date, str]] = None
     origen_id: Optional[int] = None
     destino_id: Optional[int] = None
     estado: Optional[str] = None

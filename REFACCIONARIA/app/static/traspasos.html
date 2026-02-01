@@ -491,6 +491,7 @@
                             <th>FECHA</th>
                             <th>ORIGEN</th>
                             <th>DESTINO</th>
+                            <th>ACCIONES</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody">
@@ -560,9 +561,28 @@
                     </div>
                 </div>
                 <div class="form-row">
+                    <div class="filter-group form-group-full" style="position: relative;">
+                        <label>Buscar Producto</label>
+                        <input type="text" id="buscarProducto" placeholder="Buscar por código o nombre..."
+                            autocomplete="off">
+                        <div id="resultadosProductos"
+                            style="display: none; position: absolute; background: white; border: 1px solid #ddd; border-radius: 4px; max-height: 250px; overflow-y: auto; width: 100%; z-index: 1001; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-top: 2px;">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
                     <div class="filter-group form-group-full">
-                        <label>Notas</label>
-                        <textarea id="nuevoNotas" rows="3" placeholder="Notas adicionales..."></textarea>
+                        <label>Productos Agregados (<span id="contadorProductos">0</span>)</label>
+                        <div id="listaProductos"
+                            style="border: 1px solid #ddd; border-radius: 4px; padding: 10px; min-height: 100px; max-height: 250px; overflow-y: auto; background: #f9f9f9;">
+                            <p style="color: #999; text-align: center; margin: 30px 0;">No hay productos agregados</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="filter-group form-group-full">
+                        <label>Notas adicionales</label>
+                        <textarea id="nuevoNotas" rows="2" placeholder="Notas opcionales..."></textarea>
                     </div>
                 </div>
                 <div class="modal-actions">
@@ -577,9 +597,83 @@
         </div>
     </div>
 
+    <!-- Modal para editar traspaso -->
+    <div class="modal" id="modalEditar">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Editar Traspaso</h2>
+                <button class="close-btn" onclick="cerrarModalEditar()">&times;</button>
+            </div>
+            <form id="formEditarTraspaso" onsubmit="actualizarTraspaso(event)">
+                <input type="hidden" id="editarId">
+                <div class="form-row">
+                    <div class="filter-group">
+                        <label>Folio *</label>
+                        <input type="text" id="editarFolio" required>
+                    </div>
+                    <div class="filter-group">
+                        <label>Fecha *</label>
+                        <input type="date" id="editarFecha" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="filter-group">
+                        <label>Origen *</label>
+                        <select id="editarOrigen" required>
+                            <option value="">Seleccionar...</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Destino *</label>
+                        <select id="editarDestino" required>
+                            <option value="">Seleccionar...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="filter-group">
+                        <label>Estado</label>
+                        <select id="editarEstado">
+                            <option value="pendiente">PENDIENTE</option>
+                            <option value="transito">EN TRANSITO</option>
+                            <option value="completado">COMPLETADO</option>
+                            <option value="cancelado">CANCELADO</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="filter-group form-group-full">
+                        <label>Productos (<span id="contadorProductosEditar">0</span>)</label>
+                        <div id="listaProductosEditar"
+                            style="border: 1px solid #ddd; border-radius: 4px; padding: 10px; min-height: 100px; max-height: 250px; overflow-y: auto; background: #f9f9f9;">
+                            <p style="color: #999; text-align: center; margin: 30px 0;">No hay productos</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="filter-group form-group-full">
+                        <label>Notas adicionales</label>
+                        <textarea id="editarNotas" rows="2" placeholder="Notas opcionales..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="menu-btn" style="background-color: #6c757d;"
+                        onclick="cerrarModalEditar()">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="menu-btn" style="background-color: #28a745;">
+                        <i class="fas fa-save"></i> Actualizar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         let traspasosData = [];
         let localesList = [];
+        let productosAgregados = [];
+        let timeoutBusqueda = null;
 
         // Inicializar
         document.addEventListener('DOMContentLoaded', async function () {
@@ -612,19 +706,26 @@
 
         async function cargarLocales() {
             try {
-                const opcionesLocales = [
-                    { id: 1, nombre: 'REFACCIONARIA OVIEDO' },
-                    { id: 2, nombre: 'FILTROS Y LUBRICANTES' },
-                    { id: 3, nombre: 'FILTROS Y LUBRICANTES OVIEDO' },
-                    { id: 4, nombre: 'ALMACEN PRINCIPAL' }
-                ];
+                const token = localStorage.getItem('access_token');
+                const response = await fetch('/api/v1/locales/', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
 
-                localesList = opcionesLocales;
+                if (response.ok) {
+                    localesList = await response.json();
+                    console.log('✅ Locales cargados desde API:', localesList);
+                } else {
+                    console.error('Error al cargar locales de la API, usando valores por defecto');
+                    localesList = [
+                        { id: 1, nombre: 'REFACCIONARIA OVIEDO' },
+                        { id: 3, nombre: 'FILTROS Y LUBRICANTES' }
+                    ];
+                }
 
                 const selectOrigen = document.getElementById('filterOrigen');
                 const selectDestino = document.getElementById('filterDestino');
 
-                opcionesLocales.forEach(l => {
+                localesList.forEach(l => {
                     const option1 = document.createElement('option');
                     option1.value = l.id;
                     option1.textContent = l.nombre;
@@ -637,6 +738,26 @@
                 });
             } catch (error) {
                 console.error('Error al cargar locales:', error);
+                // Fallback con las sucursales actuales
+                localesList = [
+                    { id: 1, nombre: 'REFACCIONARIA OVIEDO' },
+                    { id: 3, nombre: 'FILTROS Y LUBRICANTES' }
+                ];
+
+                const selectOrigen = document.getElementById('filterOrigen');
+                const selectDestino = document.getElementById('filterDestino');
+
+                localesList.forEach(l => {
+                    const option1 = document.createElement('option');
+                    option1.value = l.id;
+                    option1.textContent = l.nombre;
+                    selectOrigen.appendChild(option1);
+
+                    const option2 = document.createElement('option');
+                    option2.value = l.id;
+                    option2.textContent = l.nombre;
+                    selectDestino.appendChild(option2);
+                });
             }
         }
 
@@ -731,6 +852,14 @@
                     <td>${fecha}</td>
                     <td>${traspaso.origen_nombre || '-'}</td>
                     <td>${traspaso.destino_nombre || '-'}</td>
+                    <td>
+                        <button onclick="abrirModalEditar(${traspaso.id})" class="menu-btn" style="padding: 4px 8px; font-size: 12px; background-color: #007bff;">
+                            <i class="fas fa-edit"></i> Editar
+                        </button>
+                        <button onclick="imprimirTraspaso(${traspaso.id})" class="menu-btn" style="padding: 4px 8px; font-size: 12px; background-color: #6c757d; margin-left: 6px;">
+                            <i class="fas fa-print"></i> Imprimir
+                        </button>
+                    </td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -787,6 +916,146 @@
             document.getElementById('formNuevoTraspaso').reset();
             document.getElementById('nuevoFecha').value = new Date().toISOString().split('T')[0];
             document.getElementById('nuevoEstado').value = 'pendiente';
+
+            // Limpiar productos agregados
+            productosAgregados = [];
+            actualizarListaProductos();
+
+            // Configurar buscador de productos
+            const inputBuscar = document.getElementById('buscarProducto');
+            inputBuscar.addEventListener('input', buscarProductos);
+
+            // Cerrar resultados al hacer clic fuera
+            document.addEventListener('click', function (e) {
+                if (!e.target.closest('#buscarProducto') && !e.target.closest('#resultadosProductos')) {
+                    document.getElementById('resultadosProductos').style.display = 'none';
+                }
+            });
+        }
+
+        async function buscarProductos(e) {
+            const termino = e.target.value.trim();
+            const resultadosDiv = document.getElementById('resultadosProductos');
+
+            if (termino.length < 2) {
+                resultadosDiv.style.display = 'none';
+                return;
+            }
+
+            // Debounce para no hacer muchas peticiones
+            clearTimeout(timeoutBusqueda);
+            timeoutBusqueda = setTimeout(async () => {
+                try {
+                    const token = localStorage.getItem('access_token');
+                    const response = await fetch(`/api/v1/productos/?q=${encodeURIComponent(termino)}&limit=10`, {
+                        headers: { 'Authorization': 'Bearer ' + token }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        // La API devuelve { total, items }
+                        const productos = data.items || data;
+                        mostrarResultadosProductos(productos);
+                    } else {
+                        console.error('Error en búsqueda:', response.status);
+                        resultadosDiv.innerHTML = '<div style="padding: 10px; color: #dc3545;">Error al buscar productos</div>';
+                        resultadosDiv.style.display = 'block';
+                    }
+                } catch (error) {
+                    console.error('Error buscando productos:', error);
+                    resultadosDiv.innerHTML = '<div style="padding: 10px; color: #dc3545;">Error de conexión</div>';
+                    resultadosDiv.style.display = 'block';
+                }
+            }, 300);
+        }
+
+        function mostrarResultadosProductos(productos) {
+            const resultadosDiv = document.getElementById('resultadosProductos');
+
+            if (!productos || productos.length === 0) {
+                resultadosDiv.innerHTML = '<div style="padding: 10px; color: #999;">No se encontraron productos</div>';
+                resultadosDiv.style.display = 'block';
+                return;
+            }
+
+            resultadosDiv.innerHTML = productos.map(p => `
+                <div onclick="agregarProducto(${p.id}, '${p.codigo}', '${p.nombre.replace(/'/g, "\\'")}', ${p.precio_venta || 0})" 
+                     style="padding: 10px; cursor: pointer; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <strong>${p.codigo}</strong> - ${p.nombre}
+                        <div style="font-size: 11px; color: #666;">Stock: ${p.stock_total || 0}</div>
+                    </div>
+                    <div style="color: var(--primary-red); font-weight: bold;">
+                        $${(p.precio_venta || 0).toFixed(2)}
+                    </div>
+                </div>
+            `).join('');
+
+            resultadosDiv.style.display = 'block';
+        }
+
+        function agregarProducto(id, codigo, nombre, precio) {
+            // Verificar si ya está agregado
+            if (productosAgregados.find(p => p.id === id)) {
+                alert('Este producto ya está agregado');
+                return;
+            }
+
+            productosAgregados.push({
+                id: id,
+                codigo: codigo,
+                nombre: nombre,
+                precio: precio,
+                cantidad: 1
+            });
+
+            actualizarListaProductos();
+
+            // Limpiar buscador
+            document.getElementById('buscarProducto').value = '';
+            document.getElementById('resultadosProductos').style.display = 'none';
+        }
+
+        function actualizarListaProductos() {
+            const listaDiv = document.getElementById('listaProductos');
+            const contador = document.getElementById('contadorProductos');
+
+            contador.textContent = productosAgregados.length;
+
+            if (productosAgregados.length === 0) {
+                listaDiv.innerHTML = '<p style="color: #999; text-align: center; margin: 30px 0;">No hay productos agregados</p>';
+                return;
+            }
+
+            listaDiv.innerHTML = productosAgregados.map((p, index) => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #ddd; background: white; margin-bottom: 5px;">
+                    <div style="flex: 1;">
+                        <strong>${p.codigo}</strong> - ${p.nombre}
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <label style="margin: 0;">Cant:</label>
+                        <input type="number" value="${p.cantidad}" min="1" 
+                               onchange="cambiarCantidad(${index}, this.value)"
+                               style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px;">
+                        <button onclick="eliminarProducto(${index})" 
+                                style="background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function cambiarCantidad(index, nuevaCantidad) {
+            const cantidad = parseInt(nuevaCantidad);
+            if (cantidad > 0) {
+                productosAgregados[index].cantidad = cantidad;
+            }
+        }
+
+        function eliminarProducto(index) {
+            productosAgregados.splice(index, 1);
+            actualizarListaProductos();
         }
 
         function cerrarModal() {
@@ -804,6 +1073,18 @@
                 return;
             }
 
+            if (productosAgregados.length === 0) {
+                alert('Debes agregar al menos un producto al traspaso');
+                return;
+            }
+
+            // Construir detalles del traspaso
+            const detalles = productosAgregados.map(p => ({
+                producto_id: p.id,
+                cantidad: p.cantidad,
+                precio: p.precio
+            }));
+
             const traspasoData = {
                 folio: document.getElementById('nuevoFolio').value.trim(),
                 fecha: document.getElementById('nuevoFecha').value,
@@ -811,8 +1092,10 @@
                 destino_id: destinoId,
                 estado: document.getElementById('nuevoEstado').value,
                 notas: document.getElementById('nuevoNotas').value.trim(),
-                detalles: []
+                detalles: detalles
             };
+
+            console.log('Enviando traspaso:', traspasoData);
 
             try {
                 const token = localStorage.getItem('access_token');
@@ -834,12 +1117,284 @@
                     await cargarTraspasos();
                     alert('Traspaso creado exitosamente');
                 } else {
-                    const error = await response.json();
-                    alert('Error al crear el traspaso: ' + (error.detail || 'Error desconocido'));
+                    const errorData = await response.json();
+                    console.error('Error del servidor:', errorData);
+                    const mensajeError = typeof errorData.detail === 'string'
+                        ? errorData.detail
+                        : JSON.stringify(errorData.detail);
+                    alert('Error al crear el traspaso: ' + mensajeError);
                 }
             } catch (error) {
+                console.error('Error en la petición:', error);
                 alert('Error al crear el traspaso: ' + error.message);
             }
+        }
+
+        async function abrirModalEditar(traspasoId) {
+            try {
+                const token = localStorage.getItem('access_token');
+                const response = await fetch(`/api/v1/traspasos/${traspasoId}`, {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+
+                if (!response.ok) {
+                    alert('Error al cargar el traspaso');
+                    return;
+                }
+
+                const traspaso = await response.json();
+
+                // Llenar el formulario
+                document.getElementById('editarId').value = traspaso.id;
+                document.getElementById('editarFolio').value = traspaso.folio;
+                document.getElementById('editarFecha').value = traspaso.fecha.split('T')[0];
+                document.getElementById('editarEstado').value = traspaso.estado;
+                document.getElementById('editarNotas').value = traspaso.notas || '';
+
+                // Llenar selects de sucursales si no están llenos
+                const selectOrigen = document.getElementById('editarOrigen');
+                const selectDestino = document.getElementById('editarDestino');
+
+                if (selectOrigen.options.length <= 1) {
+                    localesList.forEach(l => {
+                        const option1 = document.createElement('option');
+                        option1.value = l.id;
+                        option1.textContent = l.nombre;
+                        selectOrigen.appendChild(option1);
+
+                        const option2 = document.createElement('option');
+                        option2.value = l.id;
+                        option2.textContent = l.nombre;
+                        selectDestino.appendChild(option2);
+                    });
+                }
+
+                // Seleccionar origen y destino
+                document.getElementById('editarOrigen').value = traspaso.origen_id;
+                document.getElementById('editarDestino').value = traspaso.destino_id;
+
+                // Mostrar productos
+                mostrarProductosEditar(traspaso.detalles || []);
+
+                // Abrir modal
+                document.getElementById('modalEditar').classList.add('active');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al cargar el traspaso');
+            }
+        }
+
+        function mostrarProductosEditar(detalles) {
+            const listaDiv = document.getElementById('listaProductosEditar');
+            const contador = document.getElementById('contadorProductosEditar');
+
+            contador.textContent = detalles.length;
+
+            if (detalles.length === 0) {
+                listaDiv.innerHTML = '<p style="color: #999; text-align: center; margin: 30px 0;">No hay productos</p>';
+                return;
+            }
+
+            listaDiv.innerHTML = detalles.map(d => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #ddd; background: white; margin-bottom: 5px;">
+                    <div style="flex: 1;">
+                        <strong>${d.producto_codigo || 'N/A'}</strong> - ${d.producto_nombre || 'Sin nombre'}
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <label style="margin: 0;">Cant: ${d.cantidad}</label>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function cerrarModalEditar() {
+            document.getElementById('modalEditar').classList.remove('active');
+        }
+
+        async function actualizarTraspaso(event) {
+            event.preventDefault();
+
+            const traspasoId = document.getElementById('editarId').value;
+            const origenId = parseInt(document.getElementById('editarOrigen').value);
+            const destinoId = parseInt(document.getElementById('editarDestino').value);
+
+            if (origenId === destinoId) {
+                alert('El origen y destino no pueden ser el mismo');
+                return;
+            }
+
+            const traspasoData = {
+                folio: document.getElementById('editarFolio').value.trim(),
+                fecha: document.getElementById('editarFecha').value,
+                origen_id: origenId,
+                destino_id: destinoId,
+                estado: document.getElementById('editarEstado').value,
+                notas: document.getElementById('editarNotas').value.trim()
+            };
+
+            console.log('Actualizando traspaso:', traspasoData);
+
+            try {
+                const token = localStorage.getItem('access_token');
+                const headers = {
+                    'Content-Type': 'application/json'
+                };
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
+
+                const response = await fetch(`/api/v1/traspasos/${traspasoId}`, {
+                    method: 'PUT',
+                    headers: headers,
+                    body: JSON.stringify(traspasoData)
+                });
+
+                if (response.ok) {
+                    cerrarModalEditar();
+                    await cargarTraspasos();
+                    alert('Traspaso actualizado exitosamente');
+                } else {
+                    const errorData = await response.json();
+                    console.error('Error del servidor:', errorData);
+                    const mensajeError = typeof errorData.detail === 'string'
+                        ? errorData.detail
+                        : JSON.stringify(errorData.detail);
+                    alert('Error al actualizar el traspaso: ' + mensajeError);
+                }
+            } catch (error) {
+                console.error('Error en la petición:', error);
+                alert('Error al actualizar el traspaso: ' + error.message);
+            }
+        }
+
+        async function imprimirTraspaso(traspasoId) {
+            try {
+                const token = localStorage.getItem('access_token');
+                const response = await fetch(`/api/v1/traspasos/${traspasoId}`, {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+
+                if (!response.ok) {
+                    alert('Error al cargar el traspaso para imprimir');
+                    return;
+                }
+
+                const traspaso = await response.json();
+                const ticketHtml = construirTicketHTML(traspaso);
+
+                const printWindow = window.open('', '_blank', 'width=380,height=700');
+                if (!printWindow) {
+                    alert('No se pudo abrir la ventana de impresión');
+                    return;
+                }
+
+                printWindow.document.open();
+                printWindow.document.write(ticketHtml);
+                printWindow.document.close();
+
+                printWindow.onload = function () {
+                    printWindow.focus();
+                    printWindow.print();
+                };
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al imprimir el traspaso');
+            }
+        }
+
+        function construirTicketHTML(traspaso) {
+            const fecha = new Date(traspaso.fecha).toLocaleDateString('es-MX');
+            const detalles = traspaso.detalles || [];
+            const totalPartidas = detalles.length;
+            const totalArticulos = detalles.reduce((acc, d) => acc + (d.cantidad || 0), 0);
+
+            const filas = detalles.map(d => `
+                <tr>
+                    <td style="padding: 2px 0;">${d.producto_codigo || 'N/A'}</td>
+                    <td style="padding: 2px 0; text-align: right;">${d.cantidad || 0}</td>
+                </tr>
+            `).join('');
+
+            return `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket Traspaso</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        .ticket { width: 80mm; margin: 0 auto; padding: 6mm 4mm; color: #000; }
+        .center { text-align: center; }
+        .logo { width: 40mm; margin: 2mm auto 3mm; display: block; }
+        .line { border-top: 1px solid #000; margin: 3mm 0; }
+        .row { display: flex; justify-content: space-between; font-size: 11px; }
+        .label { font-weight: bold; }
+        table { width: 100%; font-size: 11px; border-collapse: collapse; }
+        .muted { font-size: 10px; }
+        .signature { margin-top: 4mm; font-size: 10px; }
+        .signature-line { border-bottom: 1px solid #000; height: 10px; margin-bottom: 4px; }
+        @media print { body { margin: 0; } }
+    </style>
+</head>
+<body>
+    <div class="ticket">
+        <div class="center">
+            <div style="font-size: 12px; font-weight: bold;">REFACCIONARIA OVIEDO</div>
+            <img src="/static/images/logo_blanconegro.png" alt="Logo" class="logo" />
+        </div>
+
+        <div class="row"><span class="label">FECHA:</span><span>${fecha}</span></div>
+        <div class="row"><span class="label">FOLIO:</span><span>${traspaso.folio}</span></div>
+
+        <div class="line"></div>
+
+        <div class="muted"><span class="label">REFERENCIA:</span> ${traspaso.notas || ''}</div>
+        <div style="margin-top: 6px;" class="row"><span class="label">ALMACEN ORIGEN:</span></div>
+        <div class="muted">${traspaso.origen_nombre || '-'}</div>
+        <div style="margin-top: 6px;" class="row"><span class="label">ALMACEN DESTINO:</span></div>
+        <div class="muted">${traspaso.destino_nombre || '-'}</div>
+
+        <div class="line"></div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th style="text-align:left; font-weight:bold;">CLAVE</th>
+                    <th style="text-align:right; font-weight:bold;">CANTIDAD</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${filas || '<tr><td colspan="2">Sin productos</td></tr>'}
+            </tbody>
+        </table>
+
+        <div class="line"></div>
+
+        <div class="row"><span class="label">CANTIDAD DE PARTIDAS:</span><span>${totalPartidas}</span></div>
+        <div class="row"><span class="label">CANTIDAD DE ARTICULOS:</span><span>${totalArticulos}</span></div>
+        <div class="muted" style="margin-top: 6px;"><span class="label">DESCRIPCION:</span> </div>
+
+        <div class="signature">
+            <div class="signature-line"></div>
+            <div>SURTIÓ:</div>
+            <div class="signature-line"></div>
+            <div>REVISÓ:</div>
+            <div class="signature-line"></div>
+            <div>ENTREGÓ:</div>
+            <div class="signature-line"></div>
+            <div>RECIBIÓ:</div>
+            <div class="signature-line"></div>
+            <div>H. SALIDA:</div>
+            <div class="signature-line"></div>
+            <div>H. ENTRADA:</div>
+            <div class="signature-line"></div>
+            <div>No. Cajas:</div>
+        </div>
+    </div>
+</body>
+</html>
+            `;
         }
     </script>
 </body>

@@ -1,7 +1,7 @@
 # app/schemas/ticket.py
 from pydantic import BaseModel, Field
-from typing import Optional
-from datetime import datetime
+from typing import Optional, Union
+from datetime import datetime, date
 from enum import Enum
 
 class EstatusTicket(str, Enum):
@@ -14,7 +14,7 @@ class TicketBase(BaseModel):
     partidas: int = Field(..., ge=1)
     articulo: str = Field(..., min_length=1, max_length=200)
     cliente: str = Field(..., min_length=1, max_length=150)
-    fecha: datetime
+    fecha: Union[datetime, date, str]
     estatus: EstatusTicket = EstatusTicket.PENDIENTE
 
 class TicketCreate(TicketBase):

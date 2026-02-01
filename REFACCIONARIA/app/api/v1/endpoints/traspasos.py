@@ -170,8 +170,15 @@ async def crear_traspaso(
     if traspaso.origen_id == traspaso.destino_id:
         raise HTTPException(status_code=400, detail="El origen y destino no pueden ser el mismo")
     
-    # Crear traspaso
-    estado_enum = EstadoTraspaso[traspaso.estado.upper()] if traspaso.estado else EstadoTraspaso.PENDIENTE
+    # Crear traspaso - mapear el estado correctamente
+    estado_map = {
+        "pendiente": EstadoTraspaso.PENDIENTE,
+        "transito": EstadoTraspaso.EN_TRANSITO,
+        "completado": EstadoTraspaso.COMPLETADO,
+        "cancelado": EstadoTraspaso.CANCELADO
+    }
+    estado_enum = estado_map.get(traspaso.estado.lower(), EstadoTraspaso.PENDIENTE) if traspaso.estado else EstadoTraspaso.PENDIENTE
+    
     db_traspaso = Traspaso(
         folio=traspaso.folio,
         fecha=traspaso.fecha,
@@ -266,7 +273,13 @@ async def actualizar_traspaso(
     # Actualizar solo los campos proporcionados
     update_data = traspaso.dict(exclude_unset=True)
     if 'estado' in update_data:
-        update_data['estado'] = EstadoTraspaso[update_data['estado'].upper()]
+        estado_map = {
+            "pendiente": EstadoTraspaso.PENDIENTE,
+            "transito": EstadoTraspaso.EN_TRANSITO,
+            "completado": EstadoTraspaso.COMPLETADO,
+            "cancelado": EstadoTraspaso.CANCELADO
+        }
+        update_data['estado'] = estado_map.get(update_data['estado'].lower(), EstadoTraspaso.PENDIENTE)
     
     for field, value in update_data.items():
         setattr(db_traspaso, field, value)

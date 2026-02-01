@@ -468,6 +468,9 @@
                 </div>
                 <div class="muted" id="counter"></div>
             </div>
+            <div class="form-row" style="margin-top: 12px;">
+                <button class="btn-primary btn" onclick="abrirModalNuevo()">➕ Nuevo Vale</button>
+            </div>
 
             <div class="table-wrapper">
                 <table>
@@ -504,6 +507,59 @@
             <div id="previewFooter">
                 <button id="btnPreviewPrint" onclick="confirmarImpresion()">🖨️ Imprimir</button>
                 <button id="btnPreviewClose" onclick="cerrarPreviewModal()">❌ Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Crear/Editar Vale -->
+    <div id="modalVale"
+        style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; padding: 20px;">
+        <div
+            style="background: white; border-radius: 8px; width: 100%; max-width: 500px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); overflow-y: auto; max-height: 90vh;">
+            <div style="background: var(--primary-red); color: white; padding: 20px; text-align: center;">
+                <h3 id="modalValeTitle" style="margin: 0; font-size: 18px; font-weight: bold;">Nuevo Vale de Venta</h3>
+            </div>
+            <div style="padding: 24px; display: flex; flex-direction: column; gap: 16px;">
+                <div>
+                    <label style="font-weight: 600; display: block; margin-bottom: 6px;">Folio <span
+                            style="color: red;">*</span></label>
+                    <input id="valeFolio" type="text" placeholder="Ej: VZ7314"
+                        style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; box-sizing: border-box;"
+                        readonly>
+                </div>
+                <div>
+                    <label style="font-weight: 600; display: block; margin-bottom: 6px;">Cliente <span
+                            style="color: red;">*</span></label>
+                    <input id="valeCliente" type="text" placeholder="Nombre del cliente"
+                        style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label style="font-weight: 600; display: block; margin-bottom: 6px;">Artículo / Descripción <span
+                            style="color: red;">*</span></label>
+                    <input id="valeArticulo" type="text" placeholder="Descripción del artículo"
+                        style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label style="font-weight: 600; display: block; margin-bottom: 6px;">Partidas <span
+                            style="color: red;">*</span></label>
+                    <input id="valePartidas" type="number" placeholder="0" min="1"
+                        style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label style="font-weight: 600; display: block; margin-bottom: 6px;">Estatus <span
+                            style="color: red;">*</span></label>
+                    <select id="valeEstatus"
+                        style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; box-sizing: border-box;">
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="Parcial">Parcial</option>
+                        <option value="Entregado">Entregado</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px;">
+                    <button class="btn btn-ghost" onclick="cerrarModalVale()"
+                        style="background: #6c757d; color: white; border: none;">Cancelar</button>
+                    <button class="btn btn-primary" onclick="guardarVale()">Guardar Vale</button>
+                </div>
             </div>
         </div>
     </div>
@@ -547,7 +603,9 @@
                     <td>${renderStatus(t.estatus)}</td>
                     <td class="actions">
                         <button class="btn-sm" onclick="printFolio('${t.folio}')">🖨️ Imprimir</button>
+                        <button class="btn-sm" onclick="abrirModalEditar('${t.folio}')">✏️ Editar</button>
                         ${t.estatus === 'Entregado' ? '' : `<button class="btn-sm" onclick="markDelivered('${t.folio}')">✅ Entregar</button>`}
+                        <button class="btn-sm" onclick="eliminarVale('${t.folio}')" style="color: #c41e3a;">🗑️ Eliminar</button>
                     </td>
                 </tr>
             `).join('');
@@ -817,6 +875,138 @@
         function goBack() {
             window.location.href = '/almacen';
         }
+
+        // ========== FUNCIONES PARA CREAR/EDITAR/ELIMINAR VALES ==========
+
+        let valeEnEdicion = null;
+
+        function generarFolioNuevo() {
+            const fecha = new Date();
+            const numAleatorio = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+            return `VZ${fecha.getFullYear()}${String(fecha.getMonth() + 1).padStart(2, '0')}${String(fecha.getDate()).padStart(2, '0')}-${numAleatorio}`;
+        }
+
+        function abrirModalNuevo() {
+            valeEnEdicion = null;
+            document.getElementById('modalValeTitle').textContent = 'Nuevo Vale de Venta';
+            document.getElementById('valeFolio').value = generarFolioNuevo();
+            document.getElementById('valeCliente').value = '';
+            document.getElementById('valeArticulo').value = '';
+            document.getElementById('valePartidas').value = '';
+            document.getElementById('valeEstatus').value = 'Pendiente';
+            document.getElementById('modalVale').style.display = 'flex';
+        }
+
+        function abrirModalEditar(folio) {
+            const ticket = tickets.find(t => t.folio === folio);
+            if (!ticket) {
+                alert('Vale no encontrado');
+                return;
+            }
+
+            valeEnEdicion = ticket;
+            document.getElementById('modalValeTitle').textContent = 'Editar Vale de Venta';
+            document.getElementById('valeFolio').value = ticket.folio;
+            document.getElementById('valeCliente').value = ticket.cliente;
+            document.getElementById('valeArticulo').value = ticket.articulo;
+            document.getElementById('valePartidas').value = ticket.partidas;
+            document.getElementById('valeEstatus').value = ticket.estatus;
+            document.getElementById('modalVale').style.display = 'flex';
+        }
+
+        function cerrarModalVale() {
+            document.getElementById('modalVale').style.display = 'none';
+            valeEnEdicion = null;
+        }
+
+        async function guardarVale() {
+            const folio = document.getElementById('valeFolio').value.trim();
+            const cliente = document.getElementById('valeCliente').value.trim();
+            const articulo = document.getElementById('valeArticulo').value.trim();
+            const partidas = parseInt(document.getElementById('valePartidas').value);
+            const estatus = document.getElementById('valeEstatus').value;
+            const msg = document.getElementById('ticketMessage');
+
+            if (!folio || !cliente || !articulo || !partidas) {
+                alert('Por favor completa todos los campos obligatorios');
+                return;
+            }
+
+            try {
+                const datos = {
+                    folio,
+                    cliente,
+                    articulo,
+                    partidas,
+                    estatus,
+                    fecha: new Date().toISOString().split('T')[0]
+                };
+
+                let response;
+                if (valeEnEdicion) {
+                    // Editar vale existente
+                    response = await fetch(`${API_URL}/tickets/${folio}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(datos)
+                    });
+                    msg.textContent = 'Actualizando vale...';
+                } else {
+                    // Crear nuevo vale
+                    response = await fetch(`${API_URL}/tickets`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(datos)
+                    });
+                    msg.textContent = 'Creando nuevo vale...';
+                }
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Error al guardar el vale');
+                }
+
+                await cargarTickets();
+                cerrarModalVale();
+                msg.textContent = valeEnEdicion ? `Vale ${folio} actualizado correctamente` : `Vale ${folio} creado correctamente`;
+            } catch (error) {
+                console.error('Error:', error);
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        async function eliminarVale(folio) {
+            if (!confirm(`¿Estás seguro de que deseas eliminar el vale ${folio}?`)) {
+                return;
+            }
+
+            const msg = document.getElementById('ticketMessage');
+            try {
+                msg.textContent = `Eliminando vale ${folio}...`;
+                const response = await fetch(`${API_URL}/tickets/${folio}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Error al eliminar el vale');
+                }
+
+                await cargarTickets();
+                msg.textContent = `Vale ${folio} eliminado correctamente`;
+            } catch (error) {
+                console.error('Error:', error);
+                msg.textContent = `Error al eliminar: ${error.message}`;
+            }
+        }
+
+        // Cerrar modal al hacer clic fuera
+        document.addEventListener('click', function (e) {
+            const modal = document.getElementById('modalVale');
+            if (e.target === modal) {
+                cerrarModalVale();
+            }
+        });
     </script>
 </body>
 

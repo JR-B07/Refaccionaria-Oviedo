@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>REFACCIONARIA - Retiros de Caja</title>
-    <script src="/static/js/sucursal_selector.js"></script>
+    <script src="/static/componentes/selector-sucursal.js"></script>
     <style>
         * {
             margin: 0;
@@ -657,28 +657,35 @@
         });
 
         async function cargarLocalesEnModal() {
-            // Usar el array SUCURSALES del selector-sucursal.js
-            const sucursales = [
-                { id: 2, nombre: 'FILTROS Y LUBRICANTES' },
-                { id: 3, nombre: 'FILTROS Y LUBRICANTES' }
-            ];
-
             const select = document.getElementById('sucursalInput');
             select.innerHTML = '';
 
-            sucursales.forEach(local => {
-                const option = document.createElement('option');
-                option.value = local.id;
-                option.textContent = local.nombre;
-                select.appendChild(option);
-            });
+            try {
+                const token = localStorage.getItem('access_token');
+                const response = await fetch('/api/v1/locales/', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const sucursales = await response.json();
+                console.log('✅ Sucursales cargadas:', sucursales);
 
-            // Seleccionar sucursal del usuario (por defecto la primera)
-            const user = JSON.parse(localStorage.getItem('user') || '{}');
-            if (user.local_id) {
-                select.value = user.local_id;
-            } else {
-                select.value = 2; // Por defecto FILTROS Y LUBRICANTES
+                sucursales.forEach(local => {
+                    const option = document.createElement('option');
+                    option.value = local.id;
+                    option.textContent = local.nombre;
+                    select.appendChild(option);
+                });
+
+                // Seleccionar sucursal del usuario (por defecto)
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                if (user.local_id) {
+                    select.value = user.local_id;
+                } else if (sucursales.length > 0) {
+                    select.value = sucursales[0].id;
+                }
+                console.log('✅ Modal de sucursales inicializado');
+            } catch (error) {
+                console.error('❌ Error cargando sucursales:', error);
+                alert('Error al cargar las sucursales');
             }
         }
 
