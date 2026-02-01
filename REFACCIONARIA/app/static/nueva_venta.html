@@ -543,6 +543,8 @@
             <span style="flex:1"></span>
             <label>ACCESO RÁPIDO</label>
             <button onclick="abrirPagos()">Pagar</button>
+            <button onclick="surtirProductos()"
+                style="background:#28a745; color:white; border:1px solid #218838;">Surtir</button>
             <button onclick="cancelarVenta()">Cancelar</button>
             <span style="flex:1"></span>
             <button onclick="abrirBuscadorProductos()" style="background:#e0f0ff; font-weight:bold;">🔍 Buscar
@@ -1156,6 +1158,89 @@
             }
         }
 
+        function surtirProductos() {
+            if (productos.length === 0) {
+                alert('No hay productos para surtir');
+                return;
+            }
+
+            const productosLista = productos.map(p => p.clave).join(', ');
+            if (confirm(`¿Surtir los siguientes productos?\n\n${productosLista}`)) {
+                // Generar ticket de surtimiento
+                generarTicketSurtimiento();
+                reiniciarFormulario();
+                alert('✓ Todos los productos han sido surtidos exitosamente');
+                console.log('Productos surtidos:', productos);
+            }
+        }
+
+        function generarTicketSurtimiento() {
+            const folio = ventaData.folio || 'VXXXXXX';
+            const fecha = new Date();
+            const fechaFormato = String(fecha.getDate()).padStart(2, '0') + '/' +
+                String(fecha.getMonth() + 1).padStart(2, '0') + '/' +
+                fecha.getFullYear() + ' ' +
+                String(fecha.getHours()).padStart(2, '0') + ':' +
+                String(fecha.getMinutes()).padStart(2, '0') + ':' +
+                String(fecha.getSeconds()).padStart(2, '0') + ' p. m.';
+
+            let contenidoTicket = '<div style="font-family: Courier New, monospace; font-size: 12px; text-align: center; margin: 0; padding: 8px; line-height: 1.1;">';
+
+            // Título con folio
+            contenidoTicket += '<div style="font-weight: bold; margin-bottom: 3px;">TICKET DE SURTIMIENTO ' + folio + '</div>';
+
+            // Logo centrado
+            contenidoTicket += '<div style="margin: 5px 0;"><img src="/static/images/logo_blanconegro.png" style="width:110px; display: inline-block;"></div>';
+
+            // Nombre refaccionaria centrado
+            contenidoTicket += '<div style="font-weight: bold; margin: 5px 0;">REINALDO OVIEDO CALIXSTRO</div>';
+            contenidoTicket += '<div style="border-bottom: 1px solid #000; margin: 3px 0;"></div>';
+
+            // Encabezados con distribución horizontal
+            contenidoTicket += '<div style="text-align: center; margin: 5px 0; font-weight: bold;">';
+            contenidoTicket += '<div style="font-family: monospace; display: flex; justify-content: center; gap: 20px;"><span style="width: 30px; text-align: left;">CANT</span><span style="width: 100px; text-align: left;">PRODUCTO</span><span style="width: 120px; text-align: left;">DESCRIPCION</span></div>';
+            contenidoTicket += '</div>';
+            contenidoTicket += '<div style="border-bottom: 1px solid #000; margin: 3px 0;"></div>';
+
+            // Productos distribuidos horizontalmente
+            contenidoTicket += '<div style="text-align: center; margin: 5px 0;">';
+            productos.forEach(p => {
+                const cant = String(Math.round(p.cantidad)).padEnd(2, ' ');
+                const clave = (p.clave || '-').substring(0, 11);
+                const desc = (p.descripcion || '-').substring(0, 20).toUpperCase();
+                contenidoTicket += '<div style="font-family: monospace; display: flex; justify-content: center; gap: 20px;"><span style="width: 30px; text-align: left;">' + cant + '</span><span style="width: 100px; text-align: left;">' + clave + '</span><span style="width: 120px; text-align: left;">' + desc + '</span></div>';
+            });
+            contenidoTicket += '</div>';
+
+            contenidoTicket += '<div style="border-bottom: 1px solid #000; margin: 3px 0;"></div>';
+            contenidoTicket += '<div style="text-align: center; margin: 5px 0; font-size: 11px;">' + fechaFormato + '</div>';
+            contenidoTicket += '</div>';
+
+            // Abrir ventana de impresión
+            const ventanaImpresion = window.open('', '_blank', 'width=400,height=650');
+            try {
+                if (ventanaImpresion) {
+                    ventanaImpresion.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><style>');
+                    ventanaImpresion.document.write('body { font-family: "Courier New", monospace; margin: 0; padding: 10px; background: white; }');
+                    ventanaImpresion.document.write('div { margin: 0; padding: 0; }');
+                    ventanaImpresion.document.write('@media print { body { margin: 0; padding: 5px; } }');
+                    ventanaImpresion.document.write('</style></head><body>');
+                    ventanaImpresion.document.write(contenidoTicket);
+                    ventanaImpresion.document.write('</body></html>');
+                    ventanaImpresion.document.close();
+
+                    setTimeout(() => {
+                        ventanaImpresion.print();
+                        reiniciarFormulario();
+                    }, 300);
+                } else {
+                    alert('No se pudo abrir la ventana de impresión. Por favor, permite ventanas emergentes.');
+                }
+            } catch (e) {
+                alert('Error al generar el ticket. Verifica que las ventanas emergentes estén permitidas.');
+            }
+        }
+
         function crearNuevaVenta() {
             if (productos.length > 0 && !confirm('Tienes productos sin guardar. ¿Descartar y crear nueva venta?')) {
                 return;
@@ -1214,13 +1299,20 @@
 
         function reiniciarFormulario() {
             productos.length = 0;
-            document.getElementById('claveInput').value = '';
-            document.getElementById('cantidadInput').value = 1;
-            document.getElementById('descripcionInput').value = '';
-            document.getElementById('precioInput').value = '';
-            document.getElementById('descuentoInput').value = 0;
-            document.getElementById('buscarInput').value = '';
-            document.getElementById('refDisplay').textContent = '-';
+            const claveInput = document.getElementById('claveInput');
+            if (claveInput) claveInput.value = '';
+            const cantidadInput = document.getElementById('cantidadInput');
+            if (cantidadInput) cantidadInput.value = 1;
+            const descripcionInput = document.getElementById('descripcionInput');
+            if (descripcionInput) descripcionInput.value = '';
+            const precioInput = document.getElementById('precioInput');
+            if (precioInput) precioInput.value = '';
+            const descuentoInput = document.getElementById('descuentoInput');
+            if (descuentoInput) descuentoInput.value = 0;
+            const buscarInput = document.getElementById('buscarInput');
+            if (buscarInput) buscarInput.value = '';
+            const refDisplay = document.getElementById('refDisplay');
+            if (refDisplay) refDisplay.textContent = '-';
             ventaData.pagado = 0;
             ventaData.referencia = null;
             renderTabla();

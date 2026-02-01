@@ -421,6 +421,52 @@
         .btn-cancelar:hover {
             background: #5a6268;
         }
+
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            position: absolute;
+            right: 150px;
+        }
+
+        .header-button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+            transition: all 0.3s;
+        }
+
+        .header-button.surtir {
+            background: #28a745;
+            border: 1px solid #218838;
+        }
+
+        .header-button.surtir:hover {
+            background: #218838;
+        }
+
+        .header-button.pagar {
+            background: #c41e3a;
+            border: 1px solid #8b1428;
+        }
+
+        .header-button.pagar:hover {
+            background: #b01830;
+        }
+
+        .header-button.cancelar {
+            background: #6c757d;
+            border: 1px solid #5a6268;
+        }
+
+        .header-button.cancelar:hover {
+            background: #5a6268;
+        }
     </style>
 </head>
 
@@ -431,6 +477,11 @@
             <div class="header-title">
                 <span>📋</span>
                 <span>DETALLE DE LA VENTA - ACCESO RÁPIDO</span>
+            </div>
+            <div class="header-buttons">
+                <button class="header-button surtir" onclick="surtirTodos()">Surtir</button>
+                <button class="header-button pagar" onclick="procesarVenta()">Pagar</button>
+                <button class="header-button cancelar" onclick="cancelarVenta()">Cancelar</button>
             </div>
         </div>
 
@@ -609,7 +660,7 @@
             }
 
             console.log('Cantidad de productos a renderizar:', ventaData.productos.length);
-            tbody.innerHTML = ventaData.productos.map(p => {
+            tbody.innerHTML = ventaData.productos.map((p, index) => {
                 const total = p.cantidad * p.precio;
                 console.log('Renderizando producto:', p);
                 return `
@@ -623,6 +674,25 @@
                 `;
             }).join('');
             console.log('Productos renderizados exitosamente');
+        }
+
+        function surtirProducto(index, clave) {
+            alert('✓ Producto ' + clave + ' surtido exitosamente');
+            console.log('Producto surtido:', clave);
+            // Aquí puedes agregar la lógica adicional para marcar el producto como surtido
+        }
+
+        function surtirTodos() {
+            if (!ventaData.productos || ventaData.productos.length === 0) {
+                alert('No hay productos para surtir');
+                return;
+            }
+
+            const productosLista = ventaData.productos.map(p => p.clave).join(', ');
+            if (confirm(`¿Surtir todos los productos?\n\n${productosLista}`)) {
+                alert('✓ Todos los productos han sido surtidos exitosamente');
+                console.log('Productos surtidos:', ventaData.productos);
+            }
         }
 
         function actualizarResumen() {
