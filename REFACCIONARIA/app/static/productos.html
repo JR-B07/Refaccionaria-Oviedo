@@ -1644,7 +1644,10 @@
                 }
 
                 try {
-                    const resp = await fetch(`/api/v1/productos?q=${encodeURIComponent(q)}&limit=10`);
+                    const url = new URL('/api/v1/productos', window.location.origin);
+                    url.searchParams.set('q', q);
+                    url.searchParams.set('limit', 10);
+                    const resp = await fetch(url.toString());
                     const data = await resp.json();
                     const items = data.items || [];
                     document.getElementById('paqItemRes').innerHTML = items.map(p => `
@@ -1743,8 +1746,8 @@
                         <input type="number" id="precio_venta_credito" name="precio_venta_credito" step="0.01" min="0">
                     </div>
                     <div class="form-group">
-                        <label>Stock Mínimo</label>
-                        <input type="number" id="stock_minimo" name="stock_minimo" value="5" min="0">
+                        <label>Stock Actual</label>
+                        <input type="number" id="stock_total" name="stock_total" value="0" min="0">
                     </div>
                 </div>
                 <div class="form-row">
@@ -1838,6 +1841,7 @@
         const API_BASE = '/api/v1/productos';
         let page = 0;
 
+
         document.addEventListener('DOMContentLoaded', () => {
             const user = JSON.parse(localStorage.getItem('user') || '{}');
             document.getElementById('userName').textContent = user.name || user.username || 'Usuario';
@@ -1847,6 +1851,28 @@
             loadGrupos();
             loadPaquetes();
         });
+
+        // Función para cargar grupos (dummy, debe ajustarse a tu API real)
+        async function loadGrupos() {
+            // Ejemplo: obtener grupos desde /api/v1/grupos
+            try {
+                const resp = await fetch('/api/v1/grupos');
+                if (!resp.ok) throw new Error('No se pudieron cargar los grupos');
+                const grupos = await resp.json();
+                // Aquí deberías poblar el select o la UI correspondiente
+                // Por ejemplo:
+                // const select = document.getElementById('grupoSelect');
+                // select.innerHTML = '';
+                // grupos.forEach(g => {
+                //   const opt = document.createElement('option');
+                //   opt.value = g.id;
+                //   opt.textContent = g.nombre;
+                //   select.appendChild(opt);
+                // });
+            } catch (e) {
+                console.error('Error al cargar grupos:', e);
+            }
+        }
 
         function switchTab(tabName) {
             // Ocultar todos los tabs
@@ -1915,14 +1941,25 @@
             const data = {};
             const productId = document.getElementById('productId').value;
 
+            // Capturar todos los campos del formulario
             formData.forEach((value, key) => {
-                if (value && key !== 'productId') data[key] = value;
+                if (key !== 'productId') {
+                    // Guardar solo valores no vacíos, el resto será null
+                    data[key] = value && value.trim() !== '' ? value : null;
+                }
             });
 
+            // Convertir tipos de datos específicos
             if (data.precio_compra) data.precio_compra = parseFloat(data.precio_compra);
             if (data.precio_venta) data.precio_venta = parseFloat(data.precio_venta);
             if (data.precio_venta_credito) data.precio_venta_credito = parseFloat(data.precio_venta_credito);
             if (data.stock_minimo) data.stock_minimo = parseInt(data.stock_minimo);
+
+            // IMPORTANTE: Asegurar que stock_total siempre sea un número
+            const stockValue = document.getElementById('stock_total').value;
+            data.stock_total = stockValue && stockValue.trim() !== '' ? parseInt(stockValue) : 0;
+
+            console.log('Datos a enviar:', data); // Debug
 
             try {
                 const isEdit = productId !== '';
@@ -1948,8 +1985,28 @@
 
                 setTimeout(() => {
                     closeModal();
+                    // Actualizar la fila de la tabla directamente si es edición
+                    if (isEdit) {
+                        // Buscar la fila del producto actualizado por su ID
+                        const rows = document.querySelectorAll('#productsTbody tr');
+                        rows.forEach(row => {
+                            const editBtn = row.querySelector('.btn-edit');
+                            if (editBtn && editBtn.onclick && editBtn.onclick.toString().includes(`editProduct(${productId})`)) {
+                                console.log('Actualizando fila:', { modelo: data.modelo, stock: data.stock_total }); // Debug
+                                // Actualizar las columnas: Modelo (índice 3) y Stock (índice 6)
+                                if (row.children[3]) {
+                                    row.children[3].textContent = data.modelo || '';
+                                }
+                                if (row.children[6]) {
+                                    row.children[6].textContent = data.stock_total;
+                                }
+                            }
+                        });
+                    }
+                    // También recargar la tabla para mantener consistencia
+                    page = 0;
                     loadProducts();
-                }, 1500);
+                }, 800);
             } catch (err) {
                 document.getElementById('modalAlert').innerHTML = `<div class="alert alert-error">✗ ${err.message}</div>`;
                 console.error(err);
@@ -1976,7 +2033,7 @@
                 <td>${escapeHtml(p.modelo || '')}</td>
                 <td>${escapeHtml(p.categoria || '')}</td>
                 <td>${p.precio_venta != null ? ('$' + Number(p.precio_venta).toFixed(2)) : '-'}</td>
-                <td>${p.stock_total != null ? p.stock_total : '-'}</td>
+                <td>${p.stock_total || 0}</td>
                 <td>
                     <button class="btn-edit" onclick="editProduct(${p.id})">Editar</button>
                     <button class="btn-delete" onclick="deleteProduct(${p.id}, '${escapeHtml(p.nombre || '')}')"  title="Eliminar producto">Eliminar</button>
@@ -2065,7 +2122,7 @@
                 document.getElementById('precio_compra').value = producto.precio_compra || '';
                 document.getElementById('precio_venta').value = producto.precio_venta || '';
                 document.getElementById('precio_venta_credito').value = producto.precio_venta_credito || '';
-                document.getElementById('stock_minimo').value = producto.stock_minimo || 5;
+                document.getElementById('stock_total').value = producto.stock_total || 0;
                 document.getElementById('ubicacion_estante').value = producto.ubicacion_estante || '';
                 document.getElementById('ubicacion_fila').value = producto.ubicacion_fila || '';
                 document.getElementById('ubicacion_columna').value = producto.ubicacion_columna || '';
@@ -2743,7 +2800,10 @@
             const q = (document.getElementById('grupoProdBusc').value || '').trim();
             if (!q) { document.getElementById('grupoProdRes').innerHTML = ''; return; }
             try {
-                const resp = await fetch(`/api/v1/productos/?q=${encodeURIComponent(q)}&limit=10`);
+                const url = new URL('/api/v1/productos', window.location.origin);
+                url.searchParams.set('q', q);
+                url.searchParams.set('limit', 10);
+                const resp = await fetch(url.toString());
                 const data = await resp.json();
                 const items = data.items || [];
                 document.getElementById('grupoProdRes').innerHTML = items.map(p => `

@@ -7,6 +7,75 @@ from app.core.database import get_db
 from app.models.producto import Producto
 
 router = APIRouter()
+from fastapi import APIRouter, Depends, HTTPException
+from app.api.deps import get_current_user
+from sqlalchemy.orm import Session
+from typing import List, Optional
+from pydantic import BaseModel
+from app.core.database import get_db
+from app.models.producto import Producto
+
+router = APIRouter()
+
+# Endpoint para obtener un producto por id
+@router.get("/{producto_id}", tags=["Productos"])
+async def obtener_producto(producto_id: int, db: Session = Depends(get_db)):
+    prod = db.query(Producto).filter(Producto.id == producto_id).first()
+    if not prod:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+    return {
+        "id": prod.id,
+        "codigo": prod.codigo,
+        "codigo_barras": prod.codigo_barras,
+        "nombre": prod.nombre,
+        "descripcion": prod.descripcion,
+        "marca": prod.marca,
+        "modelo": prod.modelo,
+        "categoria": prod.categoria,
+        "precio_compra": float(prod.precio_compra) if prod.precio_compra is not None else None,
+        "precio_venta": float(prod.precio_venta) if prod.precio_venta is not None else None,
+        "precio_venta_credito": float(prod.precio_venta_credito) if prod.precio_venta_credito is not None else None,
+        "stock_minimo": prod.stock_minimo,
+        "stock_total": prod.stock_total,
+        "ubicacion_estante": prod.ubicacion_estante,
+        "ubicacion_fila": prod.ubicacion_fila,
+        "ubicacion_columna": prod.ubicacion_columna
+    }
+# Schema para editar producto
+class ProductoUpdate(BaseModel):
+    codigo: Optional[str] = None
+    codigo_barras: Optional[str] = None
+    nombre: Optional[str] = None
+    descripcion: Optional[str] = None
+    marca: Optional[str] = None
+    modelo: Optional[str] = None
+    categoria: Optional[str] = None
+    precio_compra: Optional[float] = None
+    precio_venta: Optional[float] = None
+    precio_venta_credito: Optional[float] = None
+    stock_minimo: Optional[int] = None
+    stock_total: Optional[int] = None
+    ubicacion_estante: Optional[str] = None
+    ubicacion_fila: Optional[str] = None
+    ubicacion_columna: Optional[str] = None
+
+# Endpoint para editar producto
+@router.put("/{producto_id}", tags=["Productos"])
+async def actualizar_producto(producto_id: int, producto: ProductoUpdate, db: Session = Depends(get_db)):
+    prod = db.query(Producto).filter(Producto.id == producto_id).first()
+    if not prod:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+    
+    # Actualizar solo los campos que fueron explícitamente enviados
+    update_data = producto.dict(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(prod, field, value)
+    
+    db.commit()
+    db.refresh(prod)
+    return {"message": "Producto actualizado", "id": prod.id}
+
+
 
 # Schema para crear producto
 class ProductoCreate(BaseModel):
@@ -101,6 +170,7 @@ async def listar_productos(
                 "categoria": p.categoria,
                 "precio_compra": float(p.precio_compra) if p.precio_compra is not None else None,
                 "precio_venta": float(p.precio_venta) if p.precio_venta is not None else None,
+                "stock_total": p.stock_total,
                 # No mostramos stock_local porque no hay sucursal
             })
 

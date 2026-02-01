@@ -68,7 +68,9 @@ app = FastAPI(
 )
 
 # Montar archivos estáticos (CSS, JS, imágenes)
-app.mount("/static", StaticFiles(directory="app/static"), name="static")
+import os
+static_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 # CORS
 app.add_middleware(
