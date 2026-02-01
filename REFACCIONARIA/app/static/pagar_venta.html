@@ -785,7 +785,7 @@
             );
         }
 
-        function procesarVenta() {
+        async function procesarVenta() {
             const totalPagado = pagos.reduce((sum, p) => sum + p.monto, 0);
             const resta = (ventaData.total || 0) - totalPagado;
 
@@ -793,6 +793,13 @@
                 if (!confirm(`Aún falta por pagar $ ${resta.toFixed(2)}. ¿Deseas continuar de todos modos?`)) {
                     return;
                 }
+            }
+
+            // Descontar stock antes de completar la venta
+            const stockActualizado = await descontarStockVenta();
+            if (!stockActualizado) {
+                alert('No se pudo actualizar el stock. La venta no se completará.');
+                return;
             }
 
             // Imprimir ticket automáticamente
@@ -811,6 +818,85 @@
             // Limpiar y regresar
             localStorage.removeItem('ventaActual');
             window.location.href = 'nueva_venta.html';
+        }
+
+        async function obtenerProductoPorCodigo(codigo) {
+            if (!codigo) return null;
+            const response = await fetch(`/api/v1/productos/?codigo=${encodeURIComponent(codigo)}`);
+            if (!response.ok) return null;
+            const data = await response.json();
+            const items = Array.isArray(data.items) ? data.items : [];
+            return items[0] || null;
+        }
+
+        async function obtenerStockActual(productoId) {
+            if (productoId === null || productoId === undefined) return null;
+            const response = await fetch(`/api/v1/productos/${productoId}`);
+            if (!response.ok) return null;
+            const data = await response.json();
+            return Number.isFinite(data.stock_total) ? data.stock_total : parseFloat(data.stock_total ?? 0);
+        }
+
+        async function descontarStockVenta() {
+            try {
+                const productos = ventaData.productos || [];
+                const acumulado = new Map();
+
+                for (const p of productos) {
+                    let productoId = p.producto_id;
+                    let stockTotal = p.stock_total;
+
+                    if (productoId === null || productoId === undefined) {
+                        const item = await obtenerProductoPorCodigo(p.clave);
+                        if (item) {
+                            productoId = item.id;
+                            stockTotal = item.stock_total;
+                        }
+                    }
+
+                    if (productoId === null || productoId === undefined) {
+                        alert('No se pudo identificar un producto para actualizar stock.');
+                        return false;
+                    }
+
+                    const key = String(productoId);
+                    const actual = acumulado.get(key) || { cantidad: 0, stock_total: stockTotal };
+                    actual.cantidad += p.cantidad;
+                    if (actual.stock_total === null || actual.stock_total === undefined) {
+                        actual.stock_total = stockTotal;
+                    }
+                    acumulado.set(key, actual);
+                }
+
+                for (const [productoId, info] of acumulado.entries()) {
+                    let stockActual = info.stock_total;
+                    if (!Number.isFinite(stockActual)) {
+                        stockActual = await obtenerStockActual(productoId);
+                    }
+                    if (!Number.isFinite(stockActual)) {
+                        alert('No se pudo obtener el stock actual.');
+                        return false;
+                    }
+                    if (info.cantidad > stockActual) {
+                        alert('Cantidad solicitada supera el stock disponible.');
+                        return false;
+                    }
+                    const nuevoStock = Math.max(0, stockActual - info.cantidad);
+                    const response = await fetch(`/api/v1/productos/${productoId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ stock_total: nuevoStock })
+                    });
+                    if (!response.ok) {
+                        console.error('Error al actualizar stock del producto', productoId);
+                        return false;
+                    }
+                }
+                return true;
+            } catch (e) {
+                console.error('Error al descontar stock:', e);
+                return false;
+            }
         }
 
         function imprimirTicket() {

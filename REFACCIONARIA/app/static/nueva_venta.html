@@ -801,16 +801,30 @@
                 .then(data => {
                     let descripcion = '';
                     let precio = 0;
+                    let stockTotal = null;
                     // El endpoint regresa { total, items: [...] }
                     const items = Array.isArray(data.items) ? data.items : [];
                     if (items.length > 0) {
-                        descripcion = items[0].nombre || items[0].descripcion || '';
-                        precio = items[0].precio_venta || 0;
+                        const item = items[0];
+                        stockTotal = parseFloat(item.stock_total ?? 0) || 0;
+                        if (stockTotal <= 0) {
+                            alert('No se puede vender este producto. Stock en 0.');
+                            return;
+                        }
+                        if (cantidad > stockTotal) {
+                            alert('Cantidad solicitada supera el stock disponible.');
+                            return;
+                        }
+                        descripcion = item.nombre || item.descripcion || '';
+                        precio = item.precio_venta || 0;
                     } else {
-                        alert('Producto no encontrado, se agregará sin descripción ni precio.');
+                        alert('Producto no encontrado. No se puede vender sin stock validado.');
+                        return;
                     }
                     productos.push({
                         id: Date.now(),
+                        producto_id: items[0]?.id,
+                        stock_total: stockTotal,
                         clave,
                         descripcion,
                         cantidad,
@@ -821,17 +835,7 @@
                     renderTabla();
                 })
                 .catch(() => {
-                    alert('Error al buscar producto. Se agregará sin descripción ni precio.');
-                    productos.push({
-                        id: Date.now(),
-                        clave,
-                        descripcion: '',
-                        cantidad,
-                        precio: 0
-                    });
-                    claveInput.value = '';
-                    cantidadInput.value = 1;
-                    renderTabla();
+                    alert('Error al buscar producto. No se puede vender sin stock validado.');
                 });
         }
 
@@ -919,6 +923,8 @@
                 total: ventaData.total,
                 productos: productos.map(p => ({
                     id: p.id,
+                    producto_id: p.producto_id,
+                    stock_total: p.stock_total,
                     clave: p.clave,
                     descripcion: p.descripcion,
                     cantidad: p.cantidad,
@@ -966,14 +972,22 @@
                 const params = new URLSearchParams();
                 if (q) params.append('q', q);
                 if (codigo) params.append('codigo', codigo);
-                if (marca) params.append('marca', marca);
                 params.append('limit', 50);
 
                 const response = await fetch(`/api/v1/productos/?${params.toString()}`);
                 if (!response.ok) throw new Error('Error en la búsqueda');
 
                 const data = await response.json();
-                const items = Array.isArray(data) ? data : (data.items || []);
+                let items = Array.isArray(data) ? data : (data.items || []);
+                if (marca) {
+                    const m = marca.toLowerCase();
+                    items = items.filter(p => {
+                        const pm = (p.marca || '').toLowerCase();
+                        const pn = (p.nombre || '').toLowerCase();
+                        const pd = (p.descripcion || '').toLowerCase();
+                        return pm.includes(m) || pn.includes(m) || pd.includes(m);
+                    });
+                }
 
                 if (items.length === 0) {
                     searchResults.innerHTML = '<div class="search-loading">No se encontraron productos.</div>';
@@ -1002,7 +1016,7 @@
                             <td class="num">${p.stock_minimo || 0}</td>
                             <td class="num">${p.stock_total || 0}</td>
                             <td>${p.nombre} ${p.marca ? '(' + p.marca + ')' : ''}</td>
-                            <td><button onclick="agregarProductoDeBusqueda(${p.id}, '${p.codigo}', '${p.nombre}', ${p.precio_venta || 0})">Agregar</button></td>
+                            <td><button onclick="agregarProductoDeBusqueda(${p.id}, '${p.codigo}', '${p.nombre}', ${p.precio_venta || 0}, ${p.stock_total || 0})">Agregar</button></td>
                         </tr>`;
                 });
 
@@ -1015,7 +1029,7 @@
             }
         }
 
-        function agregarProductoDeBusqueda(id, codigo, nombre, precio) {
+        function agregarProductoDeBusqueda(id, codigo, nombre, precio, stockTotal) {
             const cantidad = prompt('¿Cantidad?', '1');
             if (!cantidad) return;
 
@@ -1025,8 +1039,20 @@
                 return;
             }
 
+            const stockDisponible = parseFloat(stockTotal ?? 0) || 0;
+            if (stockDisponible <= 0) {
+                alert('No se puede vender este producto. Stock en 0.');
+                return;
+            }
+            if (cant > stockDisponible) {
+                alert('Cantidad solicitada supera el stock disponible.');
+                return;
+            }
+
             productos.push({
                 id: Date.now(),
+                producto_id: id,
+                stock_total: stockDisponible,
                 clave: codigo,
                 descripcion: nombre,
                 cantidad: cant,
@@ -1158,7 +1184,7 @@
             }
         }
 
-        function surtirProductos() {
+        async function surtirProductos() {
             if (productos.length === 0) {
                 alert('No hay productos para surtir');
                 return;
@@ -1166,7 +1192,7 @@
 
             const productosLista = productos.map(p => p.clave).join(', ');
             if (confirm(`¿Surtir los siguientes productos?\n\n${productosLista}`)) {
-                // Generar ticket de surtimiento
+                // Generar ticket de surtimiento (sin descontar stock)
                 generarTicketSurtimiento();
                 reiniciarFormulario();
                 alert('✓ Todos los productos han sido surtidos exitosamente');

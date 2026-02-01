@@ -730,8 +730,8 @@
             if (!Array.isArray(localesList) || localesList.length === 0) {
                 localesList = [
                     { id: 1, nombre: 'Local Principal' },
-                    { id: 2, nombre: 'REFACCIONARIA OVIEDO' },
-                    { id: 3, nombre: 'REFACCIÓN PARA OVIEDO' }
+                    { id: 2, nombre: 'FILTROS Y LUBRICANTES' },
+                    { id: 3, nombre: 'Otro' }
                 ];
             }
             localesList.forEach(s => {
@@ -874,24 +874,24 @@
                     console.warn('Fallo cargar locales, usando lista estática');
                     localesList = [
                         { id: 1, nombre: 'Local Principal' },
-                        { id: 2, nombre: 'REFACCIONARIA OVIEDO' },
-                        { id: 3, nombre: 'REFACCIÓN PARA OVIEDO' }
+                        { id: 2, nombre: 'FILTROS Y LUBRICANTES' },
+                        { id: 3, nombre: 'Otro' }
                     ];
                 }
             } catch (error) {
                 console.warn('Error al cargar locales, usando lista estática:', error);
                 localesList = [
                     { id: 1, nombre: 'Local Principal' },
-                    { id: 2, nombre: 'REFACCIONARIA OVIEDO' },
-                    { id: 3, nombre: 'REFACCIÓN PARA OVIEDO' }
+                    { id: 2, nombre: 'FILTROS Y LUBRICANTES' },
+                    { id: 3, nombre: 'Otro' }
                 ];
             }
 
             if (!Array.isArray(localesList) || localesList.length === 0) {
                 localesList = [
                     { id: 1, nombre: 'Local Principal' },
-                    { id: 2, nombre: 'REFACCIONARIA OVIEDO' },
-                    { id: 3, nombre: 'REFACCIÓN PARA OVIEDO' }
+                    { id: 2, nombre: 'FILTROS Y LUBRICANTES' },
+                    { id: 3, nombre: 'Otro' }
                 ];
             }
 
@@ -1228,7 +1228,7 @@
 <body>
     <div class="header">
         <div class="header-line1">VALE DE CANJE</div>
-        <div class="header-line2">REFACCIONARIA OVIEDO</div>
+        <div class="header-line2">FILTROS Y LUBRICANTES</div>
     </div>
     
     <div class="info-text">

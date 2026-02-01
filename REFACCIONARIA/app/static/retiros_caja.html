@@ -659,8 +659,8 @@
         async function cargarLocalesEnModal() {
             // Usar el array SUCURSALES del selector-sucursal.js
             const sucursales = [
-                { id: 2, nombre: 'REFACCIONARIA OVIEDO' },
-                { id: 3, nombre: 'REFACCIÓN PARA OVIEDO' }
+                { id: 2, nombre: 'FILTROS Y LUBRICANTES' },
+                { id: 3, nombre: 'FILTROS Y LUBRICANTES' }
             ];
 
             const select = document.getElementById('sucursalInput');
@@ -678,7 +678,7 @@
             if (user.local_id) {
                 select.value = user.local_id;
             } else {
-                select.value = 2; // Por defecto REFACCIONARIA OVIEDO
+                select.value = 2; // Por defecto FILTROS Y LUBRICANTES
             }
         }
 

@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from app.api.deps import get_current_user
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
 from typing import List, Optional
 from pydantic import BaseModel
 from app.core.database import get_db
@@ -138,13 +139,21 @@ async def listar_productos(
             query = query.filter(
                 (Producto.nombre.ilike(qlike)) |
                 (Producto.codigo.ilike(qlike)) |
-                (Producto.marca.ilike(qlike))
+                (Producto.marca.ilike(qlike)) |
+                (Producto.descripcion.ilike(qlike))
             )
         # Filtros específicos
         if codigo:
             query = query.filter(Producto.codigo.ilike(f"%{codigo}%"))
         if marca:
-            query = query.filter(Producto.marca.ilike(f"%{marca}%"))
+            mlike = f"%{marca}%"
+            query = query.filter(
+                or_(
+                    Producto.marca.ilike(mlike),
+                    Producto.nombre.ilike(mlike),
+                    Producto.descripcion.ilike(mlike)
+                )
+            )
         if categoria:
             query = query.filter(Producto.categoria.ilike(f"%{categoria}%"))
         if precio_min is not None:

@@ -5,7 +5,7 @@
 
 const SUCURSALES = [
     { id: 1, nombre: 'REFACCIONARIA OVIEDO' },
-    { id: 2, nombre: 'REFACCIÓN PARA OVIEDO' }
+    { id: 2, nombre: 'FILTROS Y LUBRICANTES' }
 ];
 
 /**
