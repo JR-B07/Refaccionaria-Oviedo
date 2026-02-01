@@ -46,7 +46,7 @@
         }
 
         .sucursal-badge::before {
-            content: "📍";
+            content: "";
         }
 
         .main {
@@ -111,7 +111,7 @@
         }
 
         .muted {
-            color: #777;
+            color: white;
             font-size: 13px
         }
 
@@ -1705,10 +1705,6 @@
                     <input type="text" id="codigo" name="codigo" required>
                 </div>
                 <div class="form-group">
-                    <label>Código de Barras</label>
-                    <input type="text" id="codigo_barras" name="codigo_barras">
-                </div>
-                <div class="form-group">
                     <label>Nombre *</label>
                     <input type="text" id="nombre" name="nombre" required>
                 </div>
@@ -2113,7 +2109,6 @@
                 // Llenar el formulario con los datos del producto
                 document.getElementById('productId').value = producto.id;
                 document.getElementById('codigo').value = producto.codigo || '';
-                document.getElementById('codigo_barras').value = producto.codigo_barras || '';
                 document.getElementById('nombre').value = producto.nombre || '';
                 document.getElementById('descripcion').value = producto.descripcion || '';
                 document.getElementById('marca').value = producto.marca || '';

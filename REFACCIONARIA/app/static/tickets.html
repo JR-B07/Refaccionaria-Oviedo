@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>REFACCIONARIA - Tickets pendientes</title>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -219,6 +220,193 @@
             font-size: 13px;
         }
 
+        /* Modal de vista previa */
+        #previewModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        #previewModal.active {
+            display: flex;
+        }
+
+        #previewContainer {
+            background: white;
+            width: 100%;
+            max-width: 360px;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            max-height: 90vh;
+        }
+
+        #previewHeader {
+            background: var(--primary-red);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        #previewContent {
+            flex: 1;
+            overflow-y: auto;
+            background: white;
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+            line-height: 1.25;
+            padding: 16px;
+            word-break: break-word;
+        }
+
+        #previewFooter {
+            background: #f5f5f5;
+            padding: 15px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+        }
+
+        #previewFooter button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        #btnPreviewPrint {
+            background: #28a745;
+            color: white;
+        }
+
+        #btnPreviewPrint:hover {
+            background: #218838;
+        }
+
+        #btnPreviewClose {
+            background: #6c757d;
+            color: white;
+        }
+
+        #btnPreviewClose:hover {
+            background: #5a6268;
+        }
+
+        /* Estilos de impresión */
+        @media print {
+            * {
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                background: white;
+                margin: 0;
+                padding: 0;
+            }
+
+            /* Ocultar elementos que no se deben imprimir */
+            .top-bar,
+            .page-header,
+            .card:first-of-type,
+            .card:nth-of-type(2),
+            #previewModal .muted,
+            #previewFooter {
+                display: none !important;
+            }
+
+            /* Mostrar solo el modal */
+            #previewModal {
+                display: flex !important;
+                position: static !important;
+                background: white !important;
+                top: auto !important;
+                left: auto !important;
+                right: auto !important;
+                bottom: auto !important;
+                padding: 0 !important;
+                z-index: 1 !important;
+                align-items: flex-start !important;
+                justify-content: flex-start !important;
+            }
+
+            #previewModal.active {
+                display: flex !important;
+            }
+
+            #previewContainer {
+                background: white;
+                width: 80mm;
+                max-width: 80mm;
+                border-radius: 0;
+                box-shadow: none;
+                overflow: visible;
+                display: block;
+                max-height: none;
+                margin: 0 auto;
+            }
+
+            #previewHeader {
+                background: white;
+                color: #333;
+                padding: 0;
+                text-align: center;
+                margin-bottom: 10px;
+            }
+
+            #previewHeader h3 {
+                display: none;
+            }
+
+            #previewContent {
+                flex: none;
+                overflow: visible;
+                background: white;
+                font-family: 'Courier New', monospace;
+                font-size: 9px;
+                line-height: 1.25;
+                padding: 0;
+                word-break: break-word;
+                margin: 0;
+                page-break-after: avoid;
+            }
+
+            #previewContent img {
+                max-width: 100%;
+                height: auto;
+                page-break-inside: avoid;
+            }
+
+            /* Ocultar el footer del preview */
+            #previewFooter {
+                display: none !important;
+            }
+
+            /* Asegurar que todo el contenido se imprima */
+            #previewContent {
+                page-break-inside: avoid;
+            }
+
+            @page {
+                margin: 4mm;
+                size: 80mm auto;
+            }
+        }
+
         @media (max-width: 720px) {
             .form-row {
                 flex-direction: column;
@@ -233,6 +421,10 @@
             .toolbar {
                 flex-direction: column;
                 align-items: flex-start;
+            }
+
+            #previewContainer {
+                max-width: 95vw;
             }
         }
     </style>
@@ -300,9 +492,26 @@
         </div>
     </div>
 
+    <!-- Modal de vista previa del ticket -->
+    <div id="previewModal">
+        <div id="previewContainer">
+            <div id="previewHeader">
+                <h3 style="margin: 0; font-size: 16px; font-weight: bold;">Vista previa del ticket</h3>
+            </div>
+            <div id="previewContent">
+                <!-- Contenido del ticket se insertará aquí -->
+            </div>
+            <div id="previewFooter">
+                <button id="btnPreviewPrint" onclick="confirmarImpresion()">🖨️ Imprimir</button>
+                <button id="btnPreviewClose" onclick="cerrarPreviewModal()">❌ Cerrar</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const API_URL = '/api/v1';
         let tickets = [];
+        let ticketActualParaImprimir = null;
 
         document.addEventListener('DOMContentLoaded', async () => {
             await cargarTickets();
@@ -390,20 +599,158 @@
         async function printFolio(folio) {
             const msg = document.getElementById('ticketMessage');
             try {
-                msg.textContent = `Imprimiendo ticket ${folio}...`;
-                const response = await fetch(`${API_URL}/tickets/imprimir?folio=${folio}`, {
-                    method: 'POST'
-                });
+                msg.textContent = `Cargando vista previa del ticket ${folio}...`;
 
-                if (!response.ok) throw new Error('Error al imprimir');
+                // Obtener datos del ticket
+                const ticket = tickets.find(t => t.folio === folio);
+                if (!ticket) {
+                    msg.textContent = `Ticket ${folio} no encontrado`;
+                    return;
+                }
 
-                const result = await response.json();
-                msg.textContent = result.mensaje;
+                // Generar contenido visual del ticket (HTML formateado)
+                const contenidoTicket = generarVistaPrevia(ticket);
+
+                // Mostrar en el modal (usar innerHTML para permitir HTML)
+                const previewContent = document.getElementById('previewContent');
+                previewContent.innerHTML = contenidoTicket;
+                document.getElementById('previewModal').classList.add('active');
+                ticketActualParaImprimir = folio;
+                msg.textContent = '';
+                generarCodigoBarras(folio);
             } catch (error) {
                 console.error('Error:', error);
-                msg.textContent = `Error al imprimir ticket ${folio}`;
+                msg.textContent = `Error al cargar ticket ${folio}`;
             }
         }
+
+        function generarVistaPrevia(ticket) {
+            const fecha = new Date(ticket.fecha).toLocaleDateString('es-MX');
+            const folio = ticket.folio || 'VZ000';
+            const contenido = `
+<div style="font-family: 'Courier New', monospace; font-size: 10px; line-height: 1.3; color: #000; text-align: center; width: 100%;">
+    <!-- Título principal -->
+    <div style="font-weight: bold; font-size: 12px; letter-spacing: 2px; margin-bottom: 3px;">V A L E   D E   C A N J E</div>
+    
+    <!-- Nombre empresa -->
+    <div style="font-weight: bold; font-size: 11px; margin-bottom: 2px;">REFACCIONARIA OVIEDO</div>
+    
+    <!-- Dirección -->
+    <div style="font-size: 8px; line-height: 1.3; margin-bottom: 4px;">
+        LIBRAMIENTO SUR #717-B COL.<br>
+        MAGISTERIAL, C.P. 37900.<br>
+        SAN LUIS DE LA PAZ, GTO.<br>
+        WhatsApp: 468 113 2367
+    </div>
+    
+    <!-- Línea punteada -->
+    <div style="border-top: 1px dashed #000; margin: 5px 0; padding-top: 3px;"></div>
+    
+    <!-- Fecha -->
+    <div style="font-size: 8px; margin-bottom: 5px;">FECHA: ${fecha}</div>
+    
+    <!-- Código de barras -->
+    <div style="margin: 6px 0; text-align: center;">
+        <svg id="ticketBarcode" style="max-width: 110px; max-height: 34px;"></svg>
+    </div>
+    
+    <!-- Línea punteada -->
+    <div style="border-top: 1px dashed #000; margin: 5px 0; padding-top: 3px;"></div>
+    
+    <!-- Caja con folio y monto -->
+    <div style="border: 2px solid #000; padding: 6px; margin: 5px 0; font-size: 9px; line-height: 1.6;">
+        <div style="text-align: left;">
+            <div>FOLIO: <span style="float: right; font-weight: bold;">${folio}</span></div>
+            <div>MONTO: <span style="float: right; font-weight: bold;">$500</span></div>
+        </div>
+    </div>
+    
+    <!-- Línea punteada -->
+    <div style="border-top: 1px dashed #000; margin: 5px 0; padding-top: 3px;"></div>
+    
+    <!-- Vendedor -->
+    <div style="font-size: 8px; margin-bottom: 4px;">
+        <div style="text-align: left;">Vendedor</div>
+        <div style="font-weight: bold; text-transform: uppercase; text-align: left;">${ticket.cliente.substring(0, 30)}</div>
+    </div>
+    
+    <!-- Línea punteada -->
+    <div style="border-top: 1px dashed #000; margin: 5px 0; padding-top: 5px;"></div>
+    
+    <!-- Logo -->
+    <div style="margin: 6px 0; text-align: center;">
+        <img src="/static/images/logo_blanconegro.png" alt="Logo" style="max-width: 120px; height: auto; opacity: 0.85;">
+    </div>
+    
+    <!-- Lema -->
+    <div style="font-style: italic; font-size: 8px; font-weight: bold; margin: 5px 0; line-height: 1.3;">
+        "NUESTRA EXPERIENCIA<br>
+        MARCA LA DIFERENCIA"
+    </div>
+    
+    <!-- Línea punteada final -->
+    <div style="border-top: 1px dashed #000; margin: 5px 0; padding-top: 3px; font-size: 7px; color: #666;">
+        Generado: ${new Date().toLocaleString('es-MX')}
+    </div>
+</div>
+
+    `;
+            return contenido;
+        }
+
+        function generarCodigoBarras(folio) {
+            const numericCode = (folio || '').replace(/[^\d]/g, '').padEnd(12, '0').substring(0, 12);
+            setTimeout(() => {
+                try {
+                    if (typeof JsBarcode !== 'undefined') {
+                        const barcode = document.getElementById('ticketBarcode');
+                        if (barcode) {
+                            JsBarcode(barcode, numericCode, {
+                                format: "CODE128",
+                                width: 1.2,
+                                height: 30,
+                                displayValue: false,
+                                margin: 0
+                            });
+                        }
+                    }
+                } catch (e) {
+                    console.warn('No se pudo generar código de barras:', e);
+                }
+            }, 100);
+        }
+
+        function confirmarImpresion() {
+            if (!ticketActualParaImprimir) return;
+
+            const msg = document.getElementById('ticketMessage');
+            msg.textContent = `Preparando impresión del ticket ${ticketActualParaImprimir}...`;
+
+            // Pequeño delay para asegurar que todo esté listo
+            setTimeout(() => {
+                // Mostrar el diálogo de impresión
+                window.print();
+
+                // Después de imprimir, cerrar el modal
+                setTimeout(() => {
+                    cerrarPreviewModal();
+                    msg.textContent = `Ticket ${ticketActualParaImprimir} enviado a la impresora.`;
+                    ticketActualParaImprimir = null;
+                }, 500);
+            }, 300);
+        }
+
+        function cerrarPreviewModal() {
+            document.getElementById('previewModal').classList.remove('active');
+            ticketActualParaImprimir = null;
+        }
+
+        // Cerrar modal al hacer clic fuera
+        document.getElementById('previewModal').addEventListener('click', function (e) {
+            if (e.target === this) {
+                cerrarPreviewModal();
+            }
+        });
 
         async function markDelivered(folio) {
             const msg = document.getElementById('ticketMessage');
@@ -454,7 +801,8 @@
             const pendientes = list.filter(t => t.estatus === 'Pendiente').length;
             const parciales = list.filter(t => t.estatus === 'Parcial').length;
             const entregados = list.filter(t => t.estatus === 'Entregado').length;
-            counter.textContent = `${list.length} tickets | Pendientes: ${pendientes} · Parciales: ${parciales} · Entregados: ${entregados}`;
+            counter.textContent = `${list.length} tickets | Pendientes: ${pendientes} · Parciales: ${parciales} · Entregados:
+    ${entregados}`;
         }
 
         async function reloadTickets() {

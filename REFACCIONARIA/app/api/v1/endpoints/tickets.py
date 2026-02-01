@@ -1,6 +1,6 @@
 print("[DEBUG] Importando endpoints/tickets.py...")
 # app/api/v1/endpoints/tickets.py
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Query
 from typing import List, Optional
 from datetime import datetime
 from pydantic import BaseModel
@@ -17,7 +17,32 @@ from app.utils.ticket_printer import TicketPrinter
 router = APIRouter()
 print("[DEBUG] Router de tickets inicializado")
 
-# Datos temporales en memoria (simula base de datos)
+# ============= MODELOS =============
+class ItemTicket(BaseModel):
+    """Modelo para un item en el ticket"""
+    descripcion: str
+    cantidad: int = 1
+    precio: float
+
+class GenerarTicketRequest(BaseModel):
+    """Solicitud para generar formato de ticket con promociones y políticas"""
+    folio: str
+    cliente: Optional[str] = None
+    items: List[ItemTicket]
+    subtotal: float
+    descuento: float = 0.0
+    impuesto: float = 0.0
+    total: float
+    vendedor: Optional[str] = None
+    incluir_qr: bool = True
+
+class GenerarTicketResponse(BaseModel):
+    """Respuesta con el formato del ticket"""
+    folio: str
+    contenido_ticket: str
+    exito: bool
+
+# ============= DATOS =============
 tickets_db = [
     {
         "id": 1,
@@ -65,7 +90,7 @@ tickets_db = [
     }
 ]
 
-@router.get("/tickets", response_model=List[TicketResponse], tags=["Tickets"])
+@router.get("/", response_model=List[TicketResponse], tags=["Tickets"])
 def listar_tickets(
     estatus: Optional[str] = None,
     buscar: Optional[str] = None
@@ -94,19 +119,8 @@ def listar_tickets(
     
     return resultado
 
-@router.get("/tickets/{folio}", response_model=TicketResponse, tags=["Tickets"])
-def obtener_ticket(folio: str):
-    """Obtiene un ticket específico por folio."""
-    ticket = next((t for t in tickets_db if t["folio"].upper() == folio.upper()), None)
-    if not ticket:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Ticket con folio {folio} no encontrado"
-        )
-    return ticket
-
-@router.post("/tickets/imprimir", response_model=TicketImpresion, tags=["Tickets"])
-def imprimir_ticket(folio: str):
+@router.post("/imprimir", response_model=TicketImpresion, tags=["Tickets"])
+def imprimir_ticket(folio: str = Query(..., description="Folio del ticket a imprimir")):
     """
     Envía un ticket a la impresora.
     
@@ -128,124 +142,11 @@ def imprimir_ticket(folio: str):
         mensaje=f"Ticket {folio} enviado a la impresora correctamente"
     )
 
-@router.patch("/tickets/{folio}", response_model=TicketResponse, tags=["Tickets"])
-def actualizar_ticket(folio: str, datos: TicketUpdate):
-    """
-    Actualiza el estatus u otros datos de un ticket.
-    
-    - **folio**: Folio del ticket
-    - **datos**: Datos a actualizar (estatus, partidas, artículo)
-    """
-    ticket = next((t for t in tickets_db if t["folio"].upper() == folio.upper()), None)
-    if not ticket:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Ticket {folio} no encontrado"
-        )
-    
-    # Actualizar campos proporcionados
-    if datos.estatus is not None:
-        ticket["estatus"] = datos.estatus
-    if datos.partidas is not None:
-        ticket["partidas"] = datos.partidas
-    if datos.articulo is not None:
-        ticket["articulo"] = datos.articulo
-    
-    ticket["updated_at"] = datetime.now()
-    
-    return ticket
-
-@router.post("/tickets/{folio}/entregar", response_model=TicketResponse, tags=["Tickets"])
-def marcar_entregado(folio: str):
-    """
-    Marca un ticket como entregado.
-    
-    - **folio**: Folio del ticket a marcar como entregado
-    """
-    ticket = next((t for t in tickets_db if t["folio"].upper() == folio.upper()), None)
-    if not ticket:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Ticket {folio} no encontrado"
-        )
-    
-    ticket["estatus"] = "Entregado"
-    ticket["updated_at"] = datetime.now()
-    
-    return ticket
-
-@router.post("/tickets", response_model=TicketResponse, status_code=status.HTTP_201_CREATED, tags=["Tickets"])
-def crear_ticket(ticket: TicketCreate):
-    """Crea un nuevo ticket."""
-    # Verificar que el folio no exista
-    if any(t["folio"].upper() == ticket.folio.upper() for t in tickets_db):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Ya existe un ticket con el folio {ticket.folio}"
-        )
-    
-    nuevo_id = max([t["id"] for t in tickets_db], default=0) + 1
-    nuevo_ticket = {
-        "id": nuevo_id,
-        "folio": ticket.folio,
-        "partidas": ticket.partidas,
-        "articulo": ticket.articulo,
-        "cliente": ticket.cliente,
-        "fecha": ticket.fecha,
-        "estatus": ticket.estatus,
-        "created_at": datetime.now(),
-        "updated_at": None
-    }
-    
-    tickets_db.append(nuevo_ticket)
-    return nuevo_ticket
-
-# ============= NUEVOS ENDPOINTS CON DISEÑO ACTUALIZADO =============
-
-class ItemTicket(BaseModel):
-    """Modelo para un item en el ticket"""
-    descripcion: str
-    cantidad: int = 1
-    precio: float
-
-class GenerarTicketRequest(BaseModel):
-    """Solicitud para generar formato de ticket con promociones y políticas"""
-    folio: str
-    cliente: Optional[str] = None
-    items: List[ItemTicket]
-    subtotal: float
-    descuento: float = 0.0
-    impuesto: float = 0.0
-    total: float
-    vendedor: Optional[str] = None
-    incluir_qr: bool = True
-
-class GenerarTicketResponse(BaseModel):
-    """Respuesta con el formato del ticket"""
-    folio: str
-    contenido_ticket: str
-    exito: bool
-
+# Endpoints específicos (van antes de genéricos)
 @router.post("/generar-formato", response_model=GenerarTicketResponse, tags=["Tickets"])
 def generar_formato_ticket(datos: GenerarTicketRequest):
     """
     Genera el formato completo del ticket con promociones y políticas de devolución.
-    
-    Este endpoint retorna el contenido formateado del ticket listo para imprimir
-    en una impresora térmica, incluyendo:
-    - Encabezado con nombre de la empresa
-    - Lema de la empresa
-    - Detalles de los artículos
-    - Totales (subtotal, descuento, impuesto, total)
-    - Sección de PROMOCIONES
-    - Sección de POLÍTICAS DE DEVOLUCIÓN
-    - Pie de página
-    
-    Args:
-        datos: Datos del ticket a generar
-    
-    Returns:
-        Objeto con el contenido formateado del ticket
     """
     try:
         # Convertir items a formato que TicketPrinter espera
@@ -280,7 +181,100 @@ def generar_formato_ticket(datos: GenerarTicketRequest):
             detail=f"Error al generar ticket: {str(e)}"
         )
 
-@router.get("/tickets/{folio}/obtener-formato", tags=["Tickets"])
+@router.get("/diseño/promociones", tags=["Tickets"])
+def obtener_promociones():
+    """
+    Obtiene la lista de promociones actuales que aparecen en los tickets.
+    """
+    return {
+        "promociones": TicketPrinter.PROMOCIONES,
+        "titulo": "Promociones:"
+    }
+
+@router.get("/diseño/politicas", tags=["Tickets"])
+def obtener_politicas_devolucion():
+    """
+    Obtiene la lista de políticas de devolución que aparecen en los tickets.
+    """
+    return {
+        "politicas": TicketPrinter.POLITICAS_DEVOLUCION,
+        "titulo": "Políticas de devolución:"
+    }
+
+# Endpoints genéricos (van después de específicos)
+@router.post("/crear", response_model=TicketResponse, status_code=status.HTTP_201_CREATED, tags=["Tickets"])
+def crear_ticket(ticket: TicketCreate):
+    """Crea un nuevo ticket."""
+    # Verificar que el folio no exista
+    if any(t["folio"].upper() == ticket.folio.upper() for t in tickets_db):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Ya existe un ticket con el folio {ticket.folio}"
+        )
+    
+    nuevo_id = max([t["id"] for t in tickets_db], default=0) + 1
+    nuevo_ticket = {
+        "id": nuevo_id,
+        "folio": ticket.folio,
+        "partidas": ticket.partidas,
+        "articulo": ticket.articulo,
+        "cliente": ticket.cliente,
+        "fecha": ticket.fecha,
+        "estatus": ticket.estatus,
+        "created_at": datetime.now(),
+        "updated_at": None
+    }
+    
+    tickets_db.append(nuevo_ticket)
+    return nuevo_ticket
+
+@router.patch("/{folio}", response_model=TicketResponse, tags=["Tickets"])
+def actualizar_ticket(folio: str, datos: TicketUpdate):
+    """
+    Actualiza el estatus u otros datos de un ticket.
+    
+    - **folio**: Folio del ticket
+    - **datos**: Datos a actualizar (estatus, partidas, artículo)
+    """
+    ticket = next((t for t in tickets_db if t["folio"].upper() == folio.upper()), None)
+    if not ticket:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Ticket {folio} no encontrado"
+        )
+    
+    # Actualizar campos proporcionados
+    if datos.estatus is not None:
+        ticket["estatus"] = datos.estatus
+    if datos.partidas is not None:
+        ticket["partidas"] = datos.partidas
+    if datos.articulo is not None:
+        ticket["articulo"] = datos.articulo
+    
+    ticket["updated_at"] = datetime.now()
+    
+    return ticket
+
+@router.post("/{folio}/entregar", response_model=TicketResponse, tags=["Tickets"])
+def marcar_entregado(folio: str):
+    """
+    Marca un ticket como entregado.
+    
+    - **folio**: Folio del ticket a marcar como entregado
+    """
+    ticket = next((t for t in tickets_db if t["folio"].upper() == folio.upper()), None)
+    if not ticket:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Ticket {folio} no encontrado"
+        )
+    
+    ticket["estatus"] = "Entregado"
+    ticket["updated_at"] = datetime.now()
+    
+    return ticket
+
+@router.get("/{folio}/obtener-formato", tags=["Tickets"])
 def obtener_formato_ticket(folio: str):
     """
     Obtiene el formato formateado de un ticket existente.
@@ -315,22 +309,13 @@ def obtener_formato_ticket(folio: str):
         exito=True
     )
 
-@router.get("/tickets/diseño/promociones", tags=["Tickets"])
-def obtener_promociones():
-    """
-    Obtiene la lista de promociones actuales que aparecen en los tickets.
-    """
-    return {
-        "promociones": TicketPrinter.PROMOCIONES,
-        "titulo": "Promociones:"
-    }
-
-@router.get("/tickets/diseño/politicas", tags=["Tickets"])
-def obtener_politicas_devolucion():
-    """
-    Obtiene la lista de políticas de devolución que aparecen en los tickets.
-    """
-    return {
-        "politicas": TicketPrinter.POLITICAS_DEVOLUCION,
-        "titulo": "Políticas de devolución:"
-    }
+@router.get("/{folio}", response_model=TicketResponse, tags=["Tickets"])
+def obtener_ticket(folio: str):
+    """Obtiene un ticket específico por folio."""
+    ticket = next((t for t in tickets_db if t["folio"].upper() == folio.upper()), None)
+    if not ticket:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Ticket con folio {folio} no encontrado"
+        )
+    return ticket

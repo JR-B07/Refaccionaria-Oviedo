@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>REFACCIONARIA - Vales de Venta</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <style>
         :root {
             --primary-red: #c41e3a;
@@ -446,8 +447,120 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Modal de impresión de ticket */
+        #printModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        #printModal.active {
+            display: flex;
+        }
+
+        #ticketContainer {
+            background: white;
+            width: 100%;
+            max-width: 400px;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            max-height: 90vh;
+        }
+
+        #ticketContent {
+            flex: 1;
+            overflow-y: auto;
+            background: white;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            line-height: 1.2;
+            padding: 20px;
+        }
+
+        #ticketHeader {
+            background: var(--primary-red);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        #ticketHeader h3 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        #ticketFooter {
+            background: #f5f5f5;
+            padding: 15px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        #ticketFooter button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        #btnPrintTicket {
+            background: #28a745;
+            color: white;
+        }
+
+        #btnPrintTicket:hover {
+            background: #218838;
+        }
+
+        #btnCloseTicket {
+            background: #6c757d;
+            color: white;
+        }
+
+        #btnCloseTicket:hover {
+            background: #5a6268;
+        }
+
+        @media print {
+
+            #ticketHeader,
+            #ticketFooter,
+            #printModal {
+                display: none !important;
+            }
+
+            #ticketContainer {
+                max-width: 80mm;
+                box-shadow: none;
+                border-radius: 0;
+            }
+
+            #ticketContent {
+                padding: 0;
+            }
+        }
     </style>
 </head>
+
 
 <body>
     <!-- Main Container -->
@@ -645,6 +758,25 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Modal de impresión de ticket -->
+    <div id="printModal">
+        <div id="ticketContainer">
+            <div id="ticketHeader">
+                <h3 style="margin: 0; font-size: 16px; font-weight: bold;">Ticket de Vale de Venta</h3>
+            </div>
+            <div id="ticketContent">
+            </div>
+            <div id="ticketFooter">
+                <button id="btnPrintTicket" onclick="window.print()"
+                    style="padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px; background: #28a745; color: white;">🖨️
+                    Imprimir</button>
+                <button id="btnCloseTicket" onclick="cerrarTicketModal()"
+                    style="padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px; background: #6c757d; color: white;">❌
+                    Cerrar</button>
+            </div>
         </div>
     </div>
 
@@ -977,22 +1109,25 @@
                 const disponible = vale.disponible ? 'SI' : 'NO';
 
                 tr.innerHTML = `
-                    <td>${vale.folio}</td>
-                    <td>$${monto}</td>
-                    <td>${concepto}</td>
-                    <td>${fecha}</td>
-                    <td>${vendedor}</td>
-                    <td>${fechaUso}</td>
-                    <td>${destino}</td>
-                    <td>${devolucion}</td>
-                    <td>${sucursal}</td>
-                    <td>${descripcion}</td>
-                    <td><span class="disponible-toggle ${vale.disponible ? 'si' : 'no'}" onclick="event.stopPropagation(); toggleDisponible(${vale.id}, ${!vale.disponible});">${disponible}</span></td>
-                    <td>
-                        <button class="btn-print" onclick="event.stopPropagation(); imprimirVale(${JSON.stringify(vale).replace(/"/g, '&quot;')});">🖨️ Imprimir</button>
-                        <button class="btn-delete" onclick="event.stopPropagation(); eliminarVale(${vale.id});">🗑️ Eliminar</button>
-                    </td>
-                `;
+    <td>${vale.folio}</td>
+    <td>$${monto}</td>
+    <td>${concepto}</td>
+    <td>${fecha}</td>
+    <td>${vendedor}</td>
+    <td>${fechaUso}</td>
+    <td>${destino}</td>
+    <td>${devolucion}</td>
+    <td>${sucursal}</td>
+    <td>${descripcion}</td>
+    <td><span class="disponible-toggle ${vale.disponible ? 'si' : 'no'}"
+            onclick="event.stopPropagation(); toggleDisponible(${vale.id}, ${!vale.disponible});">${disponible}</span>
+    </td>
+    <td>
+        <button class="btn-print" onclick="event.stopPropagation(); imprimirValeModal(${JSON.stringify(vale).replace(/"
+                    / g, '&quot;')});">🖨️ Imprimir</button>
+        <button class="btn-delete" onclick="event.stopPropagation(); eliminarVale(${vale.id});">🗑️ Eliminar</button>
+    </td>
+    `;
                 tbody.appendChild(tr);
             });
         }
@@ -1089,224 +1224,459 @@
         }
 
         function imprimirVale(vale) {
-            const printWindow = window.open('', '_blank', 'width=800,height=600');
+            console.log('Generando ticket para vale:', vale);
+
             const fecha = new Date(vale.fecha).toLocaleDateString('es-MX');
             const monto = parseFloat(vale.monto || 0).toFixed(2);
             const folio = vale.folio || 'VZ000';
+            const concepto = vale.concepto || 'POR ANTICIPO';
+            const vendedor = vale.vendedor_nombre || 'REFACCIONARIA';
+            const sucursal = vale.local_nombre || 'REFACCIONARIA OVIEDO';
+            const descripcion = vale.descripcion || '';
 
             // Generar código de barras numérico basado en el folio
             const numericCode = folio.replace(/[^\d]/g, '').padEnd(12, '0').substring(0, 12);
 
-            const contenido = `<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Vale de Canje - ` + folio + `</title>
-    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>
-    <style>
-        @page {
-            size: 80mm auto;
-            margin: 5mm;
-        }
+            const contenido = `
+    <!DOCTYPE html>
+    <html>
+
+    <head>
+        <meta charset="UTF-8">
+        <title>Vale de Venta - ` + folio + `</title>
+        <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>
+                < style >
+                @page {
+                size: 80mm auto;
+                margin: 3mm;
+            }
+        * {
+                margin: 0;
+                padding: 0;
+            }
+            html, body {
+                margin: 0;
+                padding: 0;
+            }
         body {
-            font-family: 'Courier New', monospace;
-            width: 80mm;
-            margin: 0 auto;
-            padding: 5px;
-            font-size: 11px;
-            line-height: 1.2;
-        }
+                font - family: 'Courier New', monospace;
+                width: 80mm;
+                margin: 0 auto;
+                padding: 3px;
+                font - size: 11px;
+                line - height: 1.1;
+                background: white;
+            }
+        .ticket {
+                width: 100 %;
+                border: 1px dashed #333;
+                padding: 5px;
+            }
         .header {
-            text-align: center;
-            font-weight: bold;
-            font-size: 13px;
-            margin-bottom: 5px;
-            padding-bottom: 5px;
-        }
-        .header-line1 {
-            font-size: 12px;
-            font-weight: bold;
-            letter-spacing: 2px;
-        }
-        .header-line2 {
-            font-size: 11px;
-            font-weight: bold;
-        }
-        .info-text {
-            font-size: 9px;
-            text-align: center;
-            margin: 3px 0;
-            line-height: 1.3;
-        }
-        .info-box {
-            padding: 0;
-            margin: 2px 0;
-            text-align: center;
-        }
-        .barcode-container {
-            text-align: center;
-            margin: 1px 0;
-        }
-        .barcode-container svg {
-            max-width: 100%;
-            height: auto;
-            max-height: 25px;
-        }
-        .box-row {
-            margin: 2px 0;
-            display: flex;
-            justify-content: space-around;
-            font-size: 8px;
-        }
-        .box-item {
-            text-align: center;
-        }
-        .box-label {
-            font-weight: bold;
-            font-size: 7px;
-        }
-        .box-value {
-            font-weight: bold;
-            font-size: 12px;
-            margin-top: 0px;
-        }
-        .monto-value {
-            font-size: 14px;
-            font-weight: bold;
-            color: #000;
-        }
-        .vendedor-section {
-            margin-top: 8px;
-            text-align: center;
-        }
-        .vendedor-label {
-            font-weight: bold;
-            font-size: 10px;
-        }
-        .vendedor-name {
-            font-weight: bold;
-            font-size: 11px;
-            margin-top: 2px;
-        }
-        .logo-container {
-            text-align: center;
-            margin: 10px 0;
-        }
-        .logo-container img {
-            width: 120px;
-            height: auto;
-        }
+                text - align: center;
+                border - bottom: 1px dashed #333;
+                padding - bottom: 3px;
+                margin - bottom: 3px;
+            }
+        .header - line1 {
+                font - size: 14px;
+                font - weight: bold;
+                letter - spacing: 1px;
+            }
+        .header - line2 {
+                font - size: 11px;
+                font - weight: bold;
+            }
+        .header - line3 {
+                font - size: 9px;
+                color: #666;
+            }
+        .info - text {
+                font - size: 8px;
+                text - align: center;
+                margin: 2px 0;
+                line - height: 1.2;
+            }
+        .section {
+                border - bottom: 1px dashed #333;
+                padding: 3px 0;
+                margin: 3px 0;
+            }
+        .barcode - container {
+                text - align: center;
+                margin: 3px 0;
+                padding: 2px 0;
+            }
+        .barcode - container svg {
+                max - width: 100 %;
+                height: auto;
+                max - height: 28px;
+            }
+        .data - row {
+                display: flex;
+                justify - content: space - between;
+                margin: 2px 0;
+                font - size: 10px;
+            }
+        .data - label {
+                font - weight: bold;
+            }
+        .data - value {
+                text - align: right;
+            }
+        .row - full {
+                margin: 2px 0;
+                font - size: 10px;
+            }
+        .monto - box {
+                border: 2px solid #333;
+                padding: 4px;
+                text - align: center;
+                margin: 3px 0;
+            }
+        .monto - label {
+                font - size: 9px;
+                font - weight: bold;
+            }
+        .monto - value {
+                font - size: 16px;
+                font - weight: bold;
+                color: #000;
+            }
+        .concepto - box {
+                background: #f0f0f0;
+                padding: 3px;
+                margin: 3px 0;
+                text - align: center;
+                font - size: 9px;
+                font - weight: bold;
+            }
+        .vendedor - section {
+                margin: 3px 0;
+                text - align: center;
+            }
+        .vendedor - label {
+                font - weight: bold;
+                font - size: 9px;
+            }
+        .vendedor - name {
+                font - weight: bold;
+                font - size: 11px;
+                margin - top: 1px;
+                text - decoration: underline;
+            }
         .footer {
-            text-align: center;
-            margin-top: 5px;
-        }
+                text - align: center;
+                margin - top: 3px;
+            }
+        .footer - line {
+                font - size: 10px;
+                font - weight: bold;
+            }
         .slogan {
-            text-align: center;
-            font-style: italic;
-            font-size: 9px;
-            margin-top: 5px;
-            line-height: 1.3;
-        }
-        .no-print {
-            text-align: center;
-            margin-top: 15px;
-            display: none;
-        }
-        .no-print button {
-            padding: 8px 15px;
-            font-size: 12px;
-            cursor: pointer;
-            margin: 0 5px;
-        }
-        @media print {
-            .no-print {
-                display: none !important;
+                text - align: center;
+                font - style: italic;
+                font - size: 8px;
+                margin - top: 3px;
+                line - height: 1.2;
+            }
+        .conditions {
+                font - size: 7px;
+                text - align: center;
+                margin - top: 3px;
+                line - height: 1.2;
+                border - top: 1px dashed #333;
+                padding - top: 2px;
+            }
+        .logo - container {
+                text - align: center;
+                margin: 2px 0;
+            }
+        .logo - container img {
+                width: 60px;
+                height: auto;
+            }
+        .no - print {
+                text - align: center;
+                margin - top: 15px;
+                display: flex;
+                justify - content: center;
+                gap: 10px;
+                background: #f5f5f5;
+                padding: 10px;
+            }
+        .no - print button {
+                padding: 8px 15px;
+                font - size: 12px;
+                cursor: pointer;
+                background: #c41e3a;
+                color: white;
+                border: none;
+                border - radius: 4px;
+            }
+        .no - print button:hover {
+                background: #8b1428;
+            }
+            @media print {
+            .no - print {
+                    display: none!important;
+                }
+            .ticket {
+                    border: none;
+                }
+            body {
+                    margin: 0;
+                    padding: 0;
+                }
+            }
+    </style >
+</head >
+                <body>
+                    <div class="ticket">
+                        <div class="header">
+                            <div class="header-line1">★ VALE DE VENTA ★</div>
+                            <div class="header-line2">REFACCIONARIA OVIEDO</div>
+                            <div class="header-line3">Filtros y Lubricantes</div>
+                        </div>
+
+                        <div class="info-text">
+                            Libramiento Sur #717-B<br>
+                                Col. Magisterial, C.P. 37900<br>
+                                    San Luis de la Paz, Gto.<br>
+                                        Tel: (468) 113-2367<br>
+                                            <strong>RFC: xxx (add your RFC)</strong>
+                                        </div>
+
+                                        <div class="section">
+                                            <div class="barcode-container">
+                                                <svg id="barcode"><\/svg>
+                                            </div>
+                                        </div>
+
+                                        <div class="section">
+                                            <div class="data-row">
+                                                <span class="data-label">FOLIO:</span>
+                                                <span class="data-value" style="font-weight: bold; font-size: 12px;">` + folio + `</span>
+                                            </div>
+                                            <div class="data-row">
+                                                <span class="data-label">FECHA:</span>
+                                                <span class="data-value">` + fecha + `</span>
+                                            </div>
+                                            <div class="data-row">
+                                                <span class="data-label">VENDEDOR:</span>
+                                                <span class="data-value">` + (vendedor.substring(0, 20)) + `</span>
+                                            </div>
+                                            <div class="data-row">
+                                                <span class="data-label">SUCURSAL:</span>
+                                                <span class="data-value">` + (sucursal.substring(0, 15)) + `</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="monto-box">
+                                            <div class="monto-label">VALOR DEL VALE</div>
+                                            <div class="monto-value">$` + monto + `</div>
+                                        </div>
+
+                                        <div class="concepto-box">
+                                            CONCEPTO: ` + concepto + `
+                                        </div>
+
+                                        ` + (descripcion ? `<div class="section">
+                                            <div class="row-full"><strong>DESCRIPCIÓN:</strong></div>
+                                            <div class="row-full">` + descripcion.substring(0, 50) + `</div>
+                                        </div>` : '') + `
+
+                                        <div class="section">
+                                            <div class="conditions">
+                                                ✓ Vale canjeble únicamente por productos<br>
+                                                    ✓ No reembolsable en efectivo<br>
+                                                        ✓ Válido por 1 mes desde su emisión<br>
+                                                            ✓ Presentar con factura o recibo
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="vendedor-section">
+                                                        <div class="vendedor-label">AUTORIZADO POR:</div>
+                                                        <div class="vendedor-name">` + (vendedor.toUpperCase()) + `</div>
+                                                    </div>
+
+                                                    <div class="logo-container">
+                                                        <img src="/static/images/logo_blanconegro.png" alt="Refaccionaria Oviedo" onerror="this.style.display='none'">
+                                                    </div>
+
+                                                    <div class="footer">
+                                                        <div class="footer-line">✦ REFACCIONARIA OVIEDO ✦</div>
+                                                        <div class="slogan">
+                                                            "Nuestra Experiencia<br>
+                                                                Marca la Diferencia"
+                                                        </div>
+                                                    </div>
+
+                                                    <div style="text-align: center; font-size: 7px; margin-top: 3px;">
+                                                        Ticket generado: ` + new Date().toLocaleString('es-MX') + `
+                                                    </div>
+                                            </div>
+
+                                            <div class="no-print">
+                                                <button onclick="window.print()">🖨️ Imprimir</button>
+                                                <button onclick="window.close()">❌ Cerrar</button>
+                                            </div>
+
+                                            <script>
+                                                window.addEventListener('load', function() {
+                                                    console.log('Documento cargado, iniciando generación de código de barras');
+                                                try {
+                if (typeof JsBarcode !== 'undefined') {
+                                                    JsBarcode("#barcode", "` + numericCode + `", {
+                                                        format: "CODE128",
+                                                        width: 1,
+                                                        height: 25,
+                                                        displayValue: false,
+                                                        margin: 0
+                                                    });
+                                                console.log('Código de barras generado exitosamente');
+                } else {
+                                                    console.warn('JsBarcode no disponible');
+                }
+            } catch(e) {
+                                                    console.error('Error generando código de barras:', e);
+            }
+
+                                                // Imprimir automáticamente después de cargar
+                                                setTimeout(function() {
+                                                    console.log('Abriendo diálogo de impresión');
+                                                window.print();
+            }, 500);
+        }, false);
+                                                <\/script>
+                                            </body>
+                                        </html>
+                                        `;
+
+            try {
+                const printWindow = window.open('', 'PrintWindow', 'width=800,height=600,scrollbars=yes,resizable=yes,status=yes');
+
+                if (!printWindow) {
+                    console.error('No se pudo abrir la ventana de impresión. Verificar bloqueador de ventanas emergentes.');
+                    alert('⚠️ No se pudo abrir la ventana de impresión.\n\nVerifica que no haya bloqueadores de ventanas emergentes activos.\n\nSi el problema persiste, intenta:\n1. Desactivar bloqueadores de popups\n2. Usar otro navegador\n3. Permitir ventanas emergentes para este sitio');
+                    return;
+                }
+
+                printWindow.document.write(contenido);
+                printWindow.document.close();
+                console.log('Contenido escrito en la ventana de impresión');
+            } catch (error) {
+                console.error('Error al abrir ventana de impresión:', error);
+                alert('❌ Error: ' + error.message);
             }
         }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <div class="header-line1">VALE DE CANJE</div>
-        <div class="header-line2">FILTROS Y LUBRICANTES</div>
-    </div>
-    
-    <div class="info-text">
-        LIBRAMIENTO SUR #717-B COL.<br>
-        MAGISTERIAL, C.P. 37900.<br>
-        SAN LUIS DE LA PAZ, GTO.<br>
-        <strong>WhatsApp: 468 113 2367</strong>
-    </div>
-    
-    <div class="info-box">
-        <div style="text-align: center; margin: 1px 0; font-size: 8px;">
-            <strong>FECHA: ` + fecha + `</strong>
-        </div>
-        
-        <div class="barcode-container">
-            <svg id="barcode"><\/svg>
-        </div>
-        
-        <div class="box-row">
-            <div class="box-item">
-                <div class="box-label">FOLIO:</div>
-                <div class="box-value">` + folio + `</div>
-            </div>
-            <div class="box-item">
-                <div class="box-label">MONTO:</div>
-                <div class="box-value monto-value">$` + monto + `</div>
-            </div>
-        </div>
-    </div>
-    </div>
-    
-    <div class="vendedor-section">
-        <div class="vendedor-label">Vendedor</div>
-        <div class="vendedor-name">` + (vale.vendedor_nombre ? vale.vendedor_nombre.toUpperCase() : 'REFACCIONARIA') + `</div>
-    </div>
-    
-    <div class="logo-container">
-        <img src="/static/images/logo_blanconegro.png" alt="Refaccionaria Oviedo">
-    </div>
-    
-    <div class="footer">
-        <strong>*REFACCIONARIA*</strong><br>
-        <strong>OVIEDO</strong>
-    </div>
-    
-    <div class="slogan">
-        "NUESTRA EXPERIENCIA<br>
-        MARCA LA DIFERENCIA"
-    </div>
-    
-    <div class="no-print">
-        <button onclick="window.print()">🖨️ Imprimir</button>
-        <button onclick="window.close()">❌ Cerrar</button>
-    </div>
-    
-    <script>
-        window.onload = function() {
-            // Generar código de barras
-            JsBarcode("#barcode", "` + numericCode + `", {
-                format: "CODE128",
-                width: 1.2,
-                height: 22,
-                displayValue: false,
-                margin: 0
-            });
-            
-            setTimeout(function() {
-                window.print();
-            }, 250);
-        };
-    <\/script>
-</body>
-</html>
-            `;
 
-            printWindow.document.write(contenido);
-            printWindow.document.close();
+        // Nuevo modal para impresión sin ventanas emergentes
+        function imprimirValeModal(vale) {
+            const ticketHTML = generarHTMLTicket(vale);
+            document.getElementById('ticketContent').innerHTML = ticketHTML;
+            document.getElementById('printModal').classList.add('active');
+
+            setTimeout(() => {
+                const folio = vale.folio || 'VZ000';
+                const numericCode = folio.replace(/[^\d]/g, '').padEnd(12, '0').substring(0, 12);
+                try {
+                    if (typeof JsBarcode !== 'undefined') {
+                        JsBarcode("#ticketBarcode", numericCode, {
+                            format: "CODE128",
+                            width: 1,
+                            height: 25,
+                            displayValue: false,
+                            margin: 0
+                        });
+                    }
+                } catch (e) {
+                    console.warn('No se pudo generar código de barras');
+                }
+            }, 100);
         }
+
+        function generarHTMLTicket(vale) {
+            const fecha = new Date(vale.fecha).toLocaleDateString('es-MX');
+            const monto = parseFloat(vale.monto || 0).toFixed(2);
+            const folio = vale.folio || 'VZ000';
+            const concepto = vale.concepto || 'POR ANTICIPO';
+            const vendedor = vale.vendedor_nombre || 'REFACCIONARIA';
+            const sucursal = vale.local_nombre || 'REFACCIONARIA OVIEDO';
+            const descripcion = vale.descripcion || '';
+
+            return `
+                <div style="text-align: center; padding: 15px; font-family: 'Courier New', monospace; background: white;">
+                    
+                    <!-- Encabezado -->
+                    <div style="border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 10px;">
+                        <div style="font-size: 18px; font-weight: bold; letter-spacing: 2px;">VALE DE CANJE</div>
+                        <div style="font-size: 13px; font-weight: bold; margin-top: 5px;">REFACCIONARIA OVIEDO</div>
+                    </div>
+
+                    <!-- Datos de contacto -->
+                    <div style="font-size: 9px; line-height: 1.4; margin-bottom: 10px;">
+                        <div>LIBRAMIENTO SUR #717-B COL.</div>
+                        <div>MAGISTERIAL, C.P. 37900.</div>
+                        <div>SAN LUIS DE LA PAZ, GTO.</div>
+                        <div style="font-weight: bold; margin-top: 3px;">WhatsApp: 468 113 2367</div>
+                    </div>
+
+                    <!-- Sección central con detalles -->
+                    <div style="border: 2px solid #000; padding: 10px; margin-bottom: 10px; background: #fafafa;">
+                        <div style="font-size: 9px; margin-bottom: 5px;">
+                            <span style="font-weight: bold;">FECHA:</span> ${fecha}
+                        </div>
+                        <div style="text-align: center; margin-bottom: 8px;">
+                            <svg id="ticketBarcode" style="max-width: 100%; max-height: 40px;"></svg>
+                        </div>
+                        <div style="font-size: 10px; line-height: 1.5;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="font-weight: bold;">FOLIO:</span>
+                                <span style="font-weight: bold;">${folio}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="font-weight: bold;">MONTO:</span>
+                                <span style="font-weight: bold;">$${monto}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vendedor -->
+                    <div style="margin-bottom: 10px; font-size: 10px;">
+                        <div style="font-size: 9px; font-weight: bold;">Vendedor</div>
+                        <div style="font-weight: bold; font-size: 11px;">${vendedor.toUpperCase()}</div>
+                    </div>
+
+                    <!-- Logo/Marca -->
+                    <div style="border-top: 2px solid #000; border-bottom: 2px solid #000; padding: 8px 0; margin: 10px 0; font-size: 12px; font-weight: bold; letter-spacing: 1px;">
+                        ⚙ REFACCIONARIA ⚙<br>
+                        <span style="font-size: 11px;">OVIEDO</span>
+                    </div>
+
+                    <!-- Lema -->
+                    <div style="font-size: 9px; font-style: italic; margin-bottom: 10px; line-height: 1.3;">
+                        "NUESTRA EXPERIENCIA<br>
+                        MARCA LA DIFERENCIA"
+                    </div>
+
+                    <!-- Términos -->
+                    <div style="font-size: 8px; border-top: 1px dashed #000; padding-top: 8px; line-height: 1.4;">
+                        <div style="font-weight: bold; margin-bottom: 3px;">TÉRMINOS:</div>
+                        <div>✓ Canjeble por productos únicamente</div>
+                        <div>✓ No reembolsable en efectivo</div>
+                        <div>✓ Válido por 30 días</div>
+                    </div>
+
+            const printModal = document.getElementById('printModal');
+            if (printModal) {
+                printModal.addEventListener('click', function (e) {
+                    if (e.target === this) {
+                        cerrarTicketModal();
+                    }
+                });
+            }
+        });
     </script>
 </body>
 

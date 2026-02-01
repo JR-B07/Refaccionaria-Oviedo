@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Modal Vale</title>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+
+        .test-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px;
+        }
+
+        .test-button:hover {
+            background: #0056b3;
+        }
+
+        /* Modal de impresión de ticket */
+        #printModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        #printModal.active {
+            display: flex;
+        }
+
+        #ticketContainer {
+            background: white;
+            width: 100%;
+            max-width: 400px;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            max-height: 90vh;
+        }
+
+        #ticketContent {
+            flex: 1;
+            overflow-y: auto;
+            background: white;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            line-height: 1.2;
+            padding: 20px;
+        }
+
+        #ticketHeader {
+            background: #cc0000;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        #ticketFooter {
+            background: #f5f5f5;
+            padding: 15px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        #ticketFooter button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        #btnPrintTicket {
+            background: #28a745;
+            color: white;
+        }
+
+        #btnCloseTicket {
+            background: #6c757d;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Test Modal Vale de Venta</h1>
+    <button class="test-button" onclick="testModal()">Abrir Modal de Prueba</button>
+
+    <div id="printModal">
+        <div id="ticketContainer">
+            <div id="ticketHeader">
+                <h3 style="margin: 0; font-size: 16px; font-weight: bold;">Ticket de Vale de Venta</h3>
+            </div>
+            <div id="ticketContent">
+                <!-- Contenido del ticket se insertará aquí -->
+            </div>
+            <div id="ticketFooter">
+                <button id="btnPrintTicket" onclick="window.print()">🖨️ Imprimir</button>
+                <button id="btnCloseTicket" onclick="cerrarTicketModal()">❌ Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function testModal() {
+            const testVale = {
+                id: 1,
+                folio: 'VZ0001',
+                fecha: new Date().toISOString(),
+                monto: '500.00',
+                concepto: 'POR ANTICIPO',
+                vendedor_nombre: 'JUAN PÉREZ',
+                local_nombre: 'REFACCIONARIA OVIEDO',
+                descripcion: 'Vale de prueba para verificar el modal'
+            };
+
+            imprimirValeModal(testVale);
+        }
+
+        function imprimirValeModal(vale) {
+            const ticketHTML = generarHTMLTicket(vale);
+            document.getElementById('ticketContent').innerHTML = ticketHTML;
+            document.getElementById('printModal').classList.add('active');
+
+            setTimeout(() => {
+                const folio = vale.folio || 'VZ000';
+                const numericCode = folio.replace(/[^\d]/g, '').padEnd(12, '0').substring(0, 12);
+                try {
+                    if (typeof JsBarcode !== 'undefined') {
+                        JsBarcode("#ticketBarcode", numericCode, {
+                            format: "CODE128",
+                            width: 1,
+                            height: 25,
+                            displayValue: false,
+                            margin: 0
+                        });
+                    }
+                } catch (e) {
+                    console.warn('No se pudo generar código de barras:', e);
+                }
+            }, 100);
+        }
+
+        function generarHTMLTicket(vale) {
+            const fecha = new Date(vale.fecha).toLocaleDateString('es-MX');
+            const monto = parseFloat(vale.monto || 0).toFixed(2);
+            const folio = vale.folio || 'VZ000';
+            const concepto = vale.concepto || 'POR ANTICIPO';
+            const vendedor = vale.vendedor_nombre || 'REFACCIONARIA';
+            const sucursal = vale.local_nombre || 'REFACCIONARIA OVIEDO';
+            const descripcion = vale.descripcion || '';
+
+            return `
+                <div style="text-align: center; border-bottom: 1px dashed #333; padding-bottom: 8px; margin-bottom: 8px;">
+                    <div style="font-size: 14px; font-weight: bold; letter-spacing: 1px;">★ VALE DE VENTA ★</div>
+                    <div style="font-size: 11px; font-weight: bold;">REFACCIONARIA OVIEDO</div>
+                    <div style="font-size: 9px; color: #666;">Filtros y Lubricantes</div>
+                </div>
+
+                <div style="font-size: 8px; text-align: center; margin: 6px 0; line-height: 1.3;">
+                    Libramiento Sur #717-B<br>
+                    Col. Magisterial, C.P. 37900<br>
+                    San Luis de la Paz, Gto.<br>
+                    Tel: (468) 113-2367
+                </div>
+
+                <div style="text-align: center; margin: 6px 0;">
+                    <svg id="ticketBarcode" style="max-width: 100%; max-height: 30px;"></svg>
+                </div>
+
+                <div style="border-bottom: 1px dashed #333; padding: 6px 0; margin: 6px 0; font-size: 10px;">
+                    <div style="display: flex; justify-content: space-between; margin: 2px 0;">
+                        <span style="font-weight: bold;">FOLIO:</span>
+                        <span style="font-weight: bold; font-size: 12px;">${folio}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin: 2px 0;">
+                        <span style="font-weight: bold;">FECHA:</span>
+                        <span>${fecha}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin: 2px 0;">
+                        <span style="font-weight: bold;">VENDEDOR:</span>
+                        <span>${vendedor.substring(0, 20)}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin: 2px 0;">
+                        <span style="font-weight: bold;">SUCURSAL:</span>
+                        <span>${sucursal.substring(0, 15)}</span>
+                    </div>
+                </div>
+
+                <div style="border: 2px solid #333; padding: 6px; text-align: center; margin: 6px 0;">
+                    <div style="font-size: 9px; font-weight: bold;">VALOR DEL VALE</div>
+                    <div style="font-size: 16px; font-weight: bold; color: #000;">$${monto}</div>
+                </div>
+
+                <div style="background: #f0f0f0; padding: 4px; margin: 6px 0; text-align: center; font-size: 9px; font-weight: bold;">
+                    CONCEPTO: ${concepto}
+                </div>
+
+                ${descripcion ? `<div style="border-bottom: 1px dashed #333; padding: 4px 0; margin: 4px 0; font-size: 9px;">
+                    <strong>DESCRIPCIÓN:</strong><br>
+                    ${descripcion.substring(0, 50)}
+                </div>` : ''}
+
+                <div style="border-top: 1px dashed #333; padding-top: 4px; margin-top: 6px; font-size: 7px; text-align: center; line-height: 1.3;">
+                    ✓ Vale canjeble únicamente por productos<br>
+                    ✓ No reembolsable en efectivo<br>
+                    ✓ Válido por 1 mes desde su emisión<br>
+                    ✓ Presentar con factura o recibo
+                </div>
+
+                <div style="margin: 6px 0; text-align: center;">
+                    <div style="font-weight: bold; font-size: 9px;">AUTORIZADO POR:</div>
+                    <div style="font-weight: bold; font-size: 11px; text-decoration: underline; margin-top: 2px;">${vendedor.toUpperCase()}</div>
+                </div>
+
+                <div style="text-align: center; margin-top: 6px;">
+                    <div style="font-size: 10px; font-weight: bold;">✦ REFACCIONARIA OVIEDO ✦</div>
+                    <div style="font-style: italic; font-size: 8px; margin-top: 3px; line-height: 1.2;">
+                        "Nuestra Experiencia<br>
+                        Marca la Diferencia"
+                    </div>
+                </div>
+
+                <div style="text-align: center; font-size: 7px; margin-top: 6px; color: #666;">
+                    Generado: ${new Date().toLocaleString('es-MX')}
+                </div>
+            `;
+        }
+
+        function cerrarTicketModal() {
+            document.getElementById('printModal').classList.remove('active');
+        }
+
+        // Cerrar modal al hacer clic fuera
+        document.addEventListener('DOMContentLoaded', function () {
+            const printModal = document.getElementById('printModal');
+            if (printModal) {
+                printModal.addEventListener('click', function (e) {
+                    if (e.target === this) {
+                        cerrarTicketModal();
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

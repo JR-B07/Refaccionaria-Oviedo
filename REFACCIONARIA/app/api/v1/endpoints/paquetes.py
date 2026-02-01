@@ -22,7 +22,13 @@ async def listar_paquetes(
     db: Session = Depends(get_db)
 ):
     try:
-        query = db.query(Paquete)
+        # Primero verificar si la tabla existe
+        try:
+            query = db.query(Paquete)
+        except Exception as e:
+            print(f"Error accediendo a tabla Paquete: {e}")
+            return {"total": 0, "items": []}
+        
         if q:
             qlike = f"%{q}%"
             query = query.filter((Paquete.nombre.ilike(qlike)) | (Paquete.descripcion.ilike(qlike)))
@@ -36,49 +42,64 @@ async def listar_paquetes(
 
         items = []
         for p in paquetes:
-            precio_total = 0.0
-            for it in p.items:
-                precio_total += float(it.total or 0)
-            items.append({
-                "id": p.id,
-                "nombre": p.nombre,
-                "descripcion": p.descripcion,
-                "clase": p.clase,
-                "activo": p.activo,
-                "total_items": len(p.items),
-                "precio_total": round(precio_total, 2)
-            })
+            try:
+                precio_total = 0.0
+                item_count = 0
+                if hasattr(p, 'items') and p.items:
+                    for it in p.items:
+                        try:
+                            precio_total += float(it.total or 0)
+                            item_count += 1
+                        except:
+                            pass
+                items.append({
+                    "id": p.id,
+                    "nombre": p.nombre,
+                    "descripcion": p.descripcion if hasattr(p, 'descripcion') else '',
+                    "clase": p.clase if hasattr(p, 'clase') else '',
+                    "activo": p.activo if hasattr(p, 'activo') else True,
+                    "total_items": item_count,
+                    "precio_total": round(precio_total, 2)
+                })
+            except Exception as pe:
+                print(f"Error procesando paquete {p.id}: {pe}")
+                continue
         return {"total": total, "items": items}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"Error en listar_paquetes: {e}")
+        return {"total": 0, "items": []}
 
 @router.get("/{paquete_id}")
 async def detalle_paquete(paquete_id: int, db: Session = Depends(get_db)):
-    p = db.query(Paquete).filter(Paquete.id == paquete_id).first()
-    if not p:
-        raise HTTPException(status_code=404, detail="Paquete no encontrado")
-    precio_total = 0.0
-    items = []
-    for it in p.items:
-        precio_total += float(it.total or 0)
-        items.append({
-            "id": it.id,
-            "producto_id": it.producto_id,
-            "codigo": it.producto.codigo,
-            "nombre": it.producto.nombre,
-            "cantidad": it.cantidad,
-            "precio_unitario": float(it.precio_unitario or 0),
-            "total": float(it.total or 0)
-        })
-    return {
-        "id": p.id,
-        "nombre": p.nombre,
-        "descripcion": p.descripcion,
-        "clase": p.clase,
-        "activo": p.activo,
-        "precio_total": round(precio_total, 2),
-        "items": items
-    }
+    try:
+        p = db.query(Paquete).filter(Paquete.id == paquete_id).first()
+        if not p:
+            raise HTTPException(status_code=404, detail="Paquete no encontrado")
+        precio_total = 0.0
+        items = []
+        for it in p.items:
+            if it.producto:  # Verificar que el producto existe
+                precio_total += float(it.total or 0)
+                items.append({
+                    "id": it.id,
+                    "producto_id": it.producto_id,
+                    "codigo": it.producto.codigo,
+                    "nombre": it.producto.nombre,
+                    "cantidad": it.cantidad,
+                    "precio_unitario": float(it.precio_unitario or 0),
+                    "total": float(it.total or 0)
+                })
+        return {
+            "id": p.id,
+            "nombre": p.nombre,
+            "descripcion": p.descripcion,
+            "clase": p.clase,
+            "activo": p.activo,
+            "precio_total": round(precio_total, 2),
+            "items": items
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/")
 async def crear_paquete(data: PaqueteCreate, db: Session = Depends(get_db)):
