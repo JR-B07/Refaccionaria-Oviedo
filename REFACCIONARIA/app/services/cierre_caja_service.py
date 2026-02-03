@@ -213,3 +213,33 @@ class CierreCajaService:
         except Exception as e:
             self.db.rollback()
             raise e
+
+    def listar_cierres(
+        self,
+        fecha_inicio=None,
+        fecha_fin=None,
+        caja: Optional[str] = None,
+        skip: int = 0,
+        limit: int = 100
+    ) -> List[CierreCajaOut]:
+        """Lista los cierres de caja con filtros opcionales"""
+        try:
+            query = self.db.query(CierreCaja)
+            
+            if fecha_inicio:
+                query = query.filter(func.date(CierreCaja.fecha_creacion) >= fecha_inicio)
+            
+            if fecha_fin:
+                query = query.filter(func.date(CierreCaja.fecha_creacion) <= fecha_fin)
+            
+            if caja:
+                query = query.filter(CierreCaja.caja.ilike(f"%{caja}%"))
+            
+            query = query.order_by(CierreCaja.fecha_creacion.desc())
+            query = query.offset(skip).limit(limit)
+            
+            cierres = query.all()
+            return [CierreCajaOut.model_validate(c) for c in cierres]
+        except Exception as e:
+            print(f"Error en listar_cierres: {str(e)}")
+            return []

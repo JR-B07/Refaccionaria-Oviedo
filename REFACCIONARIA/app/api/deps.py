@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.core.security import verify_token
 from app.crud.usuario import usuario_crud
+from app.models.usuario import EstadoUsuario
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
@@ -33,7 +34,7 @@ async def get_current_user(
     if usuario is None:
         raise credentials_exception
     
-    if usuario.estado != "activo":
+    if usuario.estado != EstadoUsuario.ACTIVO:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Usuario inactivo"
