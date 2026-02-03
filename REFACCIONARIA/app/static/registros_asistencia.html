@@ -4,6 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Registros de Asistencia</title>
     <link rel="stylesheet" href="/static/styles.css">
     <style>
@@ -123,7 +126,8 @@
                 <label for="sucursal">Sucursal:</label>
                 <select id="sucursal" name="sucursal">
                     <option value="">Todas</option>
-                    <option value="Principal">Principal</option>
+                    <option value="REFACCIONARIA OVIEDO">REFACCIONARIA OVIEDO</option>
+                    <option value="FILTROS Y LUBRICANTES">FILTROS Y LUBRICANTES</option>
                 </select>
             </div>
             <div class="filter-group">
@@ -142,6 +146,7 @@
             <thead>
                 <tr>
                     <th>Nombre</th>
+                    <th>Sucursal</th>
                     <th>Fecha</th>
                     <th>Entrada</th>
                     <th>Comida</th>
@@ -171,20 +176,28 @@
         async function cargarRegistros() {
             const tbody = document.getElementById('tablaBody');
             const count = document.getElementById('resultCount');
-            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#666;">Cargando registros...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#666;">Cargando registros...</td></tr>';
             try {
                 const qs = formToQuery();
-                const url = qs ? `/api/v1/asistencia?${qs}` : '/api/v1/asistencia';
-                const res = await fetch(url);
+                const timestamp = new Date().getTime();
+                const url = qs ? `/api/v1/asistencia?${qs}&_=${timestamp}` : `/api/v1/asistencia?_=${timestamp}`;
+                console.log('Cargando desde:', url);
+                const res = await fetch(url, {
+                    cache: 'no-cache'
+                });
+                console.log('Response status:', res.status);
                 const data = await res.json();
+                console.log('Datos recibidos:', data);
                 const lista = Array.isArray(data) ? data : (data.data || []);
+                console.log('Lista de registros:', lista.length);
                 if (!lista.length) {
-                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#a33;">No hay registros.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#a33;">No hay registros.</td></tr>';
                 } else {
                     tbody.innerHTML = lista.map(r => {
                         const f = (r.fecha || '').split('-').reverse().join('/');
                         return `<tr>
                             <td>${r.nombre || ''}</td>
+                            <td>${r.sucursal || ''}</td>
                             <td>${f}</td>
                             <td>${r.entrada || ''}</td>
                             <td>${r.comida || ''}</td>
@@ -195,7 +208,7 @@
                 }
                 count.textContent = `${lista.length} resultados.`;
             } catch (e) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#a33;">Error al cargar.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#a33;">Error al cargar: ' + e.message + '</td></tr>';
                 count.textContent = `0 resultados.`;
                 console.error('Error asistencia:', e);
             }

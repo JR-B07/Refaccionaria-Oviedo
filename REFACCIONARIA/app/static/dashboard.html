@@ -311,23 +311,27 @@
             para acceder:</p>
 
         <div class="menu-grid">
-            <div class="menu-item" onclick="navigate('admin')">
+            <div class="menu-item" data-module="admin" onclick="navigate('admin')">
                 <span class="menu-item-icon">⚙️</span>
                 <span class="menu-item-title">Administración</span>
             </div>
-            <div class="menu-item" onclick="navigate('almacen')">
+            <div class="menu-item" data-module="almacen" onclick="navigate('almacen')">
                 <span class="menu-item-icon">📦</span>
                 <span class="menu-item-title">Almacén</span>
             </div>
-            <div class="menu-item" onclick="navigate('compras')">
+            <div class="menu-item" data-module="compras" onclick="navigate('compras')">
                 <span class="menu-item-icon">🛒</span>
                 <span class="menu-item-title">Compras</span>
             </div>
-            <div class="menu-item" onclick="navigate('ventas')">
+            <div class="menu-item" data-module="ventas" onclick="navigate('ventas')">
                 <span class="menu-item-icon">💰</span>
                 <span class="menu-item-title">Punto de Venta</span>
             </div>
-            <div class="menu-item" onclick="navigate('rrhh')">
+            <div class="menu-item" data-module="checador" onclick="navigate('checador')">
+                <span class="menu-item-icon">⏱️</span>
+                <span class="menu-item-title">Checador</span>
+            </div>
+            <div class="menu-item" data-module="rrhh" onclick="navigate('rrhh')">
                 <span class="menu-item-icon">👥</span>
                 <span class="menu-item-title">Recursos Humanos</span>
             </div>
@@ -338,6 +342,8 @@
         document.addEventListener('DOMContentLoaded', () => {
             const token = localStorage.getItem('access_token');
             const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const username = (user.username || '').toLowerCase();
+            const isSucursal = ['sucursal1', 'sucursal2'].includes(username);
 
             // Si no hay token, redirigir al login
             if (!token) {
@@ -353,9 +359,30 @@
             if (sucursalNombre) {
                 document.getElementById('sucursalBadge').textContent = sucursalNombre;
             }
+
+            if (isSucursal) {
+                const allowedModules = new Set(['almacen', 'ventas', 'checador']);
+                document.querySelectorAll('.menu-item[data-module]').forEach((item) => {
+                    const module = item.getAttribute('data-module');
+                    if (!allowedModules.has(module)) {
+                        item.style.display = 'none';
+                    }
+                });
+            } else {
+                // Para usuarios que NO son sucursal (como admin), ocultar el checador
+                document.querySelectorAll('.menu-item[data-module="checador"]').forEach((item) => {
+                    item.style.display = 'none';
+                });
+            }
         });
 
         function navigate(module) {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const username = (user.username || '').toLowerCase();
+            const isSucursal = ['sucursal1', 'sucursal2'].includes(username);
+            if (isSucursal && !['almacen', 'ventas', 'checador'].includes(module)) {
+                return;
+            }
             // Redirigir según el módulo seleccionado
             const routes = {
                 'admin': '/admin',
@@ -363,6 +390,7 @@
                 'compras': '/compras',
                 'ventas': '/ventas',
                 'promociones': '/promociones',
+                'checador': '/static/checador.html',
                 'rrhh': '/rrhh'
             };
             window.location.href = routes[module] || '/dashboard';

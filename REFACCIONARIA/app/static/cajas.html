@@ -255,6 +255,7 @@
             console.log('📄 Página cajas.html cargada');
             const token = localStorage.getItem('access_token');
             const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const username = (user.username || '').toLowerCase();
 
             console.log('🔑 Token encontrado:', token ? 'SÍ' : 'NO');
             console.log('👤 Usuario:', user);
@@ -263,6 +264,11 @@
             if (!token) {
                 console.warn('⚠️ No hay token - Redirigiendo al login');
                 window.location.href = '/login';
+                return;
+            }
+
+            if (username === 'sucursal1') {
+                window.location.href = '/dashboard';
                 return;
             }
 

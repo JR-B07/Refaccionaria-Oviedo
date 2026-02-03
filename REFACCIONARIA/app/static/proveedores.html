@@ -339,6 +339,20 @@
         document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
         // inicializar
         document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('access_token');
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const username = (user.username || '').toLowerCase();
+
+            if (!token) {
+                window.location.href = '/login';
+                return;
+            }
+
+            if (username === 'sucursal1') {
+                window.location.href = '/dashboard';
+                return;
+            }
+
             cargarProveedores();
 
             // Mostrar sucursal

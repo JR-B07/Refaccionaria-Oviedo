@@ -320,7 +320,7 @@
 
 <body>
     <div class="top-bar">
-        <button class="back-btn" onclick="window.location.href='/static/rrhh.html'">← VOLVER</button>
+        <button class="back-btn" onclick="window.location.href='/dashboard'">← VOLVER</button>
         <div class="user-info">
             <span class="sucursal-badge" id="sucursalBadge">Sucursal</span>
             <span id="userName">Usuario</span>
@@ -330,8 +330,7 @@
 
     <div class="main">
         <div class="breadcrumb">
-            <a onclick="window.location.href='/static/dashboard.html'">Menú Principal</a> >
-            <a onclick="window.location.href='/static/rrhh.html'">Recursos Humanos</a> >
+            <a onclick="window.location.href='/dashboard'">Menú Principal</a> >
             <span>Checador</span>
         </div>
         <h1 class="title">Registro de asistencia</h1>
@@ -359,9 +358,8 @@
                 <div class="field">
                     <label>Sucursal</label>
                     <select id="inputSucursal">
-                        <option value="MATRIZ">MATRIZ</option>
-                        <option value="CEDIS">CEDIS</option>
-                        <option value="SUCURSAL 2">SUCURSAL 2</option>
+                        <option value="REFACCIONARIA OVIEDO">REFACCIONARIA OVIEDO</option>
+                        <option value="FILTROS Y LUBRICANTES">FILTROS Y LUBRICANTES</option>
                     </select>
                 </div>
 
@@ -410,10 +408,10 @@
         const token = localStorage.getItem('access_token');
         const user = JSON.parse(localStorage.getItem('user') || '{}');
         const empleadosDemo = [
-            { id: '001', nombre: 'ADMINISTRADOR PRINCIPAL', sucursal: 'MATRIZ' },
-            { id: '002', nombre: 'CESAR MIGUEL RAMOS BARCENAS', sucursal: 'MATRIZ' },
-            { id: '003', nombre: 'KAREN SOTO', sucursal: 'CEDIS' },
-            { id: '004', nombre: 'ALFREDO PEREZ', sucursal: 'CEDIS' }
+            { id: '001', nombre: 'ADMINISTRADOR PRINCIPAL', sucursal: 'REFACCIONARIA OVIEDO' },
+            { id: '002', nombre: 'CESAR MIGUEL RAMOS BARCENAS', sucursal: 'REFACCIONARIA OVIEDO' },
+            { id: '003', nombre: 'KAREN SOTO', sucursal: 'FILTROS Y LUBRICANTES' },
+            { id: '004', nombre: 'ALFREDO PEREZ', sucursal: 'FILTROS Y LUBRICANTES' }
         ];
         let historial = [];
 
@@ -462,23 +460,23 @@
             const sucursal = document.getElementById('inputSucursal').value;
             const overwrite = document.getElementById('overwriteCheck').checked;
             const estado = document.getElementById('estadoLectura');
-            const texto = input.value.trim().toLowerCase();
-            let empleado = null;
-            for (let i = 0; i < empleadosDemo.length; i++) {
-                const e = empleadosDemo[i];
-                if (e.id === texto || (e.nombre && e.nombre.toLowerCase().indexOf(texto) >= 0)) {
-                    empleado = e;
-                    break;
-                }
+            const texto = input.value.trim();
+
+            // Si no hay texto, mostrar error
+            if (!texto) {
+                estado.textContent = 'Por favor ingresa un nombre de empleado';
+                estado.style.color = '#a33';
+                return;
             }
-            if (!empleado) {
-                empleado = empleadosDemo[0];
-            }
+
+            // Usar el nombre ingresado directamente (convertir a mayúsculas para consistencia)
+            const nombreEmpleado = texto.toUpperCase();
+
             const now = new Date();
             const hora24 = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
             try {
                 const payload = {
-                    nombre: empleado.nombre,
+                    nombre: nombreEmpleado,
                     sucursal: sucursal,
                     accion: accion,
                     fecha: now.toISOString().slice(0, 10),
@@ -492,17 +490,17 @@
                 const data = await res.json();
                 const registro = {
                     hora: now.toLocaleTimeString('es-ES'),
-                    empleado: empleado.nombre,
+                    empleado: nombreEmpleado,
                     accion: accion,
                     resultado: (data && data.ok) ? (overwrite ? 'Sobrescrito' : 'Registrado') : 'Error'
                 };
                 historial.unshift(registro);
                 if (historial.length > 8) historial.pop();
                 pintarHistorial();
-                estado.textContent = 'Huella registrada para ' + empleado.nombre + ' (' + accion + ')';
+                estado.textContent = 'Huella registrada para ' + nombreEmpleado + ' (' + accion + ')';
                 estado.style.color = '#0b8a42';
             } catch (e) {
-                historial.unshift({ hora: now.toLocaleTimeString('es-ES'), empleado: empleado.nombre, accion, resultado: 'Error' });
+                historial.unshift({ hora: now.toLocaleTimeString('es-ES'), empleado: nombreEmpleado, accion, resultado: 'Error' });
                 pintarHistorial();
                 estado.textContent = 'Error al registrar';
                 estado.style.color = '#a33';

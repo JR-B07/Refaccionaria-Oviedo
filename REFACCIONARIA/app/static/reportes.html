@@ -259,10 +259,16 @@
         document.addEventListener('DOMContentLoaded', () => {
             const token = localStorage.getItem('access_token');
             const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const username = (user.username || '').toLowerCase();
 
             // Si no hay token, redirigir al login
             if (!token) {
                 window.location.href = '/login';
+                return;
+            }
+
+            if (username === 'sucursal1') {
+                window.location.href = '/dashboard';
                 return;
             }
 
