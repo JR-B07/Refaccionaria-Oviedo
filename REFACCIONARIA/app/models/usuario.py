@@ -5,17 +5,19 @@ from sqlalchemy.sql import func
 import enum
 from app.models.base import ModeloBase
 
-class RolUsuario(enum.Enum):
-    ADMINISTRADOR = "administrador"
-    GERENTE = "gerente"
-    VENDEDOR = "vendedor"
-    ALMACENISTA = "almacenista"
-    CAJERO = "cajero"
+class RolUsuario(str, enum.Enum):
+    """Enum de roles de usuario - hereda de str para mejor compatibilidad con BD"""
+    administrador = "administrador"
+    gerente = "gerente"
+    vendedor = "vendedor"
+    almacenista = "almacenista"
+    cajero = "cajero"
 
-class EstadoUsuario(enum.Enum):
-    ACTIVO = "activo"
-    INACTIVO = "inactivo"
-    SUSPENDIDO = "suspendido"
+class EstadoUsuario(str, enum.Enum):
+    """Enum de estados de usuario"""
+    activo = "activo"
+    inactivo = "inactivo"
+    suspendido = "suspendido"
 
 class Usuario(ModeloBase):
     __tablename__ = "usuarios"
@@ -32,8 +34,8 @@ class Usuario(ModeloBase):
     clave_hash = Column(String(255), nullable=False)
     
     # Roles y permisos
-    rol = Column(Enum(RolUsuario), default=RolUsuario.VENDEDOR)
-    estado = Column(Enum(EstadoUsuario), default=EstadoUsuario.ACTIVO)
+    rol = Column(Enum(RolUsuario), default=RolUsuario.vendedor)
+    estado = Column(Enum(EstadoUsuario), default=EstadoUsuario.activo)
     
     # Local asignado
     local_id = Column(Integer, ForeignKey("locales.id"))

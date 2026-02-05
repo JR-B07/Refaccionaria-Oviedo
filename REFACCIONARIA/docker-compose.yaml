@@ -39,6 +39,10 @@ services:
         condition: service_started
     environment:
       MYSQL_SERVER: mysql
+      MYSQL_USER: refaccionaria
+      MYSQL_PASSWORD: SecurePass123!
+      MYSQL_DB: refaccionaria_db
+      MYSQL_PORT: 3306
       REDIS_URL: redis://redis:6379/0
     volumes:
       - ./app:/app

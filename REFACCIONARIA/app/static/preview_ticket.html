@@ -252,7 +252,7 @@
                 </div>
 
                 <button onclick="generarTicket()">📋 Generar Vista Previa</button>
-                <button class="btn-print" onclick="window.print()">🖨️ Imprimir</button>
+                <button class="btn-print" onclick="imprimirTicket()">🖨️ Imprimir</button>
             </div>
         </div>
     </div>
@@ -386,6 +386,76 @@
             html += '</pre>';
 
             return html;
+        }
+
+        function imprimirTicket() {
+            const ticketContent = document.getElementById('ticketPreview').innerHTML;
+
+            // Crear ventana nueva con contenido limpio
+            const printWindow = window.open('', '', 'height=600,width=800');
+
+            const printHTML = `
+                <!DOCTYPE html>
+                <html lang="es">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Imprimir Ticket</title>
+                    <style>
+                        @page {
+                            size: 80mm auto;
+                            margin: 0;
+                        }
+                        
+                        * {
+                            margin: 0;
+                            padding: 0;
+                            box-sizing: border-box;
+                        }
+                        
+                        body {
+                            font-family: 'Courier New', monospace;
+                            width: 80mm;
+                            margin: 0 auto;
+                            padding: 3px;
+                            background-color: white;
+                        }
+                        
+                        pre {
+                            font-family: 'Courier New', monospace;
+                            white-space: pre-wrap;
+                            word-wrap: break-word;
+                            font-size: 12px;
+                            line-height: 1.4;
+                        }
+                        
+                        @media print {
+                            body {
+                                padding: 0;
+                                margin: 0;
+                                width: 80mm;
+                            }
+                            
+                            pre {
+                                font-size: 11px;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${ticketContent}
+                </body>
+                </html>
+            `;
+
+            printWindow.document.write(printHTML);
+            printWindow.document.close();
+
+            // Esperar a que la ventana cargue y luego imprimir
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+            }, 250);
         }
 
         // Inicializar con algunos items de ejemplo

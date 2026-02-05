@@ -13,11 +13,11 @@ class Settings(BaseSettings):
     DEBUG: bool = True
     
     # MySQL
-    MYSQL_SERVER: str = "localhost"
-    MYSQL_USER: str = "root"
-    MYSQL_PASSWORD: str = ""
-    MYSQL_DB: str = "refaccionaria_db"
-    MYSQL_PORT: int = 3306
+    MYSQL_SERVER: str = os.getenv("MYSQL_SERVER", "localhost")
+    MYSQL_USER: str = os.getenv("MYSQL_USER", "root")
+    MYSQL_PASSWORD: str = os.getenv("MYSQL_PASSWORD", "")
+    MYSQL_DB: str = os.getenv("MYSQL_DB", "refaccionaria_db")
+    MYSQL_PORT: int = int(os.getenv("MYSQL_PORT", "3306"))
     
     # JWT
     SECRET_KEY: str = "clave-secreta-temporal-cambiar-en-produccion"

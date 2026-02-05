@@ -28,7 +28,7 @@
 - [x] `test_arqueos_caja.py` - Suite de pruebas (180+ líneas)
 
 ### Base de Datos
-- [x] `scripts/create_arqueos_caja_table.sql` - Script SQL referencia
+- [x] `../refaccionaria_db.sql` - Script SQL maestro consolidado (incluye arqueos_caja)
 
 ---
 

@@ -933,19 +933,29 @@
                 return;
             }
 
-            const printContainer = document.getElementById('printContainer');
+            // Crear HTML para impresión
             let printHtml = `
+                <!DOCTYPE html>
                 <html>
                 <head>
+                    <meta charset="UTF-8">
+                    <title>Impresión de Etiquetas</title>
+                    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>
                     <style>
                         @page {
                             size: 80mm 50mm;
                             margin: 0;
                             padding: 0;
                         }
+                        * {
+                            margin: 0;
+                            padding: 0;
+                            box-sizing: border-box;
+                        }
                         body {
                             margin: 0;
                             padding: 0;
+                            background: white;
                         }
                         .print-page {
                             width: 80mm;
@@ -953,35 +963,29 @@
                             background: white;
                             padding: 4mm;
                             margin: 0;
-                            display: block;
                             page-break-after: always;
                             page-break-inside: avoid;
-                            font-family: 'Arial', sans-serif;
-                            box-sizing: border-box;
-                        }
-                        .print-page-content {
+                            font-family: Arial, sans-serif;
                             display: flex;
                             flex-direction: column;
                             justify-content: space-between;
-                            height: 100%;
-                            font-family: 'Arial', sans-serif;
                         }
                         .print-logo {
                             text-align: center;
                             line-height: 1;
+                            margin-bottom: 2mm;
                         }
                         .print-logo img {
                             max-width: 100%;
-                            max-height: 20px;
-                            object-fit: contain;
+                            max-height: 18px;
                         }
                         .print-code {
-                            font-size: 18px;
-                            font-weight: 800;
+                            font-size: 14pt;
+                            font-weight: bold;
                             font-family: 'Courier New', monospace;
+                            text-align: center;
+                            margin: 2mm 0;
                             letter-spacing: 1px;
-                            color: #000;
-                            margin: 3mm 0;
                         }
                         .print-barcode {
                             text-align: center;
@@ -992,64 +996,72 @@
                         }
                         .print-barcode svg {
                             max-width: 100%;
-                            max-height: 28px;
+                            max-height: 22mm;
                         }
                     </style>
                 </head>
                 <body>
             `;
 
+            // Agregar cada etiqueta
             etiquetas.forEach((etiqueta, idx) => {
                 const codigo = etiqueta.querySelector('.etiqueta-code').textContent;
-                const barcodeId = `print-barcode-${idx}`;
+                const barcodeId = `barcode-${idx}`;
 
                 printHtml += `
                     <div class="print-page">
-                        <div class="print-page-content">
-                            <div class="print-logo">
-                                <img src="/static/images/logo-refaccionaria.PNG" alt="Logo Refaccionaria">
-                            </div>
-                            <div class="print-code">${codigo}</div>
-                            <div class="print-barcode">
-                                <svg id="${barcodeId}"></svg>
-                            </div>
+                        <div class="print-logo">
+                            <img src="/static/images/logo-refaccionaria.PNG" alt="Logo">
+                        </div>
+                        <div class="print-code">${codigo}</div>
+                        <div class="print-barcode">
+                            <svg id="${barcodeId}"></svg>
                         </div>
                     </div>
                 `;
             });
 
             printHtml += `
+                    <script>
+                        window.onload = function() {
+                            // Generar códigos de barras
+                `;
+
+            // Agregar código para generar cada código de barras
+            etiquetas.forEach((etiqueta, idx) => {
+                const codigo = etiqueta.querySelector('.etiqueta-code').textContent;
+                const barcodeId = `barcode-${idx}`;
+                printHtml += `
+                            try {
+                                JsBarcode("#${barcodeId}", "${codigo}", {
+                                    format: "CODE128",
+                                    width: 2,
+                                    height: 40,
+                                    margin: 0,
+                                    displayValue: false
+                                });
+                            } catch(e) {
+                                console.error('Error:', e);
+                            }
+                `;
+            });
+
+            printHtml += `
+                            // Imprimir después de que los códigos se generen
+                            setTimeout(() => {
+                                window.print();
+                                window.close();
+                            }, 500);
+                        };
+                    <\/script>
                 </body>
                 </html>
             `;
 
-            printContainer.innerHTML = printHtml;
-
-            // Generar códigos de barras en el contenedor de impresión
-            setTimeout(() => {
-                etiquetas.forEach((etiqueta, idx) => {
-                    const codigo = etiqueta.querySelector('.etiqueta-code').textContent;
-                    const barcodeId = `print-barcode-${idx}`;
-                    const element = document.getElementById(barcodeId);
-
-                    if (element) {
-                        try {
-                            JsBarcode(`#${barcodeId}`, codigo, {
-                                format: "CODE128",
-                                width: 2,
-                                height: 28,
-                                margin: 1,
-                                displayValue: false
-                            });
-                        } catch (e) {
-                            console.error('Error en impresión:', e);
-                        }
-                    }
-                });
-
-                // Enviar a imprimir
-                window.print();
-            }, 200);
+            // Abrir en nueva ventana y imprimir
+            const printWindow = window.open('', '', 'height=600,width=800');
+            printWindow.document.write(printHtml);
+            printWindow.document.close();
         }
 
         function seleccionarImpresora() {

@@ -770,7 +770,7 @@
             <div id="ticketContent">
             </div>
             <div id="ticketFooter">
-                <button id="btnPrintTicket" onclick="window.print()"
+                <button id="btnPrintTicket" onclick="imprimirTicketVale()"
                     style="padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px; background: #28a745; color: white;">🖨️
                     Imprimir</button>
                 <button id="btnCloseTicket" onclick="cerrarTicketModal()"
@@ -1594,6 +1594,104 @@
                     console.warn('No se pudo generar código de barras');
                 }
             }, 100);
+        }
+
+        function imprimirTicketVale() {
+            const ticketContent = document.getElementById('ticketContent').innerHTML;
+
+            // Crear ventana nueva con contenido limpio
+            const printWindow = window.open('', '', 'height=600,width=800');
+
+            const printHTML = `
+                <!DOCTYPE html>
+                <html lang="es">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Imprimir Vale de Canje</title>
+                    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>
+                    <style>
+                        @page {
+                            size: 80mm auto;
+                            margin: 0;
+                        }
+                        
+                        * {
+                            margin: 0;
+                            padding: 0;
+                            box-sizing: border-box;
+                        }
+                        
+                        body {
+                            font-family: 'Courier New', monospace;
+                            width: 80mm;
+                            margin: 0 auto;
+                            padding: 3px;
+                            background-color: white;
+                        }
+                        
+                        #ticketContent {
+                            width: 100%;
+                        }
+                        
+                        @media print {
+                            body {
+                                padding: 0;
+                                margin: 0;
+                                width: 80mm;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div id="ticketContent">${ticketContent}<\/div>
+                    <script>
+                        window.addEventListener('load', function() {
+                            // Regenerar el código de barras en la nueva ventana
+                            const barcodes = document.querySelectorAll('#ticketBarcode');
+                            barcodes.forEach((barcode, index) => {
+                                try {
+                                    const folio = '${generarHTMLTicket.folio || 'VZ000'}';
+                                    const numericCode = folio.replace(/[^\\d]/g, '').padEnd(12, '0').substring(0, 12);
+                                    if (typeof JsBarcode !== 'undefined' && barcode) {
+                                        JsBarcode(barcode, numericCode, {
+                                            format: "CODE128",
+                                            width: 1,
+                                            height: 25,
+                                            displayValue: false,
+                                            margin: 0
+                                        });
+                                    }
+                                } catch (e) {
+                                    console.warn('Código de barras no generado:', e);
+                                }
+                            });
+                            
+                            // Esperar un poco para que el código de barras se genere y luego imprimir
+                            setTimeout(() => {
+                                window.print();
+                            }, 300);
+                        });
+                    <\/script>
+                </body>
+                </html>
+            `;
+
+            printWindow.document.write(printHTML);
+            printWindow.document.close();
+
+            // Cerrar ventana después de imprimir
+            setTimeout(() => {
+                cerrarTicketModal();
+                printWindow.close();
+            }, 2000);
+        }
+
+        function cerrarTicketModal() {
+            const printModal = document.getElementById('printModal');
+            if (printModal) {
+                printModal.classList.remove('active');
+            }
         }
 
         function generarHTMLTicket(vale) {

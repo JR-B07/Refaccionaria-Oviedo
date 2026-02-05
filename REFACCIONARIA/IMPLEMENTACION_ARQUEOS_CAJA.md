@@ -46,10 +46,10 @@
    - Descripción técnica
    - Ejemplos de API
 
-8. **[scripts/create_arqueos_caja_table.sql](scripts/create_arqueos_caja_table.sql)**
-   - Script SQL para crear la tabla (referencia)
-   - Índices y comentarios de columnas
-   - Claves foráneas
+8. **[../refaccionaria_db.sql](../refaccionaria_db.sql)** - Archivo maestro consolidado
+   - Script SQL maestra con todas las tablas (incluyendo arqueos_caja)
+   - Índices y comentarios descriptivos de columnas
+   - Claves foráneas y relaciones
 
 9. **[test_arqueos_caja.py](test_arqueos_caja.py)**
    - Suite de pruebas automatizadas
@@ -168,7 +168,7 @@ DELETE /api/v1/arqueos/caja/1
 
 1. **Base de datos**
    - Reiniciar el servidor para que cree la tabla automáticamente
-   - O ejecutar: `python scripts/create_arqueos_caja_table.sql`
+   - O ejecutar desde MySQL: `source ../refaccionaria_db.sql;` (archivo maestro)
 
 2. **API**
    ```bash
