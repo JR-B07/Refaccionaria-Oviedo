@@ -1,0 +1,89 @@
+INFO:     Started server process [25736]
+INFO:     Waiting for application startup.
+============================================================
+🚀 SISTEMA DE REFACCIONARIA ERP
+============================================================
+📊 Versión: 1.0.0
+🌐 URL: http://127.0.0.1:8001
+📚 Docs: http://127.0.0.1:8001/docs
+🔐 Login: http://127.0.0.1:8001/login
+============================================================
+[DEBUG] Importando endpoints/tickets.py...
+[DEBUG] Router de tickets inicializado
+[DEBUG] Registrando router de tickets en api_router...
+[DEBUG] Router de tickets registrado correctamente.
+==================================================
+🚀 Sistema de Refaccionaria ERP
+📊 Versión: 1.0.0
+🔧 Debug: True
+🏪 Local ID: 1
+==================================================
+📦 Inicializando base de datos...
+2026-02-04 12:10:38,576 INFO sqlalchemy.engine.Engine SELECT DATABASE()
+2026-02-04 12:10:38,576 INFO sqlalchemy.engine.Engine [raw sql] {}
+2026-02-04 12:10:38,580 INFO sqlalchemy.engine.Engine SELECT @@sql_mode
+2026-02-04 12:10:38,580 INFO sqlalchemy.engine.Engine [raw sql] {}
+2026-02-04 12:10:38,581 INFO sqlalchemy.engine.Engine SELECT @@lower_case_table_names
+2026-02-04 12:10:38,581 INFO sqlalchemy.engine.Engine [raw sql] {}
+2026-02-04 12:10:38,583 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-02-04 12:10:38,584 INFO sqlalchemy.engine.Engine DESCRIBE `refaccionaria_db`.`usuarios`
+2026-02-04 12:10:38,584 INFO sqlalchemy.engine.Engine [raw sql] {}
+2026-02-04 12:10:38,625 INFO sqlalchemy.engine.Engine DESCRIBE `refaccionaria_db`.`locales`
+2026-02-04 12:10:38,625 INFO sqlalchemy.engine.Engine [raw sql] {}
+2026-02-04 12:10:38,629 INFO sqlalchemy.engine.Engine DESCRIBE `refaccionaria_db`.`ventas`
+2026-02-04 12:10:38,629 INFO sqlalchemy.engine.Engine [raw sql] {}
+2026-02-04 12:10:38,633 INFO sqlalchemy.engine.Engine DESCRIBE `refaccionaria_db`.`detalle_ventas`
+2026-02-04 12:10:38,633 INFO sqlalchemy.engine.Engine [raw sql] {}
+2026-02-04 12:10:38,636 INFO sqlalchemy.engine.Engine DESCRIBE `refaccionaria_db`.`arqueos_caja`
+2026-02-04 12:10:38,636 INFO sqlalchemy.engine.Engine [raw sql] {}
+2026-02-04 12:10:38,643 INFO sqlalchemy.engine.Engine DESCRIBE `refaccionaria_db`.`cierres_caja`
+2026-02-04 12:10:38,644 INFO sqlalchemy.engine.Engine [raw sql] {}
+2026-02-04 12:10:38,648 INFO sqlalchemy.engine.Engine DESCRIBE `refaccionaria_db`.`retiros_caja`
+2026-02-04 12:10:38,649 INFO sqlalchemy.engine.Engine [raw sql] {}
+2026-02-04 12:10:38,652 INFO sqlalchemy.engine.Engine DESCRIBE `refaccionaria_db`.`productos`
+2026-02-04 12:10:38,652 INFO sqlalchemy.engine.Engine [raw sql] {}
+2026-02-04 12:10:38,655 INFO sqlalchemy.engine.Engine DESCRIBE `refaccionaria_db`.`inventario_local`
+2026-02-04 12:10:38,656 INFO sqlalchemy.engine.Engine [raw sql] {}
+2026-02-04 12:10:38,658 INFO sqlalchemy.engine.Engine DESCRIBE `refaccionaria_db`.`clientes`
+2026-02-04 12:10:38,659 INFO sqlalchemy.engine.Engine [raw sql] {}
+2026-02-04 12:10:38,663 INFO sqlalchemy.engine.Engine DESCRIBE `refaccionaria_db`.`proveedores`
+2026-02-04 12:10:38,663 INFO sqlalchemy.engine.Engine [raw sql] {}
+2026-02-04 12:10:38,668 INFO sqlalchemy.engine.Engine DESCRIBE `refaccionaria_db`.`vales_venta`
+2026-02-04 12:10:38,668 INFO sqlalchemy.engine.Engine [raw sql] {}
+2026-02-04 12:10:38,674 INFO sqlalchemy.engine.Engine DESCRIBE `refaccionaria_db`.`traspasos`
+2026-02-04 12:10:38,674 INFO sqlalchemy.engine.Engine [raw sql] {}
+2026-02-04 12:10:38,680 INFO sqlalchemy.engine.Engine DESCRIBE `refaccionaria_db`.`detalle_traspasos`
+2026-02-04 12:10:38,680 INFO sqlalchemy.engine.Engine [raw sql] {}
+2026-02-04 12:10:38,684 INFO sqlalchemy.engine.Engine DESCRIBE `refaccionaria_db`.`compras`
+2026-02-04 12:10:38,685 INFO sqlalchemy.engine.Engine [raw sql] {}
+2026-02-04 12:10:38,689 INFO sqlalchemy.engine.Engine DESCRIBE `refaccionaria_db`.`detalle_compras`
+2026-02-04 12:10:38,690 INFO sqlalchemy.engine.Engine [raw sql] {}
+2026-02-04 12:10:38,694 INFO sqlalchemy.engine.Engine DESCRIBE `refaccionaria_db`.`marcas`
+2026-02-04 12:10:38,695 INFO sqlalchemy.engine.Engine [raw sql] {}
+2026-02-04 12:10:38,698 INFO sqlalchemy.engine.Engine DESCRIBE `refaccionaria_db`.`paquetes`
+2026-02-04 12:10:38,698 INFO sqlalchemy.engine.Engine [raw sql] {}
+2026-02-04 12:10:38,701 INFO sqlalchemy.engine.Engine DESCRIBE `refaccionaria_db`.`paquete_productos`
+2026-02-04 12:10:38,701 INFO sqlalchemy.engine.Engine [raw sql] {}
+2026-02-04 12:10:38,705 INFO sqlalchemy.engine.Engine DESCRIBE `refaccionaria_db`.`grupos`
+2026-02-04 12:10:38,705 INFO sqlalchemy.engine.Engine [raw sql] {}
+2026-02-04 12:10:38,709 INFO sqlalchemy.engine.Engine DESCRIBE `refaccionaria_db`.`grupo_productos`
+2026-02-04 12:10:38,709 INFO sqlalchemy.engine.Engine [raw sql] {}
+2026-02-04 12:10:38,715 INFO sqlalchemy.engine.Engine DESCRIBE `refaccionaria_db`.`grupo_aplicaciones`
+2026-02-04 12:10:38,715 INFO sqlalchemy.engine.Engine [raw sql] {}
+2026-02-04 12:10:38,720 INFO sqlalchemy.engine.Engine DESCRIBE `refaccionaria_db`.`asistencia_empleados`
+2026-02-04 12:10:38,720 INFO sqlalchemy.engine.Engine [raw sql] {}
+2026-02-04 12:10:38,724 INFO sqlalchemy.engine.Engine DESCRIBE `refaccionaria_db`.`promociones`
+2026-02-04 12:10:38,725 INFO sqlalchemy.engine.Engine [raw sql] {}
+2026-02-04 12:10:38,729 INFO sqlalchemy.engine.Engine DESCRIBE `refaccionaria_db`.`gastos`
+2026-02-04 12:10:38,730 INFO sqlalchemy.engine.Engine [raw sql] {}
+2026-02-04 12:10:38,740 INFO sqlalchemy.engine.Engine COMMIT
+INFO:     Application startup complete.
+ERROR:    [Errno 10048] error while attempting to bind on address ('127.0.0.1', 8001): [winerror 10048] solo se permite un uso de cada dirección de socket (protocolo/dirección de red/puerto)
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+✅ Base de datos lista
+🌐 Servidor: http://localhost:8001
+📚 Docs: http://localhost:8001/docs
+==================================================
+
+👋 Sistema detenido

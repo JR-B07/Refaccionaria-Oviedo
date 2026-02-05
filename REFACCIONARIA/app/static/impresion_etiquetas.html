@@ -308,17 +308,17 @@
 
         .etiquetas-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 12px;
         }
 
         .etiqueta-print {
-            width: 280px;
-            height: 180px;
+            width: 240px;
+            height: 96px;
             background: white;
             border: 2px solid #c41e3a;
             border-radius: 4px;
-            padding: 15px;
+            padding: 8px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -331,23 +331,23 @@
             text-align: center;
             font-weight: 700;
             line-height: 1.1;
-            margin-bottom: 10px;
+            margin-bottom: 4px;
         }
 
         .etiqueta-logo img {
             max-width: 100%;
-            max-height: 50px;
+            max-height: 28px;
             object-fit: contain;
         }
 
         .etiqueta-code {
-            font-size: 24px;
+            font-size: 14px;
             font-weight: 800;
             color: #000;
             text-align: left;
             font-family: 'Courier New', monospace;
-            letter-spacing: 2px;
-            margin: 8px 0;
+            letter-spacing: 1px;
+            margin: 3px 0;
         }
 
         .etiqueta-barcode {
@@ -359,7 +359,7 @@
 
         .etiqueta-barcode svg {
             max-width: 100%;
-            max-height: 60px;
+            max-height: 35px;
         }
 
         .preview-footer {
@@ -402,24 +402,93 @@
         }
 
         @media print {
-            body * {
+            * {
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            html,
+            body {
+                width: 100%;
+                height: auto;
+                margin: 0;
+                padding: 0;
+                background: white;
+            }
+
+            /* Ocultar todo excepto el modal de preview */
+            body>* {
                 display: none !important;
             }
 
-            #printContainer {
+            #previewModal {
                 display: block !important;
+                position: static !important;
+                background: white !important;
+                border: none !important;
+                box-shadow: none !important;
+                width: 100% !important;
+                height: auto !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                overflow: visible !important;
             }
 
-            #printContainer * {
+            .preview-container {
                 display: block !important;
+                width: 100% !important;
+                height: auto !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                overflow: visible !important;
+            }
+
+            .preview-header,
+            .preview-footer {
+                display: none !important;
+            }
+
+            .preview-body {
+                display: block !important;
+                width: 100% !important;
+                height: auto !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                overflow: visible !important;
+            }
+
+            #etiquetasPreview {
+                display: flex !important;
+                flex-direction: column !important;
+                width: 100% !important;
+                height: auto !important;
+            }
+
+            .etiqueta-print {
+                width: 80mm !important;
+                height: 50mm !important;
+                page-break-after: always !important;
+                page-break-inside: avoid !important;
+                margin: 0 !important;
+                padding: 4mm !important;
+                display: block !important;
+                background: white !important;
+                box-sizing: border-box !important;
+                flex-shrink: 0 !important;
+            }
+
+            @page {
+                size: 80mm 50mm;
+                margin: 0;
+                padding: 0;
             }
         }
 
         .print-page {
-            width: 80mm;
-            height: 50mm;
+            width: 2.5in;
+            height: 1in;
             background: white;
-            padding: 4mm;
+            padding: 2mm;
             margin: 0;
             display: block;
             page-break-after: always;
@@ -443,7 +512,7 @@
 
         .print-logo-text {
             font-size: 7px;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
             color: #c41e3a;
         }
 
@@ -454,12 +523,12 @@
         }
 
         .print-code {
-            font-size: 18px;
+            font-size: 10px;
             font-weight: 800;
             font-family: 'Courier New', monospace;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
             color: #000;
-            margin: 3mm 0;
+            margin: 1mm 0;
         }
 
         .print-barcode {
@@ -472,7 +541,7 @@
 
         .print-barcode svg {
             max-width: 100%;
-            max-height: 28px;
+            max-height: 15px;
         }
 
         /* Modal para crear/editar productos */
@@ -778,7 +847,7 @@
         });
 
         function goBack() {
-            window.location.href = '/recepciones';
+            window.location.href = '/almacen';
         }
 
         function filtrarProductos() {
@@ -933,123 +1002,10 @@
                 return;
             }
 
-            const printContainer = document.getElementById('printContainer');
-            let printHtml = `
-                <html>
-                <head>
-                    <style>
-                        @page {
-                            size: 80mm 50mm;
-                            margin: 0;
-                            padding: 0;
-                        }
-                        body {
-                            margin: 0;
-                            padding: 0;
-                        }
-                        .print-page {
-                            width: 80mm;
-                            height: 50mm;
-                            background: white;
-                            padding: 4mm;
-                            margin: 0;
-                            display: block;
-                            page-break-after: always;
-                            page-break-inside: avoid;
-                            font-family: 'Arial', sans-serif;
-                            box-sizing: border-box;
-                        }
-                        .print-page-content {
-                            display: flex;
-                            flex-direction: column;
-                            justify-content: space-between;
-                            height: 100%;
-                            font-family: 'Arial', sans-serif;
-                        }
-                        .print-logo {
-                            text-align: center;
-                            line-height: 1;
-                        }
-                        .print-logo img {
-                            max-width: 100%;
-                            max-height: 20px;
-                            object-fit: contain;
-                        }
-                        .print-code {
-                            font-size: 18px;
-                            font-weight: 800;
-                            font-family: 'Courier New', monospace;
-                            letter-spacing: 1px;
-                            color: #000;
-                            margin: 3mm 0;
-                        }
-                        .print-barcode {
-                            text-align: center;
-                            flex: 1;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                        }
-                        .print-barcode svg {
-                            max-width: 100%;
-                            max-height: 28px;
-                        }
-                    </style>
-                </head>
-                <body>
-            `;
-
-            etiquetas.forEach((etiqueta, idx) => {
-                const codigo = etiqueta.querySelector('.etiqueta-code').textContent;
-                const barcodeId = `print-barcode-${idx}`;
-
-                printHtml += `
-                    <div class="print-page">
-                        <div class="print-page-content">
-                            <div class="print-logo">
-                                <img src="/static/images/logo-refaccionaria.PNG" alt="Logo Refaccionaria">
-                            </div>
-                            <div class="print-code">${codigo}</div>
-                            <div class="print-barcode">
-                                <svg id="${barcodeId}"></svg>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-
-            printHtml += `
-                </body>
-                </html>
-            `;
-
-            printContainer.innerHTML = printHtml;
-
-            // Generar códigos de barras en el contenedor de impresión
+            // Usar window.print() con CSS @media print para mostrar solo las etiquetas
             setTimeout(() => {
-                etiquetas.forEach((etiqueta, idx) => {
-                    const codigo = etiqueta.querySelector('.etiqueta-code').textContent;
-                    const barcodeId = `print-barcode-${idx}`;
-                    const element = document.getElementById(barcodeId);
-
-                    if (element) {
-                        try {
-                            JsBarcode(`#${barcodeId}`, codigo, {
-                                format: "CODE128",
-                                width: 2,
-                                height: 28,
-                                margin: 1,
-                                displayValue: false
-                            });
-                        } catch (e) {
-                            console.error('Error en impresión:', e);
-                        }
-                    }
-                });
-
-                // Enviar a imprimir
                 window.print();
-            }, 200);
+            }, 100);
         }
 
         function seleccionarImpresora() {
@@ -1072,7 +1028,6 @@
             document.getElementById('productoModal').classList.remove('active');
             productoEditandoId = null;
         }
-
         function editarProducto(id) {
             const producto = productosCache.find(p => p.id === id);
             if (!producto) return;
@@ -1083,7 +1038,6 @@
             document.getElementById('productoNombre').value = producto.nombre;
             document.getElementById('productoModal').classList.add('active');
         }
-
         function guardarProducto(event) {
             event.preventDefault();
 
@@ -1117,7 +1071,6 @@
             cerrarModalProducto();
             filtrarProductos();
         }
-
         function eliminarProducto(id) {
             const producto = productosCache.find(p => p.id === id);
             if (!producto) {

@@ -63,7 +63,14 @@ async def listar_vales_venta(
         query = query.filter(ValeVenta.local_id == local_id)
     
     if tipo:
-        query = query.filter(ValeVenta.tipo == tipo)
+        # Convertir string a Enum - aceptar tanto minúsculas como mayúsculas
+        from app.models.vale_venta import TipoVale
+        try:
+            tipo_enum = TipoVale[tipo.upper()]
+            query = query.filter(ValeVenta.tipo == tipo_enum)
+        except (KeyError, AttributeError):
+            # Si no es válido, ignorar el filtro
+            pass
     
     if fecha_inicio:
         fecha_inicio_dt = datetime.strptime(fecha_inicio, "%Y-%m-%d")
@@ -154,26 +161,29 @@ async def crear_vale_venta(
     
     from app.models.vale_venta import TipoVale
     
-    # Convertir tipo string a enum
-    tipo_vale = TipoVale.VENTA  # Default
-    if vale.tipo and vale.tipo.lower() == "devolucion":
-        tipo_vale = TipoVale.DEVOLUCION
+    # El schema ya normalizó tipo a mayúsculas
+    # Convertir a enum
+    tipo_vale = TipoVale.VENTA
+    if vale.tipo:
+        if vale.tipo == "DEVOLUCION":
+            tipo_vale = TipoVale.DEVOLUCION
+        elif vale.tipo == "VENTA":
+            tipo_vale = TipoVale.VENTA
     
-    # Crear el objeto ValeVenta directamente
-    db_vale = ValeVenta()
-    db_vale.folio = vale.folio
-    db_vale.monto = vale.monto
-    db_vale.concepto = vale.concepto or "POR ANTICIPO"
-    db_vale.fecha = vale.fecha
-    db_vale.vendedor_id = vale.vendedor_id
-    db_vale.local_id = vale.local_id
-    db_vale.tipo = tipo_vale
-    db_vale.disponible = vale.disponible if vale.disponible is not None else True
-    db_vale.descripcion = vale.descripcion
-    db_vale.venta_origen_id = vale.venta_origen_id
-    db_vale.usado = False
-    db_vale.fecha_uso = None
-    db_vale.destino = None
+    # Crear el objeto ValeVenta
+    db_vale = ValeVenta(
+        folio=vale.folio,
+        monto=vale.monto,
+        concepto=vale.concepto or "POR ANTICIPO",
+        fecha=vale.fecha,
+        vendedor_id=vale.vendedor_id,
+        local_id=vale.local_id,
+        tipo=tipo_vale,
+        disponible=vale.disponible if vale.disponible is not None else True,
+        descripcion=vale.descripcion,
+        venta_origen_id=vale.venta_origen_id,
+        usado=False
+    )
 
     # Validar relaciones existentes
     if not db.query(Usuario).filter(Usuario.id == db_vale.vendedor_id).first():

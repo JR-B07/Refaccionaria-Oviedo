@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     LOCAL_ID: int = 1
     
     # CORS
-    BACKEND_CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:8000"]
+    BACKEND_CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:8000", "http://localhost:8001"]
     
     @property
     def DATABASE_URL(self) -> str:

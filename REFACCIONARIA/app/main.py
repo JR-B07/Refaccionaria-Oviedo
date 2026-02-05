@@ -1,11 +1,14 @@
 # app/main.py
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 from datetime import datetime
 import sys
 import os
+import traceback
+from pathlib import Path
 
 # Añadir el directorio raíz al path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -49,8 +52,8 @@ async def lifespan(app: FastAPI):
     else:
         print("⚠️  Modo sin base de datos")
     
-    print(f"🌐 Servidor: http://localhost:8000")
-    print(f"📚 Docs: http://localhost:8000/docs")
+    print(f"🌐 Servidor: http://localhost:8001")
+    print(f"📚 Docs: http://localhost:8001/docs")
     print("=" * 50)
     
     yield
@@ -66,6 +69,21 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc"
 )
+
+# Handler global de errores para diagnóstico
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    error_text = "\n".join([
+        "❌ Error no manejado:",
+        str(exc),
+        traceback.format_exc()
+    ])
+    try:
+        log_path = Path(__file__).resolve().parent / "error.log"
+        log_path.write_text(error_text, encoding="utf-8")
+    except Exception:
+        pass
+    return JSONResponse(status_code=500, content={"detail": str(exc)})
 
 # Montar archivos estáticos (CSS, JS, imágenes)
 import os

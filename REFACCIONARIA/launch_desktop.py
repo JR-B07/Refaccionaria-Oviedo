@@ -17,7 +17,7 @@ from io import BytesIO
 
 # Configuración
 HOST = "127.0.0.1"
-PORT = 8000
+PORT = 8001
 SERVER_URL = f"http://{HOST}:{PORT}"
 APP_URL = f"{SERVER_URL}/static/login.html"
 

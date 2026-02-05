@@ -15,7 +15,7 @@ class Traspaso(ModeloBase):
     
     # Información básica
     folio = Column(String(50), unique=True, index=True, nullable=False)
-    estado = Column(Enum(EstadoTraspaso), default=EstadoTraspaso.PENDIENTE)
+    estado = Column(Enum(EstadoTraspaso, length=20), default=EstadoTraspaso.PENDIENTE)
     fecha = Column(DateTime, nullable=False)
     
     # Origen y destino

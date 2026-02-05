@@ -6,19 +6,22 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 try:
-    from app.main import app
     import uvicorn
     
     print("=" * 60)
     print("🚀 SISTEMA DE REFACCIONARIA ERP")
     print("=" * 60)
     print("📊 Versión: 1.0.0")
-    print("🌐 URL: http://127.0.0.1:8000")
-    print("📚 Docs: http://127.0.0.1:8000/docs")
-    print("🔐 Login: http://127.0.0.1:8000/login")
+    print("🌐 URL: http://127.0.0.1:8001")
+    print("📚 Docs: http://127.0.0.1:8001/docs")
+    print("🔐 Login: http://127.0.0.1:8001/login")
     print("=" * 60)
     
-    uvicorn.run(app, host="127.0.0.1", port=8000, reload=True)
+    def _run_server():
+        uvicorn.run("app.main:app", host="127.0.0.1", port=8001, reload=False)
+
+    if __name__ == "__main__":
+        _run_server()
     
 except ImportError as e:
     print(f"❌ Error de importación: {e}")

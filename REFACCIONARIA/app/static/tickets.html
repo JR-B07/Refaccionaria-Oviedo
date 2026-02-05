@@ -306,104 +306,132 @@
             background: #5a6268;
         }
 
-        /* Estilos de impresión */
+        /* Estilos de impresión - OPTIMIZADOS */
         @media print {
             * {
-                margin: 0;
-                padding: 0;
+                margin: 0 !important;
+                padding: 0 !important;
+                border: none !important;
+            }
+
+            html {
+                width: 80mm !important;
+                height: auto !important;
+                margin: 0 !important;
+                padding: 0 !important;
             }
 
             body {
-                background: white;
-                margin: 0;
-                padding: 0;
-            }
-
-            /* Ocultar elementos que no se deben imprimir */
-            .top-bar,
-            .page-header,
-            .card:first-of-type,
-            .card:nth-of-type(2),
-            #previewModal .muted,
-            #previewFooter {
-                display: none !important;
-            }
-
-            /* Mostrar solo el modal */
-            #previewModal {
-                display: flex !important;
-                position: static !important;
-                background: white !important;
-                top: auto !important;
-                left: auto !important;
-                right: auto !important;
-                bottom: auto !important;
+                width: 80mm !important;
+                height: auto !important;
+                margin: 0 !important;
                 padding: 0 !important;
-                z-index: 1 !important;
-                align-items: flex-start !important;
-                justify-content: flex-start !important;
+                background: white !important;
+                overflow: visible !important;
+                font-size: 0 !important;
             }
 
-            #previewModal.active {
-                display: flex !important;
+            body * {
+                display: none !important;
+                visibility: hidden !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            #previewModal {
+                display: block !important;
+                visibility: visible !important;
+                position: static !important;
+                width: 80mm !important;
+                height: auto !important;
+                background: white !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                border: none !important;
+                box-shadow: none !important;
+            }
+
+            #previewModal * {
+                display: block !important;
+                visibility: visible !important;
             }
 
             #previewContainer {
-                background: white;
-                width: 80mm;
-                max-width: 80mm;
-                border-radius: 0;
-                box-shadow: none;
-                overflow: visible;
-                display: block;
-                max-height: none;
-                margin: 0 auto;
+                display: block !important;
+                visibility: visible !important;
+                width: 80mm !important;
+                height: auto !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                border: none !important;
+                box-shadow: none !important;
+            }
+
+            #previewContainer * {
+                display: block !important;
+                visibility: visible !important;
+            }
+
+            #previewContent {
+                display: block !important;
+                visibility: visible !important;
+                width: 80mm !important;
+                height: auto !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: white !important;
+                font-size: 9pt !important;
+                overflow: visible !important;
+                page-break-after: avoid !important;
+                page-break-inside: avoid !important;
+            }
+
+            #previewContent>* {
+                display: block !important;
+                visibility: visible !important;
+                page-break-inside: avoid !important;
+            }
+
+            #previewContent div {
+                margin: inherit !important;
+                padding: inherit !important;
+                line-height: inherit !important;
             }
 
             #previewHeader {
-                background: white;
-                color: #333;
-                padding: 0;
-                text-align: center;
-                margin-bottom: 10px;
+                display: none !important;
+                visibility: hidden !important;
+                height: 0 !important;
             }
 
-            #previewHeader h3 {
-                display: none;
+            #previewFooter {
+                display: none !important;
+                visibility: hidden !important;
+                height: 0 !important;
             }
 
-            #previewContent {
-                flex: none;
-                overflow: visible;
-                background: white;
-                font-family: 'Courier New', monospace;
-                font-size: 9px;
-                line-height: 1.25;
-                padding: 0;
-                word-break: break-word;
-                margin: 0;
-                page-break-after: avoid;
+            #ticketBarcode {
+                display: block !important;
+                visibility: visible !important;
+                margin: inherit !important;
+                width: auto !important;
+                max-width: 100% !important;
+                height: auto !important;
             }
 
             #previewContent img {
-                max-width: 100%;
-                height: auto;
-                page-break-inside: avoid;
-            }
-
-            /* Ocultar el footer del preview */
-            #previewFooter {
-                display: none !important;
-            }
-
-            /* Asegurar que todo el contenido se imprima */
-            #previewContent {
-                page-break-inside: avoid;
+                display: block !important;
+                visibility: visible !important;
+                margin: inherit !important;
+                width: auto !important;
+                max-width: 100% !important;
+                height: auto !important;
             }
 
             @page {
-                margin: 4mm;
                 size: 80mm auto;
+                margin: 0;
+                padding: 0;
             }
         }
 
@@ -468,6 +496,7 @@
                 </div>
                 <div class="muted" id="counter"></div>
             </div>
+
             <div class="form-row" style="margin-top: 12px;">
                 <button class="btn-primary btn" onclick="abrirModalNuevo()">➕ Nuevo Vale</button>
             </div>
@@ -571,6 +600,15 @@
 
         document.addEventListener('DOMContentLoaded', async () => {
             await cargarTickets();
+
+            const previewModal = document.getElementById('previewModal');
+            if (previewModal) {
+                previewModal.addEventListener('click', function (e) {
+                    if (e.target === this) {
+                        cerrarPreviewModal();
+                    }
+                });
+            }
         });
 
         async function cargarTickets() {
@@ -582,17 +620,18 @@
                 updateCounter(tickets);
             } catch (error) {
                 console.error('Error:', error);
-                document.getElementById('ticketsBody').innerHTML =
-                    '<tr><td colspan="7">Error al cargar tickets. Intenta de nuevo.</td></tr>';
+                document.getElementById('ticketsBody').innerHTML = '<tr><td colspan="7">Error al cargar tickets. Intenta de nuevo.</td></tr>';
             }
         }
 
         function renderTickets(list) {
             const body = document.getElementById('ticketsBody');
+
             if (!list.length) {
                 body.innerHTML = '<tr><td colspan="7">Sin resultados.</td></tr>';
                 return;
             }
+
             body.innerHTML = list.map(t => `
                 <tr>
                     <td>${t.folio}</td>
@@ -622,6 +661,7 @@
                 'Parcial': 'badge-parcial',
                 'Entregado': 'badge-entregado'
             };
+
             return `<span class="badge ${map[status] || ''}">${status}</span>`;
         }
 
@@ -636,6 +676,7 @@
 
             try {
                 msg.textContent = `Imprimiendo ticket ${folio}...`;
+
                 const response = await fetch(`${API_URL}/tickets/imprimir?folio=${folio}`, {
                     method: 'POST'
                 });
@@ -645,9 +686,7 @@
                 const result = await response.json();
                 msg.textContent = result.mensaje;
 
-                if (result.exito) {
-                    document.getElementById('ticketInput').value = '';
-                }
+                document.getElementById('ticketInput').value = '';
             } catch (error) {
                 console.error('Error:', error);
                 msg.textContent = `Error al imprimir ticket ${folio}`;
@@ -656,26 +695,36 @@
 
         async function printFolio(folio) {
             const msg = document.getElementById('ticketMessage');
+
             try {
                 msg.textContent = `Cargando vista previa del ticket ${folio}...`;
 
-                // Obtener datos del ticket
                 const ticket = tickets.find(t => t.folio === folio);
+
                 if (!ticket) {
                     msg.textContent = `Ticket ${folio} no encontrado`;
                     return;
                 }
 
-                // Generar contenido visual del ticket (HTML formateado)
                 const contenidoTicket = generarVistaPrevia(ticket);
 
-                // Mostrar en el modal (usar innerHTML para permitir HTML)
                 const previewContent = document.getElementById('previewContent');
                 previewContent.innerHTML = contenidoTicket;
                 document.getElementById('previewModal').classList.add('active');
                 ticketActualParaImprimir = folio;
                 msg.textContent = '';
                 generarCodigoBarras(folio);
+
+                document.body.style.overflow = 'hidden';
+                const mainContent = document.querySelector('main') || document.querySelector('.container') || document.body;
+
+                if (mainContent !== document.body) {
+                    mainContent.style.display = 'none';
+                }
+
+                document.querySelectorAll('header, nav, aside, .sidebar, .header, table, .table-container').forEach(el => {
+                    el.style.display = 'none';
+                });
             } catch (error) {
                 console.error('Error:', error);
                 msg.textContent = `Error al cargar ticket ${folio}`;
@@ -685,79 +734,16 @@
         function generarVistaPrevia(ticket) {
             const fecha = new Date(ticket.fecha).toLocaleDateString('es-MX');
             const folio = ticket.folio || 'VZ000';
-            const contenido = `
-<div style="font-family: 'Courier New', monospace; font-size: 10px; line-height: 1.3; color: #000; text-align: center; width: 100%;">
-    <!-- Título principal -->
-    <div style="font-weight: bold; font-size: 12px; letter-spacing: 2px; margin-bottom: 3px;">V A L E   D E   C A N J E</div>
-    
-    <!-- Nombre empresa -->
-    <div style="font-weight: bold; font-size: 11px; margin-bottom: 2px;">REFACCIONARIA OVIEDO</div>
-    
-    <!-- Dirección -->
-    <div style="font-size: 8px; line-height: 1.3; margin-bottom: 4px;">
-        LIBRAMIENTO SUR #717-B COL.<br>
-        MAGISTERIAL, C.P. 37900.<br>
-        SAN LUIS DE LA PAZ, GTO.<br>
-        WhatsApp: 468 113 2367
-    </div>
-    
-    <!-- Línea punteada -->
-    <div style="border-top: 1px dashed #000; margin: 5px 0; padding-top: 3px;"></div>
-    
-    <!-- Fecha -->
-    <div style="font-size: 8px; margin-bottom: 5px;">FECHA: ${fecha}</div>
-    
-    <!-- Código de barras -->
-    <div style="margin: 6px 0; text-align: center;">
-        <svg id="ticketBarcode" style="max-width: 110px; max-height: 34px;"></svg>
-    </div>
-    
-    <!-- Línea punteada -->
-    <div style="border-top: 1px dashed #000; margin: 5px 0; padding-top: 3px;"></div>
-    
-    <!-- Caja con folio y monto -->
-    <div style="border: 2px solid #000; padding: 6px; margin: 5px 0; font-size: 9px; line-height: 1.6;">
-        <div style="text-align: left;">
-            <div>FOLIO: <span style="float: right; font-weight: bold;">${folio}</span></div>
-            <div>MONTO: <span style="float: right; font-weight: bold;">$500</span></div>
-        </div>
-    </div>
-    
-    <!-- Línea punteada -->
-    <div style="border-top: 1px dashed #000; margin: 5px 0; padding-top: 3px;"></div>
-    
-    <!-- Vendedor -->
-    <div style="font-size: 8px; margin-bottom: 4px;">
-        <div style="text-align: left;">Vendedor</div>
-        <div style="font-weight: bold; text-transform: uppercase; text-align: left;">${ticket.cliente.substring(0, 30)}</div>
-    </div>
-    
-    <!-- Línea punteada -->
-    <div style="border-top: 1px dashed #000; margin: 5px 0; padding-top: 5px;"></div>
-    
-    <!-- Logo -->
-    <div style="margin: 6px 0; text-align: center;">
-        <img src="/static/images/logo_blanconegro.png" alt="Logo" style="max-width: 120px; height: auto; opacity: 0.85;">
-    </div>
-    
-    <!-- Lema -->
-    <div style="font-style: italic; font-size: 8px; font-weight: bold; margin: 5px 0; line-height: 1.3;">
-        "NUESTRA EXPERIENCIA<br>
-        MARCA LA DIFERENCIA"
-    </div>
-    
-    <!-- Línea punteada final -->
-    <div style="border-top: 1px dashed #000; margin: 5px 0; padding-top: 3px; font-size: 7px; color: #666;">
-        Generado: ${new Date().toLocaleString('es-MX')}
-    </div>
-</div>
+            const usuario = JSON.parse(localStorage.getItem('user') || '{}');
+            const usuarioNombre = usuario.name || usuario.username || 'REFACCIONARIA OVIEDO';
 
-    `;
+            const contenido = `<div style="font-family: 'Courier New', monospace; font-size: 10px; line-height: 1.2; color: #000; text-align: center; width: 100%; margin: 0; padding: 0;"><div style="font-weight: bold; font-size: 12px; letter-spacing: 2px; margin: 0 0 2px 0;">V A L E D E C A N J E</div><div style="font-weight: bold; font-size: 11px; margin: 0 0 1px 0;">${usuarioNombre}</div><div style="font-size: 8px; line-height: 1.2; margin: 0 0 2px 0;">LIBRAMIENTO SUR #717-B COL.<br>MAGISTERIAL, C.P. 37900.<br>SAN LUIS DE LA PAZ, GTO.<br>WhatsApp: 468 113 2367</div><div style="border-top: 1px dashed #000; margin: 3px 0 2px 0; padding: 0;"></div><div style="font-size: 8px; margin: 0 0 3px 0;">FECHA: ${fecha}</div><div style="margin: 4px 0 3px 0; text-align: center;"><svg id="ticketBarcode" style="max-width: 110px; max-height: 34px;"></svg></div><div style="border-top: 1px dashed #000; margin: 3px 0 2px 0; padding: 0;"></div><div style="border: 2px solid #000; padding: 4px; margin: 3px 0; font-size: 9px; line-height: 1.4;"><div style="text-align: left; margin: 0;"><div style="margin: 0;">FOLIO: <span style="float: right; font-weight: bold;">${folio}</span></div><div style="margin: 0; clear: both;">MONTO: <span style="float: right; font-weight: bold;">$500</span></div></div></div><div style="border-top: 1px dashed #000; margin: 3px 0 2px 0; padding: 0;"></div><div style="font-size: 8px; margin: 0 0 2px 0;"><div style="text-align: left; margin: 0;">Vendedor</div><div style="font-weight: bold; text-transform: uppercase; text-align: left; margin: 0;">${usuarioNombre}</div></div><div style="border-top: 1px dashed #000; margin: 3px 0 2px 0; padding: 0;"></div><div style="margin: 4px 0 2px 0; text-align: center;"><img src="/static/images/logo_blanconegro.png" alt="Logo" style="max-width: 100px; height: auto; opacity: 0.85;"></div><div style="font-style: italic; font-size: 8px; font-weight: bold; margin: 2px 0; line-height: 1.2;">"NUESTRA EXPERIENCIA<br>MARCA LA DIFERENCIA"</div><div style="border-top: 1px dashed #000; margin: 2px 0 0 0; padding-top: 1px; font-size: 7px; color: #666;">Generado: ${new Date().toLocaleString('es-MX')}</div></div>`;
             return contenido;
         }
 
         function generarCodigoBarras(folio) {
             const numericCode = (folio || '').replace(/[^\d]/g, '').padEnd(12, '0').substring(0, 12);
+
             setTimeout(() => {
                 try {
                     if (typeof JsBarcode !== 'undefined') {
@@ -780,22 +766,7 @@
 
         function confirmarImpresion() {
             if (!ticketActualParaImprimir) return;
-
-            const msg = document.getElementById('ticketMessage');
-            msg.textContent = `Preparando impresión del ticket ${ticketActualParaImprimir}...`;
-
-            // Pequeño delay para asegurar que todo esté listo
-            setTimeout(() => {
-                // Mostrar el diálogo de impresión
-                window.print();
-
-                // Después de imprimir, cerrar el modal
-                setTimeout(() => {
-                    cerrarPreviewModal();
-                    msg.textContent = `Ticket ${ticketActualParaImprimir} enviado a la impresora.`;
-                    ticketActualParaImprimir = null;
-                }, 500);
-            }, 300);
+            window.print();
         }
 
         function cerrarPreviewModal() {
@@ -803,17 +774,12 @@
             ticketActualParaImprimir = null;
         }
 
-        // Cerrar modal al hacer clic fuera
-        document.getElementById('previewModal').addEventListener('click', function (e) {
-            if (e.target === this) {
-                cerrarPreviewModal();
-            }
-        });
-
         async function markDelivered(folio) {
             const msg = document.getElementById('ticketMessage');
+
             try {
                 msg.textContent = `Marcando ticket ${folio} como entregado...`;
+
                 const response = await fetch(`${API_URL}/tickets/${folio}/entregar`, {
                     method: 'POST'
                 });
@@ -822,13 +788,11 @@
 
                 const ticketActualizado = await response.json();
 
-                // Actualizar el ticket en la lista local
-                tickets = tickets.map(t =>
-                    t.folio === folio ? ticketActualizado : t
-                );
+                tickets = tickets.map(t => t.folio === folio ? ticketActualizado : t);
 
                 renderTickets(filteredList());
                 updateCounter(filteredList());
+
                 msg.textContent = `Ticket ${folio} marcado como entregado.`;
             } catch (error) {
                 console.error('Error:', error);
@@ -845,10 +809,9 @@
         function filteredList() {
             const term = document.getElementById('searchInput').value.trim().toLowerCase();
             const status = document.getElementById('statusFilter').value;
+
             return tickets.filter(t => {
-                const matchesTerm = !term || [t.folio, t.articulo, t.cliente].some(v =>
-                    v.toLowerCase().includes(term)
-                );
+                const matchesTerm = !term || [t.folio, t.articulo, t.cliente].some(v => v.toLowerCase().includes(term));
                 const matchesStatus = !status || t.estatus === status;
                 return matchesTerm && matchesStatus;
             });
@@ -859,8 +822,8 @@
             const pendientes = list.filter(t => t.estatus === 'Pendiente').length;
             const parciales = list.filter(t => t.estatus === 'Parcial').length;
             const entregados = list.filter(t => t.estatus === 'Entregado').length;
-            counter.textContent = `${list.length} tickets | Pendientes: ${pendientes} · Parciales: ${parciales} · Entregados:
-    ${entregados}`;
+
+            counter.textContent = `${list.length} tickets | Pendientes: ${pendientes} · Parciales: ${parciales} · Entregados: ${entregados}`;
         }
 
         async function reloadTickets() {
@@ -875,8 +838,6 @@
         function goBack() {
             window.location.href = '/almacen';
         }
-
-        // ========== FUNCIONES PARA CREAR/EDITAR/ELIMINAR VALES ==========
 
         let valeEnEdicion = null;
 
@@ -899,6 +860,7 @@
 
         function abrirModalEditar(folio) {
             const ticket = tickets.find(t => t.folio === folio);
+
             if (!ticket) {
                 alert('Vale no encontrado');
                 return;
@@ -943,19 +905,22 @@
                 };
 
                 let response;
+
                 if (valeEnEdicion) {
-                    // Editar vale existente
                     response = await fetch(`${API_URL}/tickets/${folio}`, {
                         method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
                         body: JSON.stringify(datos)
                     });
                     msg.textContent = 'Actualizando vale...';
                 } else {
-                    // Crear nuevo vale
                     response = await fetch(`${API_URL}/tickets`, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
                         body: JSON.stringify(datos)
                     });
                     msg.textContent = 'Creando nuevo vale...';
@@ -968,6 +933,7 @@
 
                 await cargarTickets();
                 cerrarModalVale();
+
                 msg.textContent = valeEnEdicion ? `Vale ${folio} actualizado correctamente` : `Vale ${folio} creado correctamente`;
             } catch (error) {
                 console.error('Error:', error);
@@ -981,8 +947,10 @@
             }
 
             const msg = document.getElementById('ticketMessage');
+
             try {
                 msg.textContent = `Eliminando vale ${folio}...`;
+
                 const response = await fetch(`${API_URL}/tickets/${folio}`, {
                     method: 'DELETE'
                 });
@@ -993,6 +961,7 @@
                 }
 
                 await cargarTickets();
+
                 msg.textContent = `Vale ${folio} eliminado correctamente`;
             } catch (error) {
                 console.error('Error:', error);
@@ -1000,7 +969,6 @@
             }
         }
 
-        // Cerrar modal al hacer clic fuera
         document.addEventListener('click', function (e) {
             const modal = document.getElementById('modalVale');
             if (e.target === modal) {
