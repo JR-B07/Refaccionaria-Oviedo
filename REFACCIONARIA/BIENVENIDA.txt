@@ -1,0 +1,227 @@
+╔════════════════════════════════════════════════════════════════════════════════╗
+║                                                                                ║
+║                      ¡BIENVENIDO A REFACCIONARIA ERP!                          ║
+║                                                                                ║
+║                       Sistema de Gestión de Refacciones                        ║
+║                                                                                ║
+╚════════════════════════════════════════════════════════════════════════════════╝
+
+
+🎯 INICIO RÁPIDO
+═════════════════════════════════════════════════════════════════════════════════
+
+Para empezar, simplemente ejecuta uno de estos archivos:
+
+   📱 Refaccionaria.bat          ← RECOMENDADO (Interfaz Desktop)
+   
+   💻 start.bat                 ← Servidor API solo
+   
+   🌐 InicioRapido.bat          ← Browser
+   
+   🛠️  utilidades.bat            ← Menu de utilidades
+
+
+🌟 LO QUE SE INCLUYE
+═════════════════════════════════════════════════════════════════════════════════
+
+✓ Sistema ERP completo para gestión de refacciones
+✓ Base de datos MySQL integrada
+✓ API REST con documentación automática
+✓ Interfaz web responsiva
+✓ Control de inventario
+✓ Gestión de múltiples sucursales
+✓ Arqueos de caja
+✓ Sistema de usuarios
+
+
+🚀 TU PRIMER INICIO
+═════════════════════════════════════════════════════════════════════════════════
+
+1. Doble click en: Refaccionaria.bat
+
+2. Espera a que se verifique todo (1-2 minutos en la primera ejecución)
+
+3. Se abrirá automáticamente la aplicación
+
+4. Accede con:
+   - Usuario: admin
+   - Contraseña: admin
+
+¡Listo! Ya puedes empezar a usar Refaccionaria ERP.
+
+
+📂 ARCHIVOS IMPORTANTES
+═════════════════════════════════════════════════════════════════════════════════
+
+LAUNCHERS (Elige uno):
+  ✓ Refaccionaria.bat          Aplicación desktop (RECOMENDADO)
+  ✓ start.bat                  Servidor API
+  ✓ InicioRapido.bat           En navegador web
+  ✓ utilidades.bat             Menu de utilidades
+
+HERRAMIENTAS:
+  ✓ diagnostico.py             Verifica salud del sistema
+  ✓ verificar_sistema.bat      Abre el diagnostico
+  ✓ advanced_launcher.py       Launcher avanzado con más detalles
+
+MANTENIMIENTO:
+  ✓ scripts/backup_db.py       Hacer backup de los datos
+  ✓ scripts/limpiar_db.py      Limpiar base de datos
+  ✓ scripts/inicializar_datos.py  Cargar datos iniciales
+
+DOCUMENTACION:
+  ✓ GUIA_INICIO_COMPLETA.md    Guia completa y detallada
+  ✓ RESUMEN_ACTUALIZACION.txt  Cambios realizados
+  ✓ ACTUALIZACION_REFACCIONARIA_BAT.md  Detalles técnicos
+
+
+🔧 REQUISITOS MINIMOS
+═════════════════════════════════════════════════════════════════════════════════
+
+Windows 10 o superior
+Python 3.8 o superior
+MySQL 5.7 o superior (con instalación como servicio)
+Permiso de Administrador (recomendado)
+
+
+✨ CARACTERÍSTICAS PRINCIPALES
+═════════════════════════════════════════════════════════════════════════════════
+
+INVENTARIO
+  • Gestión completa de productos
+  • Control de stock
+  • Búsqueda avanzada
+  • Reportes de inventario
+
+PAQUETES (KITS)
+  • Crear kits de reparación
+  • Asignar productos a paquetes
+  • Gestionar contenido
+
+SUCURSALES
+  • Gestión multi-sucursal
+  • Transferencia de inventario
+  • Reportes por sucursal
+
+VENTAS & CAJA
+  • Registro de ventas
+  • Arqueos de caja
+  • Reportes diarios
+  • Conciliación
+
+USUARIOS
+  • Control de acceso
+  • Roles y permisos
+  • Auditoria de cambios
+
+
+🌐 ACCESO WEB
+═════════════════════════════════════════════════════════════════════════════════
+
+Aplicación:      http://127.0.0.1:8001
+API Documentación: http://127.0.0.1:8001/docs
+Login:           http://127.0.0.1:8001/static/login.html
+
+
+💡 TIPS Y TRUCOS
+═════════════════════════════════════════════════════════════════════════════════
+
+✓ Si es la PRIMERA VEZ: Ejecuta Refaccionaria.bat y espera (puede tomar 2-3 min)
+
+✓ Para VERIFICAR TODO: Ejecuta python diagnostico.py
+
+✓ Para HACER BACKUP: Ejecuta python scripts/backup_db.py
+
+✓ Para LIMPIAR: Ejecuta python scripts/limpiar_db.py (CUIDADO: borra datos)
+
+✓ Para ACCEDER SIN GUI: Ejecuta start.bat y entra a http://127.0.0.1:8001
+
+✓ Para SOLO DOCUMENTACION: Entra a http://127.0.0.1:8001/docs
+
+
+❓ PREGUNTAS FRECUENTES
+═════════════════════════════════════════════════════════════════════════════════
+
+P: ¿Qué hago si sale error de MySQL?
+R: Asegúrate que:
+   - MySQL esté instalado
+   - MySQL esté corriendo (Services.msc)
+   - Las credenciales sean correctas (por defecto: root/root)
+
+P: ¿Qué hago si el puerto 8001 está en uso?
+R: Ejecuta: netstat -ano | find "8001"
+   Luego: taskkill /PID xxxx /F
+
+P: ¿Puedo cambiar la contraseña del admin?
+R: Sí, desde la aplicación en Configuración > Usuarios
+
+P: ¿Cómo hago backup de los datos?
+R: Ejecuta: python scripts/backup_db.py
+
+P: ¿Cómo restauro un backup?
+R: Lee la guía completa en GUIA_INICIO_COMPLETA.md
+
+
+📱 INTERFAZ
+═════════════════════════════════════════════════════════════════════════════════
+
+MODO DESKTOP (Recomendado)
+  • Interfaz nativa de Windows
+  • Mejor rendimiento
+  • Integrado con sistema
+
+MODO WEB (Browser)
+  • Acceso desde navegador
+  • Más ligero
+  • Accesible desde red local
+
+
+📞 SOPORTE Y AYUDA
+═════════════════════════════════════════════════════════════════════════════════
+
+Para problemas:
+  1. Ejecuta: python diagnostico.py
+  2. Lee: GUIA_INICIO_COMPLETA.md
+  3. Revisa: server.log
+  4. Contacta al desarrollador
+
+
+📝 INFORMACIÓN TECNICA
+═════════════════════════════════════════════════════════════════════════════════
+
+Framework Backend:  FastAPI
+Servidor Web:       Uvicorn
+Base de Datos:      MySQL
+Framework Frontend: Pywebview / HTML5
+Lenguaje:           Python 3.8+
+Licencia:           Privada
+
+
+🎓 APRENDE MAS
+═════════════════════════════════════════════════════════════════════════════════
+
+Lee el archivo: GUIA_INICIO_COMPLETA.md
+Para información detallada sobre:
+  • Instalación
+  • Configuración
+  • Uso de cada característica
+  • Solución de problemas
+  • Comandos útiles
+  • API REST endpoints
+
+
+═════════════════════════════════════════════════════════════════════════════════
+
+🎉 ¡LISTO PARA EMPEZAR!
+
+   Ejecuta: Refaccionaria.bat
+
+   Y disfruta de Refaccionaria ERP v1.0
+
+═════════════════════════════════════════════════════════════════════════════════
+
+Versión: 1.0.0
+Última actualización: 4 de Febrero 2026
+Estado: LISTO PARA PRODUCCIÓN ✓
+
+¡Gracias por usar Refaccionaria ERP!

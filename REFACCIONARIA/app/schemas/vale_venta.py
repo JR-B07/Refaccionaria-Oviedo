@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from typing import Optional
 from datetime import datetime
 from decimal import Decimal
@@ -13,6 +13,14 @@ class ValeVentaBase(BaseModel):
     descripcion: Optional[str] = None
     tipo: Optional[str] = "venta"
     venta_origen_id: Optional[int] = None
+
+    @field_validator('tipo', mode='before')
+    @classmethod
+    def normalize_tipo(cls, v):
+        if v:
+            # Convertir a mayúsculas para normalizar
+            return v.upper()
+        return v
 
 class ValeVentaCreate(ValeVentaBase):
     usado: Optional[bool] = False

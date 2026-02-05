@@ -3,6 +3,8 @@ from fastapi import APIRouter, HTTPException, status, Depends, Header
 from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime, timedelta
+import traceback
+from pathlib import Path
 from sqlalchemy.orm import Session
 import hashlib
 
@@ -38,60 +40,76 @@ class LoginResponse(BaseModel):
 
 
 # Endpoints
-@router.post("/login", response_model=LoginResponse)
+@router.post("/login")
 async def login(login_data: LoginRequest, db: Session = Depends(get_db)):
     """Login usando la base de datos de usuarios."""
-    db_user = usuario_crud.obtener_por_nombre_usuario(db, login_data.username)
-    if not db_user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Usuario o contraseña incorrectos")
+    try:
+        db_user = usuario_crud.obtener_por_nombre_usuario(db, login_data.username)
+        if not db_user:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Usuario o contraseña incorrectos")
 
-    # Comparar hash SHA256
-    password_hash = hashlib.sha256(login_data.password.encode()).hexdigest()
-    if password_hash != db_user.clave_hash:
-        # Registrar intento fallido si existe la función en el CRUD
+        # Comparar hash SHA256
+        password_hash = hashlib.sha256(login_data.password.encode()).hexdigest()
+        if password_hash != db_user.clave_hash:
+            # Registrar intento fallido si existe la función en el CRUD
+            try:
+                usuario_crud.registrar_login(db, db_user, exitoso=False)
+            except Exception:
+                pass
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Usuario o contraseña incorrectos")
+
+        # Login exitoso
         try:
-            usuario_crud.registrar_login(db, db_user, exitoso=False)
+            usuario_crud.registrar_login(db, db_user, exitoso=True)
         except Exception:
             pass
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Usuario o contraseña incorrectos")
 
-    # Login exitoso
-    try:
-        usuario_crud.registrar_login(db, db_user, exitoso=True)
-    except Exception:
-        pass
+        # Obtener nombre de la sucursal
+        local_nombre = None
+        if db_user.local_id and db_user.local:
+            local_nombre = db_user.local.nombre
 
-    # Obtener nombre de la sucursal
-    local_nombre = None
-    if db_user.local_id and db_user.local:
-        local_nombre = db_user.local.nombre
+        token_data = {
+            "sub": db_user.nombre_usuario,
+            "id": db_user.id,
+            "role": getattr(db_user.rol, 'value', str(db_user.rol)),
+            "local_id": db_user.local_id,
+            "local_nombre": local_nombre
+        }
 
-    token_data = {
-        "sub": db_user.nombre_usuario,
-        "id": db_user.id,
-        "role": getattr(db_user.rol, 'value', str(db_user.rol)),
-        "local_id": db_user.local_id,
-        "local_nombre": local_nombre
-    }
+        access_token = create_access_token(token_data)
 
-    access_token = create_access_token(token_data)
+        user_info = {
+            "id": db_user.id,
+            "username": db_user.nombre_usuario,
+            "name": db_user.nombre_completo,
+            "role": getattr(db_user.rol, 'value', str(db_user.rol)),
+            "local_id": db_user.local_id,
+            "local_nombre": local_nombre
+        }
 
-    user_info = {
-        "id": db_user.id,
-        "username": db_user.nombre_usuario,
-        "name": db_user.nombre_completo,
-        "role": getattr(db_user.rol, 'value', str(db_user.rol)),
-        "local_id": db_user.local_id,
-        "local_nombre": local_nombre
-    }
-
-    return {
-        "success": True,
-        "message": "Acceso concedido",
-        "access_token": access_token,
-        "token_type": "bearer",
-        "user": user_info
-    }
+        return {
+            "success": True,
+            "message": "Acceso concedido",
+            "access_token": access_token,
+            "token_type": "bearer",
+            "user": user_info
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        error_text = "\n".join([
+            "❌ Error en login:",
+            str(e),
+            traceback.format_exc()
+        ])
+        try:
+            log_path = Path(__file__).resolve().parents[3] / "login_error.log"
+            log_path.write_text(error_text, encoding="utf-8")
+        except Exception:
+            pass
+        print(error_text)
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/logout")
 async def logout():

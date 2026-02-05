@@ -350,24 +350,6 @@
             color: #721c24;
         }
 
-        @media print {
-            body * {
-                visibility: hidden;
-            }
-
-            #printArea,
-            #printArea * {
-                visibility: visible;
-            }
-
-            #printArea {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-            }
-        }
-
         .modal {
             display: none;
             position: fixed;
@@ -542,19 +524,109 @@
 
         @media print {
 
-            #ticketHeader,
-            #ticketFooter,
-            #printModal {
+            /* Ocultar ABSOLUTAMENTE TODO el body */
+            body * {
+                visibility: hidden !important;
                 display: none !important;
             }
 
+            /* Resetear estilos básicos */
+            html,
+            body {
+                width: 80mm !important;
+                height: auto !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: white !important;
+                overflow: visible !important;
+                font-size: 0 !important;
+            }
+
+            /* Mostrar SOLO el modal de impresión */
+            #printModal,
+            #printModal *,
+            #ticketContainer,
+            #ticketContainer *,
+            #ticketContent,
+            #ticketContent * {
+                visibility: visible !important;
+                display: block !important;
+            }
+
+            /* Configurar el modal para impresión */
+            #printModal {
+                position: static !important;
+                width: 80mm !important;
+                height: auto !important;
+                background: white !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                align-items: flex-start !important;
+                justify-content: flex-start !important;
+            }
+
             #ticketContainer {
-                max-width: 80mm;
-                box-shadow: none;
-                border-radius: 0;
+                width: 80mm !important;
+                max-width: 80mm !important;
+                height: auto !important;
+                max-height: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                border-radius: 0 !important;
+                box-shadow: none !important;
+                overflow: visible !important;
             }
 
             #ticketContent {
+                width: 80mm !important;
+                height: auto !important;
+                padding: 3mm !important;
+                margin: 0 !important;
+                overflow: visible !important;
+                font-size: 9px !important;
+                line-height: 1.2 !important;
+                page-break-inside: avoid !important;
+            }
+
+            /* Ocultar header y footer del modal */
+            #ticketHeader,
+            #ticketFooter {
+                display: none !important;
+                visibility: hidden !important;
+            }
+
+            /* Asegurar que elementos dentro del contenido sean visibles */
+            #ticketContent>* {
+                display: block !important;
+                visibility: visible !important;
+                page-break-inside: avoid !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            /* Código de barras */
+            #ticketBarcode {
+                display: block !important;
+                visibility: visible !important;
+                margin: 3px auto !important;
+                max-width: 100% !important;
+                max-height: 40px !important;
+                page-break-inside: avoid !important;
+            }
+
+            /* SVG y elementos gráficos */
+            svg,
+            img {
+                display: block !important;
+                visibility: visible !important;
+                max-width: 100% !important;
+                page-break-inside: avoid !important;
+            }
+
+            /* Configuración de página - Importante para termales */
+            @page {
+                size: 80mm auto;
+                margin: 0;
                 padding: 0;
             }
         }
@@ -731,8 +803,8 @@
                     <div class="filter-group">
                         <label>Tipo</label>
                         <select id="nuevoTipo">
-                            <option value="venta">Venta</option>
-                            <option value="devolucion">Devolución</option>
+                            <option value="VENTA">Venta</option>
+                            <option value="DEVOLUCION">Devolución</option>
                         </select>
                     </div>
                     <div class="filter-group">
@@ -770,7 +842,7 @@
             <div id="ticketContent">
             </div>
             <div id="ticketFooter">
-                <button id="btnPrintTicket" onclick="window.print()"
+                <button id="btnPrintTicket" onclick="imprimirSoloTicket()"
                     style="padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px; background: #28a745; color: white;">🖨️
                     Imprimir</button>
                 <button id="btnCloseTicket" onclick="cerrarTicketModal()"
@@ -785,11 +857,9 @@
         let vendedoresList = [];
         let localesList = [];
 
-        // Inicializar
         document.addEventListener('DOMContentLoaded', async function () {
             console.log('Inicializando página de vales...');
 
-            // Establecer fechas por defecto (último mes)
             const hoy = new Date();
             const haceUnMes = new Date();
             haceUnMes.setMonth(haceUnMes.getMonth() - 1);
@@ -797,7 +867,6 @@
             document.getElementById('fechaInicio').value = haceUnMes.toISOString().split('T')[0];
             document.getElementById('fechaFin').value = hoy.toISOString().split('T')[0];
 
-            // Verificar sesión (opcional, no bloquear si no hay token)
             const token = localStorage.getItem('access_token');
             const user = JSON.parse(localStorage.getItem('user') || '{}');
             if (!token) {
@@ -809,10 +878,8 @@
             llenarSelectsModal();
             await cargarVales();
 
-            // Establecer fecha actual por defecto en el modal
             document.getElementById('nuevoFecha').value = new Date().toISOString().split('T')[0];
 
-            // Búsqueda en tiempo real
             document.getElementById('searchInput').addEventListener('input', filtrarTabla);
 
             console.log('Página inicializada correctamente');
@@ -827,11 +894,9 @@
                 return;
             }
 
-            // Limpiar opciones existentes (excepto la primera)
             selectVendedor.innerHTML = '<option value="">Seleccionar...</option>';
             selectSucursal.innerHTML = '<option value="">Seleccionar...</option>';
 
-            // Asegurar que vendedoresList tiene datos
             if (!Array.isArray(vendedoresList) || vendedoresList.length === 0) {
                 console.warn('vendedoresList vacía, usando fallback');
                 vendedoresList = [
@@ -841,7 +906,6 @@
                 ];
             }
 
-            // Llenar vendedores
             vendedoresList.forEach(v => {
                 const option = document.createElement('option');
                 option.value = v.id;
@@ -850,15 +914,20 @@
             });
             console.log('Select vendedor llenado con ' + vendedoresList.length + ' opciones');
 
-            // Seleccionar por defecto el usuario actual si existe
             try {
                 const user = JSON.parse(localStorage.getItem('user') || '{}');
                 if (user && user.id) {
-                    selectVendedor.value = String(user.id);
+                    // Solo asignar si el usuario existe en la lista de vendedores
+                    const userExists = vendedoresList.some(v => v.id === user.id);
+                    if (userExists) {
+                        selectVendedor.value = String(user.id);
+                    } else if (vendedoresList.length > 0) {
+                        // Si el usuario no existe, seleccionar el primer vendedor
+                        selectVendedor.value = vendedoresList[0].id;
+                    }
                 }
             } catch (_) { }
 
-            // Llenar sucursales
             if (!Array.isArray(localesList) || localesList.length === 0) {
                 localesList = [
                     { id: 1, nombre: 'Local Principal' },
@@ -878,11 +947,9 @@
         function abrirModalNuevo() {
             console.log('Abriendo modal...');
             try {
-                // Asegurar que los selects del modal estén sincronizados
                 llenarSelectsModal();
                 const modal = document.getElementById('modalNuevo');
                 modal.classList.add('active');
-                // Limpiar formulario
                 document.getElementById('formNuevoVale').reset();
                 document.getElementById('nuevoFecha').value = new Date().toISOString().split('T')[0];
                 document.getElementById('nuevoConcepto').value = 'POR ANTICIPO';
@@ -910,7 +977,7 @@
                 fecha: document.getElementById('nuevoFecha').value + 'T00:00:00',
                 vendedor_id: parseInt(document.getElementById('nuevoVendedor').value),
                 local_id: parseInt(document.getElementById('nuevoSucursal').value),
-                tipo: document.getElementById('nuevoTipo').value,
+                tipo: document.getElementById('nuevoTipo').value.toUpperCase(),
                 disponible: document.getElementById('nuevoDisponible').value === 'true',
                 descripcion: document.getElementById('nuevoDescripcion').value.trim()
             };
@@ -1057,7 +1124,7 @@
                 if (vendedor) params.append('vendedor_id', vendedor);
                 if (monto) params.append('monto_aproximado', monto);
                 if (sucursal) params.append('local_id', sucursal);
-                if (tipo) params.append('tipo', tipo);
+                if (tipo) params.append('tipo', tipo.toUpperCase());
                 if (fechaInicio) params.append('fecha_inicio', fechaInicio);
                 if (fechaFin) params.append('fecha_fin', fechaFin);
 
@@ -1122,11 +1189,10 @@
     <td><span class="disponible-toggle ${vale.disponible ? 'si' : 'no'}"
             onclick="event.stopPropagation(); toggleDisponible(${vale.id}, ${!vale.disponible});">${disponible}</span>
     </td>
-    <td>
-        <button class="btn-print" onclick="event.stopPropagation(); imprimirValeModal(${JSON.stringify(vale).replace(/"
-                    / g, '&quot;')});">🖨️ Imprimir</button>
-        <button class="btn-delete" onclick="event.stopPropagation(); eliminarVale(${vale.id});">🗑️ Eliminar</button>
-    </td>
+                <td>
+    <button class="btn-print" onclick="event.stopPropagation(); imprimirValeModal(${JSON.stringify(vale).replace(/"/g, '&quot;')});">🖨️ Imprimir</button>
+    <button class="btn-delete" onclick="event.stopPropagation(); eliminarVale(${vale.id});">🗑️ Eliminar</button>
+                </td>
     `;
                 tbody.appendChild(tr);
             });
@@ -1223,355 +1289,6 @@
             }
         }
 
-        function imprimirVale(vale) {
-            console.log('Generando ticket para vale:', vale);
-
-            const fecha = new Date(vale.fecha).toLocaleDateString('es-MX');
-            const monto = parseFloat(vale.monto || 0).toFixed(2);
-            const folio = vale.folio || 'VZ000';
-            const concepto = vale.concepto || 'POR ANTICIPO';
-            const vendedor = vale.vendedor_nombre || 'REFACCIONARIA';
-            const sucursal = vale.local_nombre || 'REFACCIONARIA OVIEDO';
-            const descripcion = vale.descripcion || '';
-
-            // Generar código de barras numérico basado en el folio
-            const numericCode = folio.replace(/[^\d]/g, '').padEnd(12, '0').substring(0, 12);
-
-            const contenido = `
-    <!DOCTYPE html>
-    <html>
-
-    <head>
-        <meta charset="UTF-8">
-        <title>Vale de Venta - ` + folio + `</title>
-        <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>
-                < style >
-                @page {
-                size: 80mm auto;
-                margin: 3mm;
-            }
-        * {
-                margin: 0;
-                padding: 0;
-            }
-            html, body {
-                margin: 0;
-                padding: 0;
-            }
-        body {
-                font - family: 'Courier New', monospace;
-                width: 80mm;
-                margin: 0 auto;
-                padding: 3px;
-                font - size: 11px;
-                line - height: 1.1;
-                background: white;
-            }
-        .ticket {
-                width: 100 %;
-                border: 1px dashed #333;
-                padding: 5px;
-            }
-        .header {
-                text - align: center;
-                border - bottom: 1px dashed #333;
-                padding - bottom: 3px;
-                margin - bottom: 3px;
-            }
-        .header - line1 {
-                font - size: 14px;
-                font - weight: bold;
-                letter - spacing: 1px;
-            }
-        .header - line2 {
-                font - size: 11px;
-                font - weight: bold;
-            }
-        .header - line3 {
-                font - size: 9px;
-                color: #666;
-            }
-        .info - text {
-                font - size: 8px;
-                text - align: center;
-                margin: 2px 0;
-                line - height: 1.2;
-            }
-        .section {
-                border - bottom: 1px dashed #333;
-                padding: 3px 0;
-                margin: 3px 0;
-            }
-        .barcode - container {
-                text - align: center;
-                margin: 3px 0;
-                padding: 2px 0;
-            }
-        .barcode - container svg {
-                max - width: 100 %;
-                height: auto;
-                max - height: 28px;
-            }
-        .data - row {
-                display: flex;
-                justify - content: space - between;
-                margin: 2px 0;
-                font - size: 10px;
-            }
-        .data - label {
-                font - weight: bold;
-            }
-        .data - value {
-                text - align: right;
-            }
-        .row - full {
-                margin: 2px 0;
-                font - size: 10px;
-            }
-        .monto - box {
-                border: 2px solid #333;
-                padding: 4px;
-                text - align: center;
-                margin: 3px 0;
-            }
-        .monto - label {
-                font - size: 9px;
-                font - weight: bold;
-            }
-        .monto - value {
-                font - size: 16px;
-                font - weight: bold;
-                color: #000;
-            }
-        .concepto - box {
-                background: #f0f0f0;
-                padding: 3px;
-                margin: 3px 0;
-                text - align: center;
-                font - size: 9px;
-                font - weight: bold;
-            }
-        .vendedor - section {
-                margin: 3px 0;
-                text - align: center;
-            }
-        .vendedor - label {
-                font - weight: bold;
-                font - size: 9px;
-            }
-        .vendedor - name {
-                font - weight: bold;
-                font - size: 11px;
-                margin - top: 1px;
-                text - decoration: underline;
-            }
-        .footer {
-                text - align: center;
-                margin - top: 3px;
-            }
-        .footer - line {
-                font - size: 10px;
-                font - weight: bold;
-            }
-        .slogan {
-                text - align: center;
-                font - style: italic;
-                font - size: 8px;
-                margin - top: 3px;
-                line - height: 1.2;
-            }
-        .conditions {
-                font - size: 7px;
-                text - align: center;
-                margin - top: 3px;
-                line - height: 1.2;
-                border - top: 1px dashed #333;
-                padding - top: 2px;
-            }
-        .logo - container {
-                text - align: center;
-                margin: 2px 0;
-            }
-        .logo - container img {
-                width: 60px;
-                height: auto;
-            }
-        .no - print {
-                text - align: center;
-                margin - top: 15px;
-                display: flex;
-                justify - content: center;
-                gap: 10px;
-                background: #f5f5f5;
-                padding: 10px;
-            }
-        .no - print button {
-                padding: 8px 15px;
-                font - size: 12px;
-                cursor: pointer;
-                background: #c41e3a;
-                color: white;
-                border: none;
-                border - radius: 4px;
-            }
-        .no - print button:hover {
-                background: #8b1428;
-            }
-            @media print {
-            .no - print {
-                    display: none!important;
-                }
-            .ticket {
-                    border: none;
-                }
-            body {
-                    margin: 0;
-                    padding: 0;
-                }
-            }
-    </style >
-</head >
-                <body>
-                    <div class="ticket">
-                        <div class="header">
-                            <div class="header-line1">★ VALE DE VENTA ★</div>
-                            <div class="header-line2">REFACCIONARIA OVIEDO</div>
-                            <div class="header-line3">Filtros y Lubricantes</div>
-                        </div>
-
-                        <div class="info-text">
-                            Libramiento Sur #717-B<br>
-                                Col. Magisterial, C.P. 37900<br>
-                                    San Luis de la Paz, Gto.<br>
-                                        Tel: (468) 113-2367<br>
-                                            <strong>RFC: xxx (add your RFC)</strong>
-                                        </div>
-
-                                        <div class="section">
-                                            <div class="barcode-container">
-                                                <svg id="barcode"><\/svg>
-                                            </div>
-                                        </div>
-
-                                        <div class="section">
-                                            <div class="data-row">
-                                                <span class="data-label">FOLIO:</span>
-                                                <span class="data-value" style="font-weight: bold; font-size: 12px;">` + folio + `</span>
-                                            </div>
-                                            <div class="data-row">
-                                                <span class="data-label">FECHA:</span>
-                                                <span class="data-value">` + fecha + `</span>
-                                            </div>
-                                            <div class="data-row">
-                                                <span class="data-label">VENDEDOR:</span>
-                                                <span class="data-value">` + (vendedor.substring(0, 20)) + `</span>
-                                            </div>
-                                            <div class="data-row">
-                                                <span class="data-label">SUCURSAL:</span>
-                                                <span class="data-value">` + (sucursal.substring(0, 15)) + `</span>
-                                            </div>
-                                        </div>
-
-                                        <div class="monto-box">
-                                            <div class="monto-label">VALOR DEL VALE</div>
-                                            <div class="monto-value">$` + monto + `</div>
-                                        </div>
-
-                                        <div class="concepto-box">
-                                            CONCEPTO: ` + concepto + `
-                                        </div>
-
-                                        ` + (descripcion ? `<div class="section">
-                                            <div class="row-full"><strong>DESCRIPCIÓN:</strong></div>
-                                            <div class="row-full">` + descripcion.substring(0, 50) + `</div>
-                                        </div>` : '') + `
-
-                                        <div class="section">
-                                            <div class="conditions">
-                                                ✓ Vale canjeble únicamente por productos<br>
-                                                    ✓ No reembolsable en efectivo<br>
-                                                        ✓ Válido por 1 mes desde su emisión<br>
-                                                            ✓ Presentar con factura o recibo
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="vendedor-section">
-                                                        <div class="vendedor-label">AUTORIZADO POR:</div>
-                                                        <div class="vendedor-name">` + (vendedor.toUpperCase()) + `</div>
-                                                    </div>
-
-                                                    <div class="logo-container">
-                                                        <img src="/static/images/logo_blanconegro.png" alt="Refaccionaria Oviedo" onerror="this.style.display='none'">
-                                                    </div>
-
-                                                    <div class="footer">
-                                                        <div class="footer-line">✦ REFACCIONARIA OVIEDO ✦</div>
-                                                        <div class="slogan">
-                                                            "Nuestra Experiencia<br>
-                                                                Marca la Diferencia"
-                                                        </div>
-                                                    </div>
-
-                                                    <div style="text-align: center; font-size: 7px; margin-top: 3px;">
-                                                        Ticket generado: ` + new Date().toLocaleString('es-MX') + `
-                                                    </div>
-                                            </div>
-
-                                            <div class="no-print">
-                                                <button onclick="window.print()">🖨️ Imprimir</button>
-                                                <button onclick="window.close()">❌ Cerrar</button>
-                                            </div>
-
-                                            <script>
-                                                window.addEventListener('load', function() {
-                                                    console.log('Documento cargado, iniciando generación de código de barras');
-                                                try {
-                if (typeof JsBarcode !== 'undefined') {
-                                                    JsBarcode("#barcode", "` + numericCode + `", {
-                                                        format: "CODE128",
-                                                        width: 1,
-                                                        height: 25,
-                                                        displayValue: false,
-                                                        margin: 0
-                                                    });
-                                                console.log('Código de barras generado exitosamente');
-                } else {
-                                                    console.warn('JsBarcode no disponible');
-                }
-            } catch(e) {
-                                                    console.error('Error generando código de barras:', e);
-            }
-
-                                                // Imprimir automáticamente después de cargar
-                                                setTimeout(function() {
-                                                    console.log('Abriendo diálogo de impresión');
-                                                window.print();
-            }, 500);
-        }, false);
-                                                <\/script>
-                                            </body>
-                                        </html>
-                                        `;
-
-            try {
-                const printWindow = window.open('', 'PrintWindow', 'width=800,height=600,scrollbars=yes,resizable=yes,status=yes');
-
-                if (!printWindow) {
-                    console.error('No se pudo abrir la ventana de impresión. Verificar bloqueador de ventanas emergentes.');
-                    alert('⚠️ No se pudo abrir la ventana de impresión.\n\nVerifica que no haya bloqueadores de ventanas emergentes activos.\n\nSi el problema persiste, intenta:\n1. Desactivar bloqueadores de popups\n2. Usar otro navegador\n3. Permitir ventanas emergentes para este sitio');
-                    return;
-                }
-
-                printWindow.document.write(contenido);
-                printWindow.document.close();
-                console.log('Contenido escrito en la ventana de impresión');
-            } catch (error) {
-                console.error('Error al abrir ventana de impresión:', error);
-                alert('❌ Error: ' + error.message);
-            }
-        }
-
-        // Nuevo modal para impresión sin ventanas emergentes
         function imprimirValeModal(vale) {
             const ticketHTML = generarHTMLTicket(vale);
             document.getElementById('ticketContent').innerHTML = ticketHTML;
@@ -1601,73 +1318,87 @@
             const monto = parseFloat(vale.monto || 0).toFixed(2);
             const folio = vale.folio || 'VZ000';
             const concepto = vale.concepto || 'POR ANTICIPO';
-            const vendedor = vale.vendedor_nombre || 'REFACCIONARIA';
-            const sucursal = vale.local_nombre || 'REFACCIONARIA OVIEDO';
+            const usuario = JSON.parse(localStorage.getItem('user') || '{}');
+            const usuarioNombre = usuario.name || usuario.username || 'REFACCIONARIA';
+            const sucursal = vale.local_nombre || usuarioNombre;
             const descripcion = vale.descripcion || '';
 
             return `
-                <div style="text-align: center; padding: 15px; font-family: 'Courier New', monospace; background: white;">
+                <div style="text-align: center; font-family: 'Courier New', monospace; background: white; margin: 0; padding: 0; width: 80mm; font-size: 10px;">
                     
                     <!-- Encabezado -->
-                    <div style="border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 10px;">
-                        <div style="font-size: 18px; font-weight: bold; letter-spacing: 2px;">VALE DE CANJE</div>
-                        <div style="font-size: 13px; font-weight: bold; margin-top: 5px;">REFACCIONARIA OVIEDO</div>
+                    <div style="padding: 8px 0; margin-bottom: 5px; border-bottom: 1px dashed #000;">
+                        <div style="font-size: 12px; font-weight: bold; letter-spacing: 3px; margin-bottom: 2px;">V A L E D E C A N J E</div>
+                        <div style="font-size: 9px; font-weight: bold;">${usuarioNombre}</div>
                     </div>
 
                     <!-- Datos de contacto -->
-                    <div style="font-size: 9px; line-height: 1.4; margin-bottom: 10px;">
+                    <div style="font-size: 7.5px; line-height: 1.3; margin-bottom: 5px; border-bottom: 1px dashed #000; padding-bottom: 5px;">
                         <div>LIBRAMIENTO SUR #717-B COL.</div>
                         <div>MAGISTERIAL, C.P. 37900.</div>
                         <div>SAN LUIS DE LA PAZ, GTO.</div>
-                        <div style="font-weight: bold; margin-top: 3px;">WhatsApp: 468 113 2367</div>
+                        <div style="font-size: 8px; font-weight: bold; margin-top: 2px;">WhatsApp: 468 113 2367</div>
+                        <div style="font-size: 7px; margin-top: 2px;">FECHA: ${fecha}</div>
                     </div>
 
-                    <!-- Sección central con detalles -->
-                    <div style="border: 2px solid #000; padding: 10px; margin-bottom: 10px; background: #fafafa;">
-                        <div style="font-size: 9px; margin-bottom: 5px;">
-                            <span style="font-weight: bold;">FECHA:</span> ${fecha}
-                        </div>
-                        <div style="text-align: center; margin-bottom: 8px;">
-                            <svg id="ticketBarcode" style="max-width: 100%; max-height: 40px;"></svg>
-                        </div>
-                        <div style="font-size: 10px; line-height: 1.5;">
-                            <div style="display: flex; justify-content: space-between;">
+                    <!-- Código de barras centrado y grande -->
+                    <div style="display: flex; justify-content: center; align-items: center; margin: 8px 0; padding: 5px 0; width: 100%;">
+                        <svg id="ticketBarcode" style="max-width: 90%; max-height: 45px; display: block; margin: 0 auto;"></svg>
+                    </div>
+
+                    <!-- Separador -->
+                    <div style="border-bottom: 1px dashed #000; margin: 5px 0; padding-bottom: 5px;"></div>
+
+                    <!-- Sección de detalles en recuadro -->
+                    <div style="border: 1px solid #000; padding: 5px; margin-bottom: 5px; background: #fafafa;">
+                        <div style="font-size: 9px; margin-bottom: 3px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
                                 <span style="font-weight: bold;">FOLIO:</span>
                                 <span style="font-weight: bold;">${folio}</span>
                             </div>
-                            <div style="display: flex; justify-content: space-between;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
                                 <span style="font-weight: bold;">MONTO:</span>
                                 <span style="font-weight: bold;">$${monto}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="font-weight: bold;">VENDEDOR:</span>
+                                <span style="font-weight: bold;">${usuarioNombre.toUpperCase().substring(0, 10)}</span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Vendedor -->
-                    <div style="margin-bottom: 10px; font-size: 10px;">
-                        <div style="font-size: 9px; font-weight: bold;">Vendedor</div>
-                        <div style="font-weight: bold; font-size: 11px;">${vendedor.toUpperCase()}</div>
-                    </div>
+                    <!-- Separador -->
+                    <div style="border-bottom: 1px dashed #000; margin: 5px 0; padding-bottom: 5px;"></div>
 
-                    <!-- Logo/Marca -->
-                    <div style="border-top: 2px solid #000; border-bottom: 2px solid #000; padding: 8px 0; margin: 10px 0; font-size: 12px; font-weight: bold; letter-spacing: 1px;">
+                    <!-- Logo/Marca compacto -->
+                    <div style="padding: 2px 0; margin: 3px 0; font-size: 6px; font-weight: bold;">
                         ⚙ REFACCIONARIA ⚙<br>
-                        <span style="font-size: 11px;">OVIEDO</span>
+                        <span style="font-size: 5px;">OVIEDO</span>
                     </div>
 
                     <!-- Lema -->
-                    <div style="font-size: 9px; font-style: italic; margin-bottom: 10px; line-height: 1.3;">
+                    <div style="font-size: 7.5px; font-style: italic; margin-bottom: 5px; line-height: 1.2;">
                         "NUESTRA EXPERIENCIA<br>
                         MARCA LA DIFERENCIA"
                     </div>
 
-                    <!-- Términos -->
-                    <div style="font-size: 8px; border-top: 1px dashed #000; padding-top: 8px; line-height: 1.4;">
-                        <div style="font-weight: bold; margin-bottom: 3px;">TÉRMINOS:</div>
+                    <!-- Términos compactos -->
+                    <div style="font-size: 7px; border-top: 1px dashed #000; border-bottom: 1px dashed #000; padding: 4px 0; line-height: 1.3; margin: 5px 0;">
+                        <div style="font-weight: bold; margin-bottom: 2px;">TÉRMINOS:</div>
                         <div>✓ Canjeble por productos únicamente</div>
                         <div>✓ No reembolsable en efectivo</div>
                         <div>✓ Válido por 30 días</div>
                     </div>
 
+                    <!-- Pie -->
+                    <div style="font-size: 6.5px; margin-top: 5px; padding-top: 5px; border-top: 1px dashed #000; line-height: 1.2;">
+                        <div>Impreso: ${new Date().toLocaleString('es-MX')}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
             const printModal = document.getElementById('printModal');
             if (printModal) {
                 printModal.addEventListener('click', function (e) {
@@ -1677,6 +1408,18 @@
                 });
             }
         });
+
+        function imprimirSoloTicket() {
+            window.print();
+        }
+
+        function cerrarTicketModal() {
+            const printModal = document.getElementById('printModal');
+            if (printModal) {
+                printModal.classList.remove('active');
+                document.getElementById('ticketContent').innerHTML = '';
+            }
+        }
     </script>
 </body>
 

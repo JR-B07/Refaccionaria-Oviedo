@@ -32,8 +32,14 @@ class Usuario(ModeloBase):
     clave_hash = Column(String(255), nullable=False)
     
     # Roles y permisos
-    rol = Column(Enum(RolUsuario), default=RolUsuario.VENDEDOR)
-    estado = Column(Enum(EstadoUsuario), default=EstadoUsuario.ACTIVO)
+    rol = Column(Enum(
+        RolUsuario,
+        values_callable=lambda enum_cls: [e.value for e in enum_cls]
+    ), default=RolUsuario.VENDEDOR)
+    estado = Column(Enum(
+        EstadoUsuario,
+        values_callable=lambda enum_cls: [e.value for e in enum_cls]
+    ), default=EstadoUsuario.ACTIVO)
     
     # Local asignado
     local_id = Column(Integer, ForeignKey("locales.id"))

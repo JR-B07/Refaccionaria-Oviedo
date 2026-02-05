@@ -5,8 +5,8 @@ from app.models.base import ModeloBase
 import enum
 
 class TipoVale(enum.Enum):
-    VENTA = "venta"
-    DEVOLUCION = "devolucion"
+    VENTA = "VENTA"
+    DEVOLUCION = "DEVOLUCION"
 
 class EstadoVale(enum.Enum):
     DISPONIBLE = "disponible"
