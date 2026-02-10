@@ -1,18 +1,18 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from typing import Optional, List
-from datetime import datetime
+from datetime import datetime, date
 from decimal import Decimal
 
 class CompraBase(BaseModel):
     folio: str
     factura: Optional[str] = None
-    fecha: datetime
+    fecha: date
     proveedor_id: int
     local_id: int
-    total: Decimal
-    subtotal: Optional[Decimal] = 0
-    descuento: Optional[Decimal] = 0
-    iva: Optional[Decimal] = 0
+    total: float
+    subtotal: Optional[float] = 0
+    descuento: Optional[float] = 0
+    iva: Optional[float] = 0
     notas: Optional[str] = None
     tipo_moneda: Optional[str] = "pesos"
     usuario_id: Optional[int] = None
@@ -23,14 +23,14 @@ class CompraCreate(CompraBase):
 class CompraUpdate(BaseModel):
     folio: Optional[str] = None
     factura: Optional[str] = None
-    fecha: Optional[datetime] = None
+    fecha: Optional[date] = None
     proveedor_id: Optional[int] = None
     local_id: Optional[int] = None
     estado: Optional[str] = None
-    total: Optional[Decimal] = None
-    subtotal: Optional[Decimal] = None
-    descuento: Optional[Decimal] = None
-    iva: Optional[Decimal] = None
+    total: Optional[float] = None
+    subtotal: Optional[float] = None
+    descuento: Optional[float] = None
+    iva: Optional[float] = None
     notas: Optional[str] = None
     tipo_moneda: Optional[str] = None
     usuario_id: Optional[int] = None

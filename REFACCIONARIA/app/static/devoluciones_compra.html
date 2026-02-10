@@ -557,13 +557,6 @@
         let todasLasDevoluciones = [];
         const token = localStorage.getItem('access_token');
 
-        const datosEjemplo = [
-            { folio: 'DEV-001', estado: 'Pendiente', factura: 'F-12345', proveedor: 'Suministros García', fecha: '2026-01-15', nota_credito: 'NC-5001', producto: '7-G SILICON', cantidad: 1, precio_unitario: 112, monto: 112, descripcion: 'Productos dañados' },
-            { folio: 'DEV-002', estado: 'Aprobada', factura: 'F-12334', proveedor: 'Distribuidora del Noreste', fecha: '2026-01-12', nota_credito: 'NC-5002', producto: 'FILTRO DE ACEITE', cantidad: 2, precio_unitario: 625, monto: 1250.00, descripcion: 'No se recibió completo' },
-            { folio: 'DEV-003', estado: 'Pendiente', factura: 'F-12301', proveedor: 'Suministros García', fecha: '2026-01-10', nota_credito: '', producto: 'BALATA DELANTERA', cantidad: 1, precio_unitario: 680, monto: 680.00, descripcion: 'Producto defectuoso' },
-            { folio: 'DEV-004', estado: 'Rechazada', factura: 'F-12289', proveedor: 'Distribuidora Regional', fecha: '2026-01-08', nota_credito: '', producto: 'AMORTIGUADOR', cantidad: 1, precio_unitario: 320, monto: 320.00, descripcion: 'Fuera de plazo' }
-        ];
-
         if (!token) {
             window.location.href = '/static/login.html';
         }
@@ -595,11 +588,6 @@
             const tbody = document.getElementById('devolucioesBody');
             tbody.innerHTML = '<tr><td colspan="7" class="loading">Cargando devoluciones...</td></tr>';
 
-            // Por ahora usamos datos de ejemplo ya que el endpoint de API no está disponible
-            todasLasDevoluciones = datosEjemplo;
-            mostrarDevoluciones(todasLasDevoluciones);
-
-            /* TODO: Descomentar cuando el endpoint de API esté disponible
             try {
                 let response = await fetch('/api/v1/devoluciones-compra', {
                     method: 'GET',
@@ -616,20 +604,20 @@
                     } else if (data.data && Array.isArray(data.data)) {
                         todasLasDevoluciones = data.data;
                     } else {
-                        todasLasDevoluciones = datosEjemplo;
+                        todasLasDevoluciones = [];
                     }
                 } else {
-                    todasLasDevoluciones = datosEjemplo;
+                    console.error('Error al cargar:', response.status);
+                    todasLasDevoluciones = [];
                 }
 
                 mostrarDevoluciones(todasLasDevoluciones);
 
             } catch (error) {
                 console.error('Error:', error);
-                todasLasDevoluciones = datosEjemplo;
-                mostrarDevoluciones(datosEjemplo);
+                todasLasDevoluciones = [];
+                tbody.innerHTML = '<tr><td colspan="7" class="no-results">Error al cargar devoluciones. Por favor recarga la página.</td></tr>';
             }
-            */
         }
 
         function mostrarDevoluciones(devoluciones) {
@@ -644,17 +632,20 @@
             for (var i = 0; i < devoluciones.length; i++) {
                 var d = devoluciones[i];
                 var badgeClass = 'badge-pendiente';
-                if (d.estado === 'Aprobada') badgeClass = 'badge-aprobada';
-                else if (d.estado === 'Rechazada') badgeClass = 'badge-rechazada';
+                var estadoDisplay = d.estado || '';
+
+                // Normalizar estado (el API puede devolver 'pendiente', 'aprobada', 'rechazada')
+                if (estadoDisplay.toLowerCase() === 'aprobada') badgeClass = 'badge-aprobada';
+                else if (estadoDisplay.toLowerCase() === 'rechazada') badgeClass = 'badge-rechazada';
 
                 var index = todasLasDevoluciones.indexOf(d);
 
                 html += '<tr>';
                 html += '<td><strong>' + (d.folio || '') + '</strong></td>';
-                html += '<td><span class="badge ' + badgeClass + '">' + (d.estado || '') + '</span></td>';
+                html += '<td><span class="badge ' + badgeClass + '">' + estadoDisplay + '</span></td>';
                 html += '<td>' + (d.factura || '') + '</td>';
-                html += '<td>' + (d.proveedor || '') + '</td>';
-                html += '<td>' + (d.fecha || '') + '</td>';
+                html += '<td>' + (d.proveedor_nombre || '-') + '</td>';
+                html += '<td>' + (d.fecha_devolucion || '') + '</td>';
                 html += '<td>' + (d.nota_credito || '-') + '</td>';
                 html += '<td><div class="actions-cell"><button class="btn-icon" onclick="imprimirTicketIndividual(todasLasDevoluciones[' + index + '])" title="Imprimir Ticket">🖨️</button><button class="btn-icon" onclick="editarDevolucion(' + index + ')" title="Editar">✏️</button><button class="btn-icon" onclick="eliminarDevolucion(' + index + ')" title="Eliminar">🗑️</button></div></td>';
                 html += '</tr>';
@@ -669,8 +660,8 @@
             document.getElementById('inputFolio').value = '';
             document.getElementById('inputFactura').value = '';
             document.getElementById('inputProveedor').value = '';
-            document.getElementById('inputEstado').value = 'Pendiente';
-            document.getElementById('inputFecha').value = '';
+            document.getElementById('inputEstado').value = 'pendiente';
+            document.getElementById('inputFecha').value = new Date().toISOString().split('T')[0];
             document.getElementById('inputNotaCredito').value = '';
             document.getElementById('inputProducto').value = '';
             document.getElementById('inputCantidad').value = '1';
@@ -691,14 +682,14 @@
             document.getElementById('modalTitulo').textContent = 'Editar Devolución';
             document.getElementById('inputFolio').value = d.folio || '';
             document.getElementById('inputFactura').value = d.factura || '';
-            document.getElementById('inputProveedor').value = d.proveedor || '';
-            document.getElementById('inputEstado').value = d.estado || 'Pendiente';
-            document.getElementById('inputFecha').value = d.fecha || '';
+            document.getElementById('inputProveedor').value = d.proveedor_id || '';
+            document.getElementById('inputEstado').value = d.estado || 'pendiente';
+            document.getElementById('inputFecha').value = d.fecha_devolucion || '';
             document.getElementById('inputNotaCredito').value = d.nota_credito || '';
-            document.getElementById('inputProducto').value = d.producto || '';
+            document.getElementById('inputProducto').value = d.producto_nombre || '';
             document.getElementById('inputCantidad').value = d.cantidad || 1;
             document.getElementById('inputPrecioUnitario').value = d.precio_unitario || '';
-            document.getElementById('inputMonto').value = d.monto || '';
+            document.getElementById('inputMonto').value = d.monto_total || '';
             document.getElementById('inputDescripcion').value = d.descripcion || '';
 
             document.getElementById('modalDevolucion').classList.add('show');
@@ -723,57 +714,123 @@
         function guardarDevolucion() {
             var folio = document.getElementById('inputFolio').value.trim();
             var factura = document.getElementById('inputFactura').value.trim();
-            var proveedor = document.getElementById('inputProveedor').value.trim();
+            var proveedor_id = document.getElementById('inputProveedor').value.trim();
             var producto = document.getElementById('inputProducto').value.trim();
             var cantidad = parseFloat(document.getElementById('inputCantidad').value);
             var precioUnitario = parseFloat(document.getElementById('inputPrecioUnitario').value);
             var estado = document.getElementById('inputEstado').value;
+            var fecha_devolucion = document.getElementById('inputFecha').value;
+            var nota_credito = document.getElementById('inputNotaCredito').value.trim();
+            var descripcion = document.getElementById('inputDescripcion').value.trim();
 
-            if (!folio || !factura || !proveedor || !producto || !cantidad || !precioUnitario) {
+            // Obtener local_id y usuario_id del localStorage
+            const local_id = localStorage.getItem('local_id') || 1;
+            const usuario_id = localStorage.getItem('usuario_id') || 1;
+
+            if (!folio || !factura || !producto || !cantidad || !precioUnitario || !fecha_devolucion) {
                 alert('Por favor completa los campos obligatorios');
                 return;
             }
 
-            if (deviolEditando !== null) {
-                var d = todasLasDevoluciones[deviolEditando];
-                d.folio = folio;
-                d.factura = factura;
-                d.proveedor = proveedor;
-                d.estado = estado;
-                d.fecha = document.getElementById('inputFecha').value;
-                d.nota_credito = document.getElementById('inputNotaCredito').value;
-                d.producto = producto;
-                d.cantidad = cantidad;
-                d.precio_unitario = precioUnitario;
-                d.monto = parseFloat(document.getElementById('inputMonto').value) || 0;
-                d.descripcion = document.getElementById('inputDescripcion').value;
-            } else {
-                var nuevaDevolucion = {
-                    folio: folio,
-                    factura: factura,
-                    proveedor: proveedor,
-                    estado: estado,
-                    fecha: document.getElementById('inputFecha').value,
-                    nota_credito: document.getElementById('inputNotaCredito').value,
-                    producto: producto,
-                    cantidad: cantidad,
-                    precio_unitario: precioUnitario,
-                    monto: parseFloat(document.getElementById('inputMonto').value) || 0,
-                    descripcion: document.getElementById('inputDescripcion').value
-                };
-                todasLasDevoluciones.unshift(nuevaDevolucion);
-            }
+            const monto_total = cantidad * precioUnitario;
+            const precio_unitario = precioUnitario;
 
-            mostrarDevoluciones(todasLasDevoluciones);
-            cerrarModal();
-            alert('✓ Devolución guardada correctamente');
+            const devolucionData = {
+                folio: folio,
+                factura: factura,
+                proveedor_id: proveedor_id ? parseInt(proveedor_id) : null,
+                estado: estado,
+                fecha_devolucion: fecha_devolucion,
+                nota_credito: nota_credito || null,
+                producto_nombre: producto,
+                cantidad: cantidad,
+                precio_unitario: precio_unitario,
+                monto_total: monto_total,
+                descripcion: descripcion || null,
+                local_id: parseInt(local_id),
+                usuario_id: parseInt(usuario_id)
+            };
+
+            if (deviolEditando !== null) {
+                // Actualizar devolución existente
+                var id = todasLasDevoluciones[deviolEditando].id;
+                fetch(`/api/v1/devoluciones-compra/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(devolucionData)
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            alert('✓ Devolución actualizada correctamente');
+                            cargarDevoluciones();
+                            cerrarModal();
+                        } else {
+                            alert('Error al actualizar la devolución');
+                            console.error('Error:', response.status);
+                        }
+                    })
+                    .catch(error => {
+                        alert('Error: ' + error.message);
+                        console.error('Error:', error);
+                    });
+            } else {
+                // Crear nueva devolución
+                fetch('/api/v1/devoluciones-compra', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(devolucionData)
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            alert('✓ Devolución guardada correctamente');
+                            cargarDevoluciones();
+                            cerrarModal();
+                        } else if (response.status === 400) {
+                            return response.json().then(err => {
+                                alert('Error: ' + (err.detail || 'Error desconocido'));
+                                throw new Error(err.detail);
+                            });
+                        } else {
+                            alert('Error al guardar la devolución (' + response.status + ')');
+                            console.error('Error:', response.status);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            }
         }
 
         function eliminarDevolucion(index) {
             if (confirm('¿Estás seguro de que deseas eliminar esta devolución?')) {
-                todasLasDevoluciones.splice(index, 1);
-                mostrarDevoluciones(todasLasDevoluciones);
-                alert('✓ Devolución eliminada correctamente');
+                var id = todasLasDevoluciones[index].id;
+
+                fetch(`/api/v1/devoluciones-compra/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            alert('✓ Devolución eliminada correctamente');
+                            cargarDevoluciones();
+                        } else {
+                            alert('Error al eliminar la devolución');
+                            console.error('Error:', response.status);
+                        }
+                    })
+                    .catch(error => {
+                        alert('Error: ' + error.message);
+                        console.error('Error:', error);
+                    });
             }
         }
 

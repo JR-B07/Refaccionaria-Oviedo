@@ -212,10 +212,12 @@
         .date-inputs {
             display: flex;
             gap: 20px;
+            flex-wrap: wrap;
         }
 
         .date-input {
             flex: 1;
+            min-width: 220px;
         }
 
         .date-input label {
@@ -590,6 +592,23 @@
                 <div class="options-container">
                     <div class="option-group">
                         <div class="option-title">
+                            <i class="fas fa-exchange-alt"></i> Tipo de Reporte
+                        </div>
+
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="radio" id="tipo-venta" name="tipo-reporte" checked>
+                                <label for="tipo-venta">Devoluciones de Venta</label>
+                            </div>
+
+                            <div class="checkbox-item">
+                                <input type="radio" id="tipo-compra" name="tipo-reporte">
+                                <label for="tipo-compra">Devoluciones de Compra</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="option-group">
+                        <div class="option-title">
                             <i class="far fa-calendar-alt"></i> Rango de Fechas
                         </div>
 
@@ -612,7 +631,7 @@
                         </div>
 
                         <div class="checkbox-group">
-                            <div class="checkbox-item">
+                            <div class="checkbox-item" id="sale-date-item">
                                 <input type="checkbox" id="sale-date" checked>
                                 <label for="sale-date">Fecha de Venta</label>
                             </div>
@@ -652,7 +671,7 @@
 
                             <div class="checkbox-item">
                                 <input type="radio" id="group-seller" name="grouping">
-                                <label for="group-seller">Agrupar por Vendedor</label>
+                                <label for="group-seller" id="group-seller-label">Agrupar por Vendedor</label>
                             </div>
                         </div>
                     </div>
@@ -666,18 +685,13 @@
                             <label for="branch">Sucursal:</label>
                             <select id="branch">
                                 <option value="all">Todas las sucursales</option>
-                                <option value="oviedo" selected>FILTROS Y LUBRICANTES</option>
                             </select>
                         </div>
 
                         <div class="select-input">
-                            <label for="seller">Vendedor:</label>
+                            <label for="seller" id="seller-label">Vendedor:</label>
                             <select id="seller">
                                 <option value="all">Todos los vendedores</option>
-                                <option value="cesar">CESAR MIGUEL</option>
-                                <option value="reinaldo">REINALDO OVIEDO</option>
-                                <option value="susana" selected>SUSANA HERNANDEZ PALOMINO</option>
-                                <option value="calixtro">CALIXTRO</option>
                             </select>
                         </div>
                     </div>
@@ -741,12 +755,48 @@
     </div>
 
     <script>
+        function obtenerTipoReporte() {
+            const isCompra = document.getElementById('tipo-compra').checked;
+            return isCompra ? 'compra' : 'venta';
+        }
+
+        function actualizarEtiquetas() {
+            const tipo = obtenerTipoReporte();
+            const label = document.getElementById('seller-label');
+            const select = document.getElementById('seller');
+            const saleDateItem = document.getElementById('sale-date-item');
+            const groupSellerLabel = document.getElementById('group-seller-label');
+
+            if (tipo === 'compra') {
+                label.textContent = 'Proveedor:';
+                select.innerHTML = '<option value="all">Todos los proveedores</option>';
+                cargarProveedores();
+                if (saleDateItem) {
+                    saleDateItem.style.display = 'none';
+                }
+                if (groupSellerLabel) {
+                    groupSellerLabel.textContent = 'Agrupar por Proveedor';
+                }
+            } else {
+                label.textContent = 'Vendedor:';
+                select.innerHTML = '<option value="all">Todos los vendedores</option>';
+                cargarVendedores();
+                if (saleDateItem) {
+                    saleDateItem.style.display = '';
+                }
+                if (groupSellerLabel) {
+                    groupSellerLabel.textContent = 'Agrupar por Vendedor';
+                }
+            }
+        }
+
         // Función para generar el reporte
         document.getElementById('generate-report').addEventListener('click', async function () {
             const fechaInicio = document.getElementById('date-from').value;
             const fechaFin = document.getElementById('date-to').value;
             const sucursal = document.getElementById('branch').value;
             const vendedor = document.getElementById('seller').value;
+            const tipoReporte = obtenerTipoReporte();
 
             // Mostrar loading
             const resultsContainer = document.getElementById('results-container');
@@ -769,7 +819,10 @@
                 }
 
                 // Construir URL con parámetros usando URL API
-                const url = new URL('/api/v1/reportes/devoluciones-detalladas', window.location.origin);
+                const endpoint = tipoReporte === 'compra'
+                    ? '/api/v1/reportes/devoluciones-compra-detalladas'
+                    : '/api/v1/reportes/devoluciones-detalladas';
+                const url = new URL(endpoint, window.location.origin);
                 url.searchParams.append('fecha_inicio', fechaInicio);
                 url.searchParams.append('fecha_fin', fechaFin);
 
@@ -777,7 +830,11 @@
                     url.searchParams.append('sucursal', sucursal);
                 }
                 if (vendedor !== 'all') {
-                    url.searchParams.append('vendedor', vendedor);
+                    if (tipoReporte === 'compra') {
+                        url.searchParams.append('proveedor', vendedor);
+                    } else {
+                        url.searchParams.append('vendedor', vendedor);
+                    }
                 }
 
                 // Llamada real a la API
@@ -904,16 +961,99 @@
             document.getElementById('selected-count').textContent = visibleCount;
         });
 
+        // Función para cargar sucursales desde la API
+        async function cargarSucursales() {
+            try {
+                const response = await fetch('/api/v1/locales');
+                if (response.ok) {
+                    const sucursales = await response.json();
+                    const selectSucursal = document.getElementById('branch');
+
+                    // Limpiar opciones existentes excepto "Todas las sucursales"
+                    selectSucursal.innerHTML = '<option value="all">Todas las sucursales</option>';
+
+                    // Agregar sucursales de la BD
+                    sucursales.forEach(sucursal => {
+                        const option = document.createElement('option');
+                        option.value = sucursal.nombre.toLowerCase();
+                        option.textContent = sucursal.nombre.toUpperCase();
+                        selectSucursal.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error al cargar sucursales:', error);
+            }
+        }
+
+        // Función para cargar vendedores desde la API
+        async function cargarVendedores() {
+            try {
+                const response = await fetch('/api/v1/usuarios/?skip=0&limit=100');
+                if (response.ok) {
+                    const usuarios = await response.json();
+                    const selectVendedor = document.getElementById('seller');
+
+                    // Limpiar opciones existentes excepto "Todos los vendedores"
+                    selectVendedor.innerHTML = '<option value="all">Todos los vendedores</option>';
+
+                    // Agregar vendedores de la BD
+                    usuarios.forEach(usuario => {
+                        const option = document.createElement('option');
+                        option.value = usuario.nombre_usuario || usuario.nombre;
+                        const nombreCompleto = usuario.nombre_completo || usuario.nombre;
+                        option.textContent = nombreCompleto.toUpperCase();
+                        selectVendedor.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error al cargar vendedores:', error);
+            }
+        }
+
+        // Función para cargar proveedores desde la API
+        async function cargarProveedores() {
+            try {
+                const response = await fetch('/api/v1/proveedores');
+                if (response.ok) {
+                    const proveedores = await response.json();
+                    const selectProveedor = document.getElementById('seller');
+
+                    // Limpiar opciones existentes excepto "Todos los proveedores"
+                    selectProveedor.innerHTML = '<option value="all">Todos los proveedores</option>';
+
+                    // Agregar proveedores de la BD
+                    proveedores.forEach(proveedor => {
+                        const option = document.createElement('option');
+                        option.value = proveedor.nombre || proveedor.razon_social || '';
+                        option.textContent = (proveedor.nombre || proveedor.razon_social || '').toUpperCase();
+                        if (option.value) {
+                            selectProveedor.appendChild(option);
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error al cargar proveedores:', error);
+            }
+        }
+
         // Establecer fecha de hoy en el campo "hasta"
         document.addEventListener('DOMContentLoaded', function () {
             const today = new Date();
             const formattedToday = today.toISOString().split('T')[0];
             document.getElementById('date-to').value = formattedToday;
 
+            // Cargar sucursales y opciones segun tipo
+            cargarSucursales();
+            actualizarEtiquetas();
+
+            document.getElementById('tipo-venta').addEventListener('change', actualizarEtiquetas);
+            document.getElementById('tipo-compra').addEventListener('change', actualizarEtiquetas);
+
             // Mostrar sucursal
             const sucursalNombre = localStorage.getItem('sucursal_nombre');
-            if (sucursalNombre) {
-                document.getElementById('sucursalBadge').textContent = sucursalNombre;
+            const sucursalBadge = document.getElementById('sucursalBadge');
+            if (sucursalNombre && sucursalBadge) {
+                sucursalBadge.textContent = sucursalNombre;
             }
 
             // Verificar autenticación

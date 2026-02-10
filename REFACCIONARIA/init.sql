@@ -79,6 +79,30 @@ CREATE TABLE IF NOT EXISTS usuarios (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ================================================================
+-- EMPLEADOS (CATÁLOGO DE EMPLEADOS)
+-- ================================================================
+
+CREATE TABLE IF NOT EXISTS empleados (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(150) NOT NULL,
+    puesto VARCHAR(100) NOT NULL,
+    departamento VARCHAR(100),
+    sucursal VARCHAR(100),
+    organizacion VARCHAR(150),
+    fecha_alta DATE,
+    fecha_baja DATE,
+    activo BOOLEAN DEFAULT TRUE,
+    notas TEXT,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_nombre (nombre),
+    INDEX idx_puesto (puesto),
+    INDEX idx_activo (activo),
+    INDEX idx_departamento (departamento),
+    INDEX idx_sucursal (sucursal)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ================================================================
 -- CATÁLOGO DE MARCAS
 -- ================================================================
 

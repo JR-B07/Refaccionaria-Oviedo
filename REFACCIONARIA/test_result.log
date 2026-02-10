@@ -1,0 +1,204 @@
+======================================================================
+PRUEBAS DEL ENDPOINT DE EMPLEADOS
+======================================================================
+
+1️⃣ GET /api/v1/empleados (listar)
+Status: 200
+Respuesta: [
+  {
+    "nombre": "JUAN CARLOS GARCÍA",
+    "puesto": "GERENTE GENERAL",
+    "departamento": "ADMINISTRACIÓN",
+    "sucursal": "MATRIZ",
+    "organizacion": "REFACCIONARIA OVIEDO",
+    "fecha_alta": "2015-03-15",
+    "fecha_baja": null,
+    "activo": true,
+    "notas": "Empleado activo",
+    "id": 1,
+    "fecha_creacion": "2026-02-09T20:23:39",
+    "fecha_actualizacion": null
+  },
+  {
+    "nombre": "MARÍA RODRÍGUEZ",
+    "puesto": "VENDEDOR",
+    "departamento": "VENTAS",
+    "sucursal": "MATRIZ",
+    "organizacion": "REFACCIONARIA OVIEDO",
+    "fecha_alta": "2018-07-22",
+    "fecha_baja": null,
+    "activo": true,
+    "notas": "Vendedor senior",
+    "id": 2,
+    "fecha_creacion": "2026-02-09T20:23:39",
+    "fecha_actualizacion": null
+  },
+  {
+    "nombre": "LUIS MARTÍNEZ",
+    "puesto": "ALMACENISTA",
+    "departamento": "LOGÍSTICA",
+    "sucursal": "CEDIS",
+    "organizacion": "REFACCIONARIA OVIEDO",
+    "fecha_alta": "2019-01-10",
+    "fecha_baja": null,
+    "activo": true,
+    "notas": "Responsable del almacén",
+    "id": 3,
+    "fecha_creacion": "2026-02-09T20:23:39",
+    "fecha_actualizacion": null
+  },
+  {
+    "nombre": "SANDRA TORRES",
+    "puesto": "CAJERO",
+    "departamento": "TESORERÍA",
+    "sucursal": "MATRIZ",
+    "organizacion": "REFACCIONARIA OVIEDO",
+    "fecha_alta": "2020-05-03",
+    "fecha_baja": null,
+    "activo": true,
+    "notas": "Manejo de caja",
+    "id": 4,
+    "fecha_creacion": "2026-02-09T20:23:39",
+    "fecha_actualizacion": null
+  },
+  {
+    "nombre": "CARLOS HERNÁNDEZ",
+    "puesto": "REPARTIDOR",
+    "departamento": "LOGÍSTICA",
+    "sucursal": "CEDIS",
+    "organizacion": "REFACCIONARIA OVIEDO",
+    "fecha_alta": "2020-11-02",
+    "fecha_baja": "2024-01-10",
+    "activo": false,
+    "notas": "Baja voluntaria",
+    "id": 5,
+    "fecha_creacion": "2026-02-09T20:23:39",
+    "fecha_actualizacion": null
+  },
+  {
+    "nombre": "ALFREDO PEREZ",
+    "puesto": "REPARTIDOR",
+    "departamento": "LOGISTICA",
+    "sucursal": "CEDIS",
+    "organizacion": "REFACCIONARIA OVIEDO",
+    "fecha_alta": "2020-11-02",
+    "fecha_baja": "2024-01-10",
+    "activo": false,
+    "notas": "Baja voluntaria",
+    "id": 6,
+    "fecha_creacion": "2026-02-09T20:23:39",
+    "fecha_actualizacion": null
+  },
+  {
+    "nombre": "JUAN PÉREZ",
+    "puesto": "GERENTE VENTAS",
+    "departamento": "VENTAS",
+    "sucursal": "MATRIZ",
+    "organizacion": "REFACCIONARIA OVIEDO",
+    "fecha_alta": "2024-01-15",
+    "fecha_baja": null,
+    "activo": true,
+    "notas": "Empleado activo",
+    "id": 7,
+    "fecha_creacion": "2026-02-09T20:27:18",
+    "fecha_actualizacion": "2026-02-09T20:27:22"
+  }
+]
+
+2️⃣ POST /api/v1/empleados (crear)
+Status: 201
+Respuesta: {
+  "nombre": "JUAN PÉREZ",
+  "puesto": "VENDEDOR",
+  "departamento": "VENTAS",
+  "sucursal": "MATRIZ",
+  "organizacion": "REFACCIONARIA OVIEDO",
+  "fecha_alta": "2024-01-15",
+  "fecha_baja": null,
+  "activo": true,
+  "notas": "Empleado activo",
+  "id": 8,
+  "fecha_creacion": "2026-02-09T20:34:23",
+  "fecha_actualizacion": null
+}
+
+3️⃣ GET /api/v1/empleados/8 (obtener por ID)
+Status: 200
+Respuesta: {
+  "nombre": "JUAN PÉREZ",
+  "puesto": "VENDEDOR",
+  "departamento": "VENTAS",
+  "sucursal": "MATRIZ",
+  "organizacion": "REFACCIONARIA OVIEDO",
+  "fecha_alta": "2024-01-15",
+  "fecha_baja": null,
+  "activo": true,
+  "notas": "Empleado activo",
+  "id": 8,
+  "fecha_creacion": "2026-02-09T20:34:23",
+  "fecha_actualizacion": null
+}
+
+4️⃣ PUT /api/v1/empleados/8 (actualizar)
+Status: 200
+Respuesta: {
+  "nombre": "JUAN PÉREZ",
+  "puesto": "GERENTE VENTAS",
+  "departamento": "VENTAS",
+  "sucursal": "MATRIZ",
+  "organizacion": "REFACCIONARIA OVIEDO",
+  "fecha_alta": "2024-01-15",
+  "fecha_baja": null,
+  "activo": true,
+  "notas": "Empleado activo",
+  "id": 8,
+  "fecha_creacion": "2026-02-09T20:34:23",
+  "fecha_actualizacion": "2026-02-09T20:34:27"
+}
+
+5️⃣ GET /api/v1/empleados?nombre=JUAN (filtrar)
+Status: 200
+Respuesta: [
+  {
+    "nombre": "JUAN CARLOS GARCÍA",
+    "puesto": "GERENTE GENERAL",
+    "departamento": "ADMINISTRACIÓN",
+    "sucursal": "MATRIZ",
+    "organizacion": "REFACCIONARIA OVIEDO",
+    "fecha_alta": "2015-03-15",
+    "fecha_baja": null,
+    "activo": true,
+    "notas": "Empleado activo",
+    "id": 1,
+    "fecha_creacion": "2026-02-09T20:23:39",
+    "fecha_actualizacion": null
+  },
+  {
+    "nombre": "JUAN PÉREZ",
+    "puesto": "GERENTE VENTAS",
+    "departamento": "VENTAS",
+    "sucursal": "MATRIZ",
+    "organizacion": "REFACCIONARIA OVIEDO",
+    "fecha_alta": "2024-01-15",
+    "fecha_baja": null,
+    "activo": true,
+    "notas": "Empleado activo",
+    "id": 7,
+    "fecha_creacion": "2026-02-09T20:27:18",
+    "fecha_actualizacion": "2026-02-09T20:27:22"
+  },
+  {
+    "nombre": "JUAN PÉREZ",
+    "puesto": "GERENTE VENTAS",
+    "departamento": "VENTAS",
+    "sucursal": "MATRIZ",
+    "organizacion": "REFACCIONARIA OVIEDO",
+    "fecha_alta": "2024-01-15",
+    "fecha_baja": null,
+    "activo": true,
+    "notas": "Empleado activo",
+    "id": 8,
+    "fecha_creacion": "2026-02-09T20:34:23",
+    "fecha_actualizacion": "2026-02-09T20:34:27"
+  }
+]

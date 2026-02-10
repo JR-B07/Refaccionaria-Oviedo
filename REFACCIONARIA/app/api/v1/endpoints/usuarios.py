@@ -39,8 +39,28 @@ async def listar_usuarios(
     """
     try:
         usuarios = usuario_crud.obtener_activos(db, skip=skip, limit=limit)
-        return usuarios
+        # Retornar lista de diccionarios en lugar de objetos ORM
+        resultado = []
+        for u in usuarios:
+            resultado.append({
+                'id': u.id,
+                'nombre': u.nombre,
+                'apellido_paterno': u.apellido_paterno or '',
+                'apellido_materno': u.apellido_materno or '',
+                'email': u.email,
+                'telefono': u.telefono or '',
+                'nombre_usuario': u.nombre_usuario,
+                'rol': u.rol.value if hasattr(u.rol, 'value') else str(u.rol),
+                'estado': u.estado.value if hasattr(u.estado, 'value') else str(u.estado),
+                'local_id': u.local_id,
+                'fecha_creacion': u.fecha_creacion,
+                'ultimo_login': u.ultimo_login,
+                'nombre_completo': u.nombre_completo  # Agregar nombre completo
+            })
+        return resultado
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error al obtener usuarios: {str(e)}"

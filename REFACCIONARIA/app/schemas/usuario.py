@@ -75,9 +75,17 @@ class UsuarioCambioClave(BaseModel):
             raise ValueError('Las claves nuevas no coinciden')
         return v
 
-class UsuarioResponse(UsuarioBase):
+class UsuarioResponse(BaseModel):
     id: int
+    nombre: str
+    apellido_paterno: Optional[str] = None
+    apellido_materno: Optional[str] = None
+    email: str  # Cambiar de EmailStr a str para permitir dominios especiales como .local
+    telefono: Optional[str] = None
+    nombre_usuario: str
+    rol: RolUsuario
     estado: EstadoUsuario
+    local_id: Optional[int] = None
     fecha_creacion: datetime
     ultimo_login: Optional[datetime]
     
