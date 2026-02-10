@@ -1,680 +1,1157 @@
--- ================================================================
--- BASE DE DATOS REFACCIONARIA OVIEDO
--- Sistema completo de gestión de refacciones automotrices
--- Última actualización: Febrero 2026
--- ================================================================
+-- phpMyAdmin SQL Dump
+-- version 5.2.2
+-- https://www.phpmyadmin.net/
+--
+-- Servidor: localhost:3306
+-- Tiempo de generación: 10-02-2026 a las 04:25:34
+-- Versión del servidor: 8.0.30
+-- Versión de PHP: 8.2.28
 
-CREATE DATABASE IF NOT EXISTS refaccionaria_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
 
-USE refaccionaria_db;
 
--- ================================================================
--- CONFIGURACIÓN DEL SISTEMA
--- ================================================================
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
 
-CREATE TABLE IF NOT EXISTS configuracion_sistema (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    clave VARCHAR(100) UNIQUE NOT NULL,
-    valor TEXT,
-    tipo VARCHAR(50),
-    descripcion TEXT,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_clave (clave)
+--
+-- Base de datos: `refaccionaria_db`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `arqueos_caja`
+--
+
+CREATE TABLE `arqueos_caja` (
+  `caja` varchar(50) NOT NULL,
+  `local_id` int NOT NULL,
+  `usuario_id` int NOT NULL,
+  `fecha_arqueo` datetime DEFAULT CURRENT_TIMESTAMP,
+  `turno` varchar(50) DEFAULT NULL,
+  `efectivo_declarado` decimal(12,2) DEFAULT NULL,
+  `retiros_declarado` decimal(12,2) DEFAULT NULL,
+  `cheque_declarado` decimal(12,2) DEFAULT NULL,
+  `tarjeta_declarado` decimal(12,2) DEFAULT NULL,
+  `debito_declarado` decimal(12,2) DEFAULT NULL,
+  `deposito_declarado` decimal(12,2) DEFAULT NULL,
+  `credito_declarado` decimal(12,2) DEFAULT NULL,
+  `vale_declarado` decimal(12,2) DEFAULT NULL,
+  `lealtad_declarado` decimal(12,2) DEFAULT NULL,
+  `efectivo_contado` decimal(12,2) DEFAULT NULL,
+  `retiros_contado` decimal(12,2) DEFAULT NULL,
+  `cheque_contado` decimal(12,2) DEFAULT NULL,
+  `tarjeta_contado` decimal(12,2) DEFAULT NULL,
+  `debito_contado` decimal(12,2) DEFAULT NULL,
+  `deposito_contado` decimal(12,2) DEFAULT NULL,
+  `credito_contado` decimal(12,2) DEFAULT NULL,
+  `vale_contado` decimal(12,2) DEFAULT NULL,
+  `lealtad_contado` decimal(12,2) DEFAULT NULL,
+  `diferencia_efectivo` decimal(12,2) DEFAULT NULL,
+  `diferencia_retiros` decimal(12,2) DEFAULT NULL,
+  `diferencia_cheque` decimal(12,2) DEFAULT NULL,
+  `diferencia_tarjeta` decimal(12,2) DEFAULT NULL,
+  `diferencia_debito` decimal(12,2) DEFAULT NULL,
+  `diferencia_deposito` decimal(12,2) DEFAULT NULL,
+  `diferencia_credito` decimal(12,2) DEFAULT NULL,
+  `diferencia_vale` decimal(12,2) DEFAULT NULL,
+  `diferencia_lealtad` decimal(12,2) DEFAULT NULL,
+  `total_declarado` decimal(12,2) DEFAULT NULL,
+  `total_contado` decimal(12,2) DEFAULT NULL,
+  `diferencia_total` decimal(12,2) DEFAULT NULL,
+  `observaciones` text,
+  `reconciliado` tinyint(1) DEFAULT NULL,
+  `responsable_reconciliacion` varchar(255) DEFAULT NULL,
+  `id` int NOT NULL,
+  `fecha_creacion` datetime DEFAULT CURRENT_TIMESTAMP,
+  `fecha_actualizacion` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Registro de arqueos (conciliación) de cajas';
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `asistencia_empleados`
+--
+
+CREATE TABLE `asistencia_empleados` (
+  `nombre` varchar(150) NOT NULL,
+  `sucursal` varchar(100) DEFAULT NULL,
+  `fecha` date NOT NULL,
+  `entrada` time DEFAULT NULL,
+  `comida` time DEFAULT NULL,
+  `regreso` time DEFAULT NULL,
+  `salida` time DEFAULT NULL,
+  `id` int NOT NULL,
+  `fecha_creacion` datetime DEFAULT CURRENT_TIMESTAMP,
+  `fecha_actualizacion` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `cierres_caja`
+--
+
+CREATE TABLE `cierres_caja` (
+  `caja` varchar(50) NOT NULL,
+  `local_id` int NOT NULL,
+  `usuario_id` int NOT NULL,
+  `efectivo` decimal(12,2) DEFAULT NULL,
+  `cheque` decimal(12,2) DEFAULT NULL,
+  `tarjeta` decimal(12,2) DEFAULT NULL,
+  `debito` decimal(12,2) DEFAULT NULL,
+  `deposito` decimal(12,2) DEFAULT NULL,
+  `credito` decimal(12,2) DEFAULT NULL,
+  `vale` decimal(12,2) DEFAULT NULL,
+  `lealtad` decimal(12,2) DEFAULT NULL,
+  `retiros` decimal(12,2) DEFAULT NULL,
+  `total_ingresos` decimal(12,2) DEFAULT NULL,
+  `total_cierre` decimal(12,2) DEFAULT NULL,
+  `id` int NOT NULL,
+  `fecha_creacion` datetime DEFAULT CURRENT_TIMESTAMP,
+  `fecha_actualizacion` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `clientes`
+--
+
+CREATE TABLE `clientes` (
+  `alias` varchar(100) DEFAULT NULL,
+  `nombre` varchar(200) NOT NULL,
+  `apellido_paterno` varchar(100) DEFAULT NULL,
+  `apellido_materno` varchar(100) DEFAULT NULL,
+  `email` varchar(100) DEFAULT NULL,
+  `telefono` varchar(20) DEFAULT NULL,
+  `rfc` varchar(13) DEFAULT NULL,
+  `tipo_figura` varchar(50) DEFAULT NULL,
+  `razon_social` varchar(200) DEFAULT NULL,
+  `calle` varchar(200) DEFAULT NULL,
+  `numero` varchar(20) DEFAULT NULL,
+  `colonia` varchar(100) DEFAULT NULL,
+  `ciudad` varchar(100) DEFAULT NULL,
+  `estado` varchar(100) DEFAULT NULL,
+  `codigo_postal` varchar(10) DEFAULT NULL,
+  `activo` tinyint(1) DEFAULT NULL,
+  `local_id` int DEFAULT NULL,
+  `id` int NOT NULL,
+  `fecha_creacion` datetime DEFAULT CURRENT_TIMESTAMP,
+  `fecha_actualizacion` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `compras`
+--
+
+CREATE TABLE `compras` (
+  `folio` varchar(50) NOT NULL,
+  `factura` varchar(100) DEFAULT NULL,
+  `estado` enum('PENDIENTE','COMPLETO','CANCELADO','PARCIAL') DEFAULT NULL,
+  `fecha` datetime NOT NULL,
+  `proveedor_id` int NOT NULL,
+  `local_id` int NOT NULL,
+  `usuario_id` int DEFAULT NULL,
+  `subtotal` decimal(10,2) DEFAULT NULL,
+  `descuento` decimal(10,2) DEFAULT NULL,
+  `iva` decimal(10,2) DEFAULT NULL,
+  `total` decimal(10,2) NOT NULL,
+  `notas` text,
+  `tipo_moneda` varchar(20) DEFAULT NULL,
+  `id` int NOT NULL,
+  `fecha_creacion` datetime DEFAULT CURRENT_TIMESTAMP,
+  `fecha_actualizacion` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `configuracion_sistema`
+--
+
+CREATE TABLE `configuracion_sistema` (
+  `id` int NOT NULL,
+  `clave` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `valor` text COLLATE utf8mb4_unicode_ci,
+  `tipo` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `descripcion` text COLLATE utf8mb4_unicode_ci,
+  `fecha_creacion` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `fecha_actualizacion` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Insertar configuraciones iniciales
-INSERT INTO configuracion_sistema (clave, valor, tipo, descripcion) VALUES
-('empresa_nombre', 'Refaccionaria Automotriz', 'string', 'Nombre de la empresa'),
-('empresa_rfc', 'XAXX010101000', 'string', 'RFC de la empresa'),
-('empresa_direccion', 'Calle Principal #123', 'string', 'Dirección fiscal'),
-('iva_porcentaje', '16', 'decimal', 'Porcentaje de IVA'),
-('ticket_mensaje', 'Gracias por su compra', 'string', 'Mensaje en ticket'),
-('stock_minimo_global', '5', 'integer', 'Stock mínimo global para alertas'),
-('ventas_folio_inicial', '1000', 'integer', 'Número inicial para folios')
-ON DUPLICATE KEY UPDATE valor=VALUES(valor);
+--
+-- Volcado de datos para la tabla `configuracion_sistema`
+--
 
--- ================================================================
--- LOCALES / SUCURSALES
--- ================================================================
+INSERT INTO `configuracion_sistema` (`id`, `clave`, `valor`, `tipo`, `descripcion`, `fecha_creacion`, `fecha_actualizacion`) VALUES
+(1, 'empresa_nombre', 'Refaccionaria Automotriz', 'string', 'Nombre de la empresa', '2026-02-10 04:24:04', '2026-02-10 04:24:04'),
+(2, 'empresa_rfc', 'XAXX010101000', 'string', 'RFC de la empresa', '2026-02-10 04:24:04', '2026-02-10 04:24:04'),
+(3, 'empresa_direccion', 'Calle Principal #123', 'string', 'Dirección fiscal', '2026-02-10 04:24:04', '2026-02-10 04:24:04'),
+(4, 'iva_porcentaje', '16', 'decimal', 'Porcentaje de IVA', '2026-02-10 04:24:04', '2026-02-10 04:24:04'),
+(5, 'ticket_mensaje', 'Gracias por su compra', 'string', 'Mensaje en ticket', '2026-02-10 04:24:04', '2026-02-10 04:24:04'),
+(6, 'stock_minimo_global', '5', 'integer', 'Stock mínimo global para alertas', '2026-02-10 04:24:04', '2026-02-10 04:24:04'),
+(7, 'ventas_folio_inicial', '1000', 'integer', 'Número inicial para folios', '2026-02-10 04:24:04', '2026-02-10 04:24:04');
 
-CREATE TABLE IF NOT EXISTS locales (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    nombre VARCHAR(100) NOT NULL,
-    direccion VARCHAR(200),
-    telefono VARCHAR(20),
-    email VARCHAR(100),
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_nombre (nombre)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- --------------------------------------------------------
 
--- ================================================================
--- USUARIOS Y AUTENTICACIÓN
--- ================================================================
+--
+-- Estructura de tabla para la tabla `detalle_compras`
+--
 
-CREATE TABLE IF NOT EXISTS usuarios (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    nombre VARCHAR(100) NOT NULL,
-    apellido_paterno VARCHAR(100),
-    apellido_materno VARCHAR(100),
-    email VARCHAR(100) UNIQUE NOT NULL,
-    telefono VARCHAR(20),
-    nombre_usuario VARCHAR(50) UNIQUE NOT NULL,
-    clave_hash VARCHAR(255) NOT NULL,
-    rol ENUM('administrador', 'gerente', 'vendedor', 'almacenista', 'cajero') DEFAULT 'vendedor',
-    estado ENUM('activo', 'inactivo', 'suspendido') DEFAULT 'activo',
-    local_id INT,
-    ultimo_login DATETIME,
-    intentos_fallidos INT DEFAULT 0,
-    bloqueado_hasta DATETIME,
-    debe_cambiar_clave BOOLEAN DEFAULT TRUE,
-    tema_interfaz VARCHAR(20) DEFAULT 'claro',
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (local_id) REFERENCES locales(id) ON DELETE SET NULL,
-    INDEX idx_nombre_usuario (nombre_usuario),
-    INDEX idx_email (email),
-    INDEX idx_local (local_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `detalle_compras` (
+  `compra_id` int NOT NULL,
+  `producto_id` int NOT NULL,
+  `cantidad` int NOT NULL,
+  `precio_unitario` decimal(10,2) NOT NULL,
+  `descuento` decimal(10,2) DEFAULT NULL,
+  `importe` decimal(10,2) NOT NULL,
+  `id` int NOT NULL,
+  `fecha_creacion` datetime DEFAULT CURRENT_TIMESTAMP,
+  `fecha_actualizacion` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- ================================================================
--- CATÁLOGO DE MARCAS
--- ================================================================
+-- --------------------------------------------------------
 
-CREATE TABLE IF NOT EXISTS marcas (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    nombre VARCHAR(100) UNIQUE NOT NULL,
-    pais_origen VARCHAR(100),
-    activo INT DEFAULT 1,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_nombre (nombre)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+--
+-- Estructura de tabla para la tabla `detalle_traspasos`
+--
 
--- ================================================================
--- PRODUCTOS
--- ================================================================
+CREATE TABLE `detalle_traspasos` (
+  `traspaso_id` int NOT NULL,
+  `producto_id` int NOT NULL,
+  `cantidad` int NOT NULL,
+  `cantidad_enviada` int DEFAULT NULL,
+  `cantidad_recibida` int DEFAULT NULL,
+  `id` int NOT NULL,
+  `fecha_creacion` datetime DEFAULT CURRENT_TIMESTAMP,
+  `fecha_actualizacion` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE IF NOT EXISTS productos (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    codigo VARCHAR(50) UNIQUE NOT NULL,
-    codigo_barras VARCHAR(100) UNIQUE,
-    nombre VARCHAR(200) NOT NULL,
-    descripcion TEXT,
-    marca VARCHAR(100),
-    modelo VARCHAR(100),
-    categoria VARCHAR(100),
-    precio_compra DECIMAL(10, 2) NOT NULL,
-    precio_venta DECIMAL(10, 2) NOT NULL,
-    precio_venta_credito DECIMAL(10, 2),
-    stock_total INT DEFAULT 0,
-    stock_minimo INT DEFAULT 5,
-    ubicacion_estante VARCHAR(50),
-    ubicacion_fila VARCHAR(10),
-    ubicacion_columna VARCHAR(10),
-    compatibilidad JSON,
-    año_inicio INT,
-    año_fin INT,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_codigo (codigo),
-    INDEX idx_codigo_barras (codigo_barras),
-    INDEX idx_nombre (nombre),
-    INDEX idx_marca (marca),
-    INDEX idx_categoria (categoria)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- --------------------------------------------------------
 
--- ================================================================
--- INVENTARIO POR LOCAL
--- ================================================================
+--
+-- Estructura de tabla para la tabla `detalle_ventas`
+--
 
-CREATE TABLE IF NOT EXISTS inventario_local (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    producto_id INT NOT NULL,
-    local_id INT NOT NULL,
-    stock INT DEFAULT 0,
-    stock_reservado INT DEFAULT 0,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE,
-    FOREIGN KEY (local_id) REFERENCES locales(id) ON DELETE CASCADE,
-    UNIQUE KEY uq_producto_local (producto_id, local_id),
-    INDEX idx_producto (producto_id),
-    INDEX idx_local (local_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `detalle_ventas` (
+  `venta_id` int NOT NULL,
+  `producto_id` int NOT NULL,
+  `local_id` int NOT NULL,
+  `cantidad` int NOT NULL,
+  `precio_unitario` decimal(10,2) NOT NULL,
+  `descuento` decimal(10,2) DEFAULT NULL,
+  `importe` decimal(10,2) NOT NULL,
+  `id` int NOT NULL,
+  `fecha_creacion` datetime DEFAULT CURRENT_TIMESTAMP,
+  `fecha_actualizacion` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- ================================================================
--- CLIENTES
--- ================================================================
+-- --------------------------------------------------------
 
-CREATE TABLE IF NOT EXISTS clientes (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    alias VARCHAR(100),
-    nombre VARCHAR(200) NOT NULL,
-    apellido_paterno VARCHAR(100),
-    apellido_materno VARCHAR(100),
-    email VARCHAR(100) UNIQUE,
-    telefono VARCHAR(20),
-    rfc VARCHAR(13) UNIQUE,
-    tipo_figura VARCHAR(50) DEFAULT 'Persona Física',
-    razon_social VARCHAR(200),
-    calle VARCHAR(200),
-    numero VARCHAR(20),
-    colonia VARCHAR(100),
-    ciudad VARCHAR(100),
-    estado VARCHAR(100),
-    codigo_postal VARCHAR(10),
-    activo BOOLEAN DEFAULT TRUE,
-    local_id INT,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (local_id) REFERENCES locales(id) ON DELETE SET NULL,
-    INDEX idx_nombre (nombre),
-    INDEX idx_email (email),
-    INDEX idx_rfc (rfc),
-    INDEX idx_alias (alias)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+--
+-- Estructura de tabla para la tabla `gastos`
+--
 
--- ================================================================
--- PROVEEDORES
--- ================================================================
+CREATE TABLE `gastos` (
+  `id` int NOT NULL,
+  `folio` varchar(50) NOT NULL,
+  `estado` enum('PENDIENTE','PAGADO','CANCELADO') NOT NULL,
+  `fecha` datetime NOT NULL,
+  `total` float NOT NULL,
+  `categoria` varchar(100) NOT NULL,
+  `factura` varchar(50) DEFAULT NULL,
+  `usuario` varchar(150) NOT NULL,
+  `sucursal_origen` varchar(100) NOT NULL,
+  `departamento` varchar(100) NOT NULL,
+  `proveedor` varchar(150) DEFAULT NULL,
+  `sucursal_destino` varchar(100) DEFAULT NULL,
+  `descripcion` text,
+  `fecha_creacion` datetime NOT NULL,
+  `fecha_actualizacion` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE IF NOT EXISTS proveedores (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    clave VARCHAR(50) UNIQUE NOT NULL,
-    nombre VARCHAR(200) NOT NULL,
-    rfc VARCHAR(20),
-    web VARCHAR(200),
-    calle VARCHAR(200),
-    numero_exterior VARCHAR(20),
-    numero_interior VARCHAR(20),
-    colonia VARCHAR(100),
-    codigo_postal VARCHAR(10),
-    municipio VARCHAR(100),
-    estado VARCHAR(100),
-    ciudad VARCHAR(100),
-    pais VARCHAR(100) DEFAULT 'MEXICO',
-    contacto_compras_nombre VARCHAR(100),
-    contacto_compras_email VARCHAR(100),
-    contacto_compras_telefono VARCHAR(20),
-    lista_precios_compra VARCHAR(100),
-    dias_entrega INT DEFAULT 0,
-    tipo_moneda ENUM('pesos', 'dolares') DEFAULT 'pesos',
-    descuento_factura DECIMAL(5, 2) DEFAULT 0,
-    descuento_listas_precio DECIMAL(5, 2) DEFAULT 0,
-    descuento_producto_factura DECIMAL(5, 2) DEFAULT 0,
-    notas_compras TEXT,
-    contacto_finanzas_nombre VARCHAR(100),
-    contacto_finanzas_email VARCHAR(100),
-    contacto_finanzas_telefono VARCHAR(20),
-    forma_pago ENUM('contado', 'credito') DEFAULT 'contado',
-    dias_credito INT DEFAULT 0,
-    saldo DECIMAL(10, 2) DEFAULT 0,
-    activo VARCHAR(10) DEFAULT 'ACTIVO',
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_clave (clave),
-    INDEX idx_nombre (nombre),
-    INDEX idx_rfc (rfc)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+--
+-- Volcado de datos para la tabla `gastos`
+--
 
--- ================================================================
--- VENTAS
--- ================================================================
+INSERT INTO `gastos` (`id`, `folio`, `estado`, `fecha`, `total`, `categoria`, `factura`, `usuario`, `sucursal_origen`, `departamento`, `proveedor`, `sucursal_destino`, `descripcion`, `fecha_creacion`, `fecha_actualizacion`) VALUES
+(1, 'G-1023', 'PENDIENTE', '2024-12-18 00:00:00', 1850, 'Refacciones', 'F-8812', 'Laura Martínez', 'Matriz', 'Ventas', 'Autopartes MX', 'Sucursal Norte', 'Pastillas y balatas para revisión técnica', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
+(2, 'G-1024', 'PAGADO', '2024-12-22 00:00:00', 920, 'Insumos', 'F-8820', 'Carlos Pérez', 'Matriz', 'Compras', 'Suministros del Norte', 'Matriz', 'Papelería y etiquetas para inventario', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
+(3, 'G-1025', 'PENDIENTE', '2025-01-05 00:00:00', 3120, 'Servicios', 'F-8890', 'Laura Martínez', 'Sucursal Norte', 'Ventas', 'Servicio Rápido', 'Sucursal Norte', 'Mantenimiento de racks y estantes', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
+(4, 'G-1026', 'CANCELADO', '2025-01-08 00:00:00', 450, 'Viáticos', 'F-8899', 'Diego Rodríguez', 'Matriz', 'Operaciones', 'Hotel Central', 'Matriz', 'Viaje a visita de proveedor', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
+(5, 'G-1027', 'PAGADO', '2025-01-12 00:00:00', 1750, 'Refacciones', 'F-8905', 'Ana Karen', 'Sucursal Centro', 'Taller', 'Autopartes MX', 'Sucursal Centro', 'Filtros y correas de motor', '0000-00-00 00:00:00', '0000-00-00 00:00:00');
 
-CREATE TABLE IF NOT EXISTS ventas (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    folio VARCHAR(50) UNIQUE NOT NULL,
-    local_id INT NOT NULL,
-    usuario_id INT NOT NULL,
-    cliente_id INT,
-    tipo_venta ENUM('contado', 'credito', 'apartado') DEFAULT 'contado',
-    estado ENUM('pendiente', 'completada', 'cancelada', 'devuelta') DEFAULT 'completada',
-    subtotal DECIMAL(10, 2) DEFAULT 0,
-    descuento DECIMAL(10, 2) DEFAULT 0,
-    iva DECIMAL(10, 2) DEFAULT 0,
-    total DECIMAL(10, 2) DEFAULT 0,
-    pago_recibido DECIMAL(10, 2) DEFAULT 0,
-    cambio DECIMAL(10, 2) DEFAULT 0,
-    fecha_limite_pago DATETIME,
-    saldo_pendiente DECIMAL(10, 2) DEFAULT 0,
-    metodo_pago VARCHAR(50),
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (local_id) REFERENCES locales(id) ON DELETE RESTRICT,
-    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE RESTRICT,
-    FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE SET NULL,
-    INDEX idx_folio (folio),
-    INDEX idx_local (local_id),
-    INDEX idx_usuario (usuario_id),
-    INDEX idx_cliente (cliente_id),
-    INDEX idx_fecha (fecha_creacion),
-    INDEX idx_estado (estado)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- --------------------------------------------------------
 
-CREATE TABLE IF NOT EXISTS detalle_ventas (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    venta_id INT NOT NULL,
-    producto_id INT NOT NULL,
-    local_id INT NOT NULL,
-    cantidad INT NOT NULL,
-    precio_unitario DECIMAL(10, 2) NOT NULL,
-    descuento DECIMAL(10, 2) DEFAULT 0,
-    importe DECIMAL(10, 2) NOT NULL,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (venta_id) REFERENCES ventas(id) ON DELETE CASCADE,
-    FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE RESTRICT,
-    FOREIGN KEY (local_id) REFERENCES locales(id) ON DELETE RESTRICT,
-    INDEX idx_venta (venta_id),
-    INDEX idx_producto (producto_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+--
+-- Estructura de tabla para la tabla `grupos`
+--
 
--- ================================================================
--- COMPRAS
--- ================================================================
+CREATE TABLE `grupos` (
+  `nombre` varchar(200) NOT NULL,
+  `tipo` varchar(100) DEFAULT NULL,
+  `descripcion` text,
+  `activo` tinyint(1) DEFAULT NULL,
+  `id` int NOT NULL,
+  `fecha_creacion` datetime DEFAULT CURRENT_TIMESTAMP,
+  `fecha_actualizacion` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE IF NOT EXISTS compras (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    folio VARCHAR(50) UNIQUE NOT NULL,
-    factura VARCHAR(100),
-    estado ENUM('pendiente', 'completo', 'cancelado', 'parcial') DEFAULT 'pendiente',
-    fecha DATETIME NOT NULL,
-    proveedor_id INT NOT NULL,
-    local_id INT NOT NULL,
-    usuario_id INT,
-    subtotal DECIMAL(10, 2) DEFAULT 0,
-    descuento DECIMAL(10, 2) DEFAULT 0,
-    iva DECIMAL(10, 2) DEFAULT 0,
-    total DECIMAL(10, 2) NOT NULL,
-    notas TEXT,
-    tipo_moneda VARCHAR(20) DEFAULT 'pesos',
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (proveedor_id) REFERENCES proveedores(id) ON DELETE RESTRICT,
-    FOREIGN KEY (local_id) REFERENCES locales(id) ON DELETE RESTRICT,
-    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE SET NULL,
-    INDEX idx_folio (folio),
-    INDEX idx_factura (factura),
-    INDEX idx_proveedor (proveedor_id),
-    INDEX idx_fecha (fecha)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- --------------------------------------------------------
 
-CREATE TABLE IF NOT EXISTS detalle_compras (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    compra_id INT NOT NULL,
-    producto_id INT NOT NULL,
-    cantidad INT NOT NULL,
-    precio_unitario DECIMAL(10, 2) NOT NULL,
-    descuento DECIMAL(10, 2) DEFAULT 0,
-    importe DECIMAL(10, 2) NOT NULL,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (compra_id) REFERENCES compras(id) ON DELETE CASCADE,
-    FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE RESTRICT,
-    INDEX idx_compra (compra_id),
-    INDEX idx_producto (producto_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+--
+-- Estructura de tabla para la tabla `grupo_aplicaciones`
+--
 
--- ================================================================
--- TRASPASOS ENTRE LOCALES
--- ================================================================
+CREATE TABLE `grupo_aplicaciones` (
+  `grupo_id` int NOT NULL,
+  `marca` varchar(100) DEFAULT NULL,
+  `modelo` varchar(100) DEFAULT NULL,
+  `motor` varchar(100) DEFAULT NULL,
+  `desde` int DEFAULT NULL,
+  `hasta` int DEFAULT NULL,
+  `id` int NOT NULL,
+  `fecha_creacion` datetime DEFAULT CURRENT_TIMESTAMP,
+  `fecha_actualizacion` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE IF NOT EXISTS traspasos (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    folio VARCHAR(50) UNIQUE NOT NULL,
-    estado ENUM('pendiente', 'transito', 'completado', 'cancelado') DEFAULT 'pendiente',
-    fecha DATETIME NOT NULL,
-    origen_id INT NOT NULL,
-    destino_id INT NOT NULL,
-    notas TEXT,
-    usuario_id INT,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (origen_id) REFERENCES locales(id) ON DELETE RESTRICT,
-    FOREIGN KEY (destino_id) REFERENCES locales(id) ON DELETE RESTRICT,
-    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE SET NULL,
-    INDEX idx_folio (folio),
-    INDEX idx_origen (origen_id),
-    INDEX idx_destino (destino_id),
-    INDEX idx_estado (estado)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- --------------------------------------------------------
 
-CREATE TABLE IF NOT EXISTS detalle_traspasos (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    traspaso_id INT NOT NULL,
-    producto_id INT NOT NULL,
-    cantidad INT NOT NULL,
-    cantidad_enviada INT DEFAULT 0,
-    cantidad_recibida INT DEFAULT 0,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (traspaso_id) REFERENCES traspasos(id) ON DELETE CASCADE,
-    FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE RESTRICT,
-    INDEX idx_traspaso (traspaso_id),
-    INDEX idx_producto (producto_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+--
+-- Estructura de tabla para la tabla `grupo_productos`
+--
 
--- ================================================================
--- GASTOS
--- ================================================================
+CREATE TABLE `grupo_productos` (
+  `grupo_id` int NOT NULL,
+  `producto_id` int NOT NULL,
+  `linea` varchar(100) DEFAULT NULL,
+  `caracteristica1` varchar(200) DEFAULT NULL,
+  `caracteristica2` varchar(200) DEFAULT NULL,
+  `clave` varchar(100) DEFAULT NULL,
+  `id` int NOT NULL,
+  `fecha_creacion` datetime DEFAULT CURRENT_TIMESTAMP,
+  `fecha_actualizacion` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE IF NOT EXISTS gastos (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    folio VARCHAR(50) UNIQUE NOT NULL,
-    estado ENUM('Pendiente', 'Pagado', 'Cancelado') DEFAULT 'Pendiente' NOT NULL,
-    fecha DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    total DECIMAL(12, 2) NOT NULL,
-    categoria VARCHAR(100) NOT NULL,
-    factura VARCHAR(50),
-    usuario VARCHAR(150) NOT NULL,
-    sucursal_origen VARCHAR(100) NOT NULL,
-    departamento VARCHAR(100) NOT NULL,
-    proveedor VARCHAR(150),
-    sucursal_destino VARCHAR(100),
-    descripcion TEXT,
-    fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
-    INDEX idx_folio (folio),
-    INDEX idx_estado (estado),
-    INDEX idx_usuario (usuario),
-    INDEX idx_departamento (departamento),
-    INDEX idx_fecha (fecha)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- --------------------------------------------------------
 
--- Insertar ejemplos de gastos
-INSERT INTO gastos (folio, estado, fecha, total, categoria, factura, usuario, sucursal_origen, departamento, proveedor, sucursal_destino, descripcion) VALUES
-('G-1023', 'Pendiente', '2024-12-18', 1850.00, 'Refacciones', 'F-8812', 'Laura Martínez', 'Matriz', 'Ventas', 'Autopartes MX', 'Sucursal Norte', 'Pastillas y balatas para revisión técnica'),
-('G-1024', 'Pagado', '2024-12-22', 920.00, 'Insumos', 'F-8820', 'Carlos Pérez', 'Matriz', 'Compras', 'Suministros del Norte', 'Matriz', 'Papelería y etiquetas para inventario'),
-('G-1025', 'Pendiente', '2025-01-05', 3120.00, 'Servicios', 'F-8890', 'Laura Martínez', 'Sucursal Norte', 'Ventas', 'Servicio Rápido', 'Sucursal Norte', 'Mantenimiento de racks y estantes'),
-('G-1026', 'Cancelado', '2025-01-08', 450.00, 'Viáticos', 'F-8899', 'Diego Rodríguez', 'Matriz', 'Operaciones', 'Hotel Central', 'Matriz', 'Viaje a visita de proveedor'),
-('G-1027', 'Pagado', '2025-01-12', 1750.00, 'Refacciones', 'F-8905', 'Ana Karen', 'Sucursal Centro', 'Taller', 'Autopartes MX', 'Sucursal Centro', 'Filtros y correas de motor')
-ON DUPLICATE KEY UPDATE folio=VALUES(folio);
+--
+-- Estructura de tabla para la tabla `inventario_local`
+--
 
--- ================================================================
--- MÓDULO DE CAJA
--- ================================================================
+CREATE TABLE `inventario_local` (
+  `producto_id` int NOT NULL,
+  `local_id` int NOT NULL,
+  `stock` int DEFAULT NULL,
+  `stock_reservado` int DEFAULT NULL,
+  `id` int NOT NULL,
+  `fecha_creacion` datetime DEFAULT CURRENT_TIMESTAMP,
+  `fecha_actualizacion` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Arqueos de Caja - Registro de arqueos (conciliación) de cajas
-CREATE TABLE IF NOT EXISTS arqueos_caja (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    caja VARCHAR(50) NOT NULL COMMENT 'Identificador/nombre de la caja (ej: Caja 1)',
-    local_id INT NOT NULL,
-    usuario_id INT NOT NULL,
-    fecha_arqueo DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora del arqueo',
-    turno VARCHAR(50) COMMENT 'Turno: Mañana, Tarde, Noche',
-    -- Montos declarados
-    efectivo_declarado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de efectivo según sistema',
-    retiros_declarado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de retiros según sistema',
-    cheque_declarado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de cheques según sistema',
-    tarjeta_declarado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de tarjeta según sistema',
-    debito_declarado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de débito según sistema',
-    deposito_declarado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de depósito según sistema',
-    credito_declarado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de crédito según sistema',
-    vale_declarado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de vales según sistema',
-    lealtad_declarado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de programa lealtad según sistema',
-    -- Montos contados
-    efectivo_contado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de efectivo contado físicamente',
-    retiros_contado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de retiros contado físicamente',
-    cheque_contado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de cheques contado físicamente',
-    tarjeta_contado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de tarjeta contado físicamente',
-    debito_contado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de débito contado físicamente',
-    deposito_contado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de depósito contado físicamente',
-    credito_contado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de crédito contado físicamente',
-    vale_contado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de vales contado físicamente',
-    lealtad_contado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de programa lealtad contado físicamente',
-    -- Diferencias
-    diferencia_efectivo DECIMAL(12, 2) DEFAULT 0 COMMENT 'Diferencia = Contado - Declarado',
-    diferencia_retiros DECIMAL(12, 2) DEFAULT 0 COMMENT 'Diferencia retiros = Contado - Declarado',
-    diferencia_cheque DECIMAL(12, 2) DEFAULT 0 COMMENT 'Diferencia cheques = Contado - Declarado',
-    diferencia_tarjeta DECIMAL(12, 2) DEFAULT 0 COMMENT 'Diferencia tarjeta = Contado - Declarado',
-    diferencia_debito DECIMAL(12, 2) DEFAULT 0 COMMENT 'Diferencia débito = Contado - Declarado',
-    diferencia_deposito DECIMAL(12, 2) DEFAULT 0 COMMENT 'Diferencia depósito = Contado - Declarado',
-    diferencia_credito DECIMAL(12, 2) DEFAULT 0 COMMENT 'Diferencia crédito = Contado - Declarado',
-    diferencia_vale DECIMAL(12, 2) DEFAULT 0 COMMENT 'Diferencia vales = Contado - Declarado',
-    diferencia_lealtad DECIMAL(12, 2) DEFAULT 0 COMMENT 'Diferencia lealtad = Contado - Declarado',
-    -- Totales
-    total_declarado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Total declarado (suma de todos)',
-    total_contado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Total contado (suma de todos)',
-    diferencia_total DECIMAL(12, 2) DEFAULT 0 COMMENT 'Diferencia total = Contado - Declarado',
-    -- Observaciones
-    observaciones TEXT COMMENT 'Notas y observaciones del arqueo',
-    reconciliado BOOLEAN DEFAULT FALSE COMMENT 'TRUE si el arqueo fue reconciliado/validado',
-    responsable_reconciliacion VARCHAR(255) COMMENT 'Nombre/ID del gerente que reconcilió',
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación del registro',
-    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de última actualización',
-    FOREIGN KEY (local_id) REFERENCES locales(id) ON DELETE RESTRICT,
-    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE RESTRICT,
-    INDEX idx_caja (caja),
-    INDEX idx_local (local_id),
-    INDEX idx_fecha (fecha_arqueo)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- --------------------------------------------------------
 
--- Cierres de Caja
-CREATE TABLE IF NOT EXISTS cierres_caja (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    caja VARCHAR(50) NOT NULL,
-    local_id INT NOT NULL,
-    usuario_id INT NOT NULL,
-    efectivo DECIMAL(12, 2) DEFAULT 0,
-    cheque DECIMAL(12, 2) DEFAULT 0,
-    tarjeta DECIMAL(12, 2) DEFAULT 0,
-    debito DECIMAL(12, 2) DEFAULT 0,
-    deposito DECIMAL(12, 2) DEFAULT 0,
-    credito DECIMAL(12, 2) DEFAULT 0,
-    vale DECIMAL(12, 2) DEFAULT 0,
-    lealtad DECIMAL(12, 2) DEFAULT 0,
-    retiros DECIMAL(12, 2) DEFAULT 0,
-    total_ingresos DECIMAL(12, 2) DEFAULT 0,
-    total_cierre DECIMAL(12, 2) DEFAULT 0,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (local_id) REFERENCES locales(id) ON DELETE RESTRICT,
-    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE RESTRICT,
-    INDEX idx_caja (caja),
-    INDEX idx_local (local_id),
-    INDEX idx_fecha (fecha_creacion)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+--
+-- Estructura de tabla para la tabla `locales`
+--
 
--- Retiros de Caja
-CREATE TABLE IF NOT EXISTS retiros_caja (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    folio VARCHAR(50) UNIQUE NOT NULL,
-    local_id INT NOT NULL,
-    usuario_id INT NOT NULL,
-    monto DECIMAL(12, 2) NOT NULL,
-    fecha_retiro DATETIME DEFAULT CURRENT_TIMESTAMP,
-    descripcion TEXT NOT NULL,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (local_id) REFERENCES locales(id) ON DELETE RESTRICT,
-    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE RESTRICT,
-    INDEX idx_folio (folio),
-    INDEX idx_local (local_id),
-    INDEX idx_fecha (fecha_retiro)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `locales` (
+  `nombre` varchar(100) NOT NULL,
+  `direccion` varchar(200) DEFAULT NULL,
+  `telefono` varchar(20) DEFAULT NULL,
+  `email` varchar(100) DEFAULT NULL,
+  `id` int NOT NULL,
+  `fecha_creacion` datetime DEFAULT CURRENT_TIMESTAMP,
+  `fecha_actualizacion` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- ================================================================
--- VALES DE VENTA
--- ================================================================
+-- --------------------------------------------------------
 
-CREATE TABLE IF NOT EXISTS vales_venta (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    folio VARCHAR(50) UNIQUE NOT NULL,
-    monto DECIMAL(10, 2) NOT NULL,
-    concepto VARCHAR(200),
-    fecha DATETIME NOT NULL,
-    vendedor_id INT NOT NULL,
-    local_id INT NOT NULL,
-    usado BOOLEAN DEFAULT FALSE,
-    fecha_uso DATETIME,
-    destino VARCHAR(50),
-    tipo ENUM('venta', 'devolucion') DEFAULT 'venta',
-    disponible BOOLEAN DEFAULT TRUE,
-    descripcion VARCHAR(500),
-    venta_origen_id INT,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (vendedor_id) REFERENCES usuarios(id) ON DELETE RESTRICT,
-    FOREIGN KEY (local_id) REFERENCES locales(id) ON DELETE RESTRICT,
-    FOREIGN KEY (venta_origen_id) REFERENCES ventas(id) ON DELETE SET NULL,
-    INDEX idx_folio (folio),
-    INDEX idx_vendedor (vendedor_id),
-    INDEX idx_usado (usado)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+--
+-- Estructura de tabla para la tabla `marcas`
+--
 
--- ================================================================
--- PAQUETES Y GRUPOS DE PRODUCTOS
--- ================================================================
+CREATE TABLE `marcas` (
+  `nombre` varchar(100) NOT NULL,
+  `pais_origen` varchar(100) DEFAULT NULL,
+  `activo` int DEFAULT NULL,
+  `id` int NOT NULL,
+  `fecha_creacion` datetime DEFAULT CURRENT_TIMESTAMP,
+  `fecha_actualizacion` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Paquetes
-CREATE TABLE IF NOT EXISTS paquetes (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    nombre VARCHAR(200) NOT NULL,
-    descripcion TEXT,
-    clase VARCHAR(100),
-    codigo_barras VARCHAR(100) UNIQUE,
-    activo BOOLEAN DEFAULT TRUE,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_nombre (nombre),
-    INDEX idx_clase (clase),
-    INDEX idx_codigo_barras (codigo_barras)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- --------------------------------------------------------
 
-CREATE TABLE IF NOT EXISTS paquete_productos (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    paquete_id INT NOT NULL,
-    producto_id INT NOT NULL,
-    cantidad INT DEFAULT 1,
-    precio_unitario DECIMAL(10, 2) NOT NULL,
-    total DECIMAL(10, 2) NOT NULL,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (paquete_id) REFERENCES paquetes(id) ON DELETE CASCADE,
-    FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE RESTRICT,
-    INDEX idx_paquete (paquete_id),
-    INDEX idx_producto (producto_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+--
+-- Estructura de tabla para la tabla `paquetes`
+--
 
--- Grupos
-CREATE TABLE IF NOT EXISTS grupos (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    nombre VARCHAR(200) NOT NULL,
-    tipo VARCHAR(100),
-    descripcion TEXT,
-    activo BOOLEAN DEFAULT TRUE,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_nombre (nombre),
-    INDEX idx_tipo (tipo)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `paquetes` (
+  `nombre` varchar(200) NOT NULL,
+  `descripcion` text,
+  `clase` varchar(100) DEFAULT NULL,
+  `activo` tinyint(1) DEFAULT NULL,
+  `id` int NOT NULL,
+  `fecha_creacion` datetime DEFAULT CURRENT_TIMESTAMP,
+  `fecha_actualizacion` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE IF NOT EXISTS grupo_productos (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    grupo_id INT NOT NULL,
-    producto_id INT NOT NULL,
-    linea VARCHAR(100),
-    caracteristica1 VARCHAR(200),
-    caracteristica2 VARCHAR(200),
-    clave VARCHAR(100),
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (grupo_id) REFERENCES grupos(id) ON DELETE CASCADE,
-    FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE,
-    INDEX idx_grupo (grupo_id),
-    INDEX idx_producto (producto_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- --------------------------------------------------------
 
-CREATE TABLE IF NOT EXISTS grupo_aplicaciones (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    grupo_id INT NOT NULL,
-    marca VARCHAR(100),
-    modelo VARCHAR(100),
-    motor VARCHAR(100),
-    desde INT,
-    hasta INT,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (grupo_id) REFERENCES grupos(id) ON DELETE CASCADE,
-    INDEX idx_grupo (grupo_id),
-    INDEX idx_marca (marca),
-    INDEX idx_modelo (modelo)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+--
+-- Estructura de tabla para la tabla `paquete_productos`
+--
 
--- ================================================================
--- PROMOCIONES
--- ================================================================
+CREATE TABLE `paquete_productos` (
+  `paquete_id` int NOT NULL,
+  `producto_id` int NOT NULL,
+  `cantidad` int DEFAULT NULL,
+  `precio_unitario` decimal(10,2) NOT NULL,
+  `total` decimal(10,2) NOT NULL,
+  `id` int NOT NULL,
+  `fecha_creacion` datetime DEFAULT CURRENT_TIMESTAMP,
+  `fecha_actualizacion` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE IF NOT EXISTS promociones (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    descripcion VARCHAR(120) NOT NULL,
-    activa BOOLEAN DEFAULT TRUE,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- --------------------------------------------------------
 
--- Insertar promoción de ejemplo
-INSERT INTO promociones (descripcion, activa) VALUES 
-('10% de descuento en filtros de aceite', TRUE)
-ON DUPLICATE KEY UPDATE descripcion=VALUES(descripcion);
+--
+-- Estructura de tabla para la tabla `productos`
+--
 
--- ================================================================
--- ASISTENCIA DE EMPLEADOS
--- ================================================================
+CREATE TABLE `productos` (
+  `codigo` varchar(50) NOT NULL,
+  `codigo_barras` varchar(100) DEFAULT NULL,
+  `nombre` varchar(200) NOT NULL,
+  `descripcion` text,
+  `marca` varchar(100) DEFAULT NULL,
+  `modelo` varchar(100) DEFAULT NULL,
+  `categoria` varchar(100) DEFAULT NULL,
+  `precio_compra` decimal(10,2) NOT NULL,
+  `precio_venta` decimal(10,2) NOT NULL,
+  `precio_venta_credito` decimal(10,2) DEFAULT NULL,
+  `stock_total` int DEFAULT NULL,
+  `stock_minimo` int DEFAULT NULL,
+  `ubicacion_estante` varchar(50) DEFAULT NULL,
+  `ubicacion_fila` varchar(10) DEFAULT NULL,
+  `ubicacion_columna` varchar(10) DEFAULT NULL,
+  `compatibilidad` json DEFAULT NULL,
+  `año_inicio` int DEFAULT NULL,
+  `año_fin` int DEFAULT NULL,
+  `id` int NOT NULL,
+  `fecha_creacion` datetime DEFAULT CURRENT_TIMESTAMP,
+  `fecha_actualizacion` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE IF NOT EXISTS asistencia_empleados (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    nombre VARCHAR(150) NOT NULL,
-    sucursal VARCHAR(100),
-    fecha DATE NOT NULL,
-    entrada TIME,
-    comida TIME,
-    regreso TIME,
-    salida TIME,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    UNIQUE KEY uq_asistencia_nombre_fecha (nombre, fecha),
-    INDEX idx_nombre (nombre),
-    INDEX idx_fecha (fecha),
-    INDEX idx_sucursal (sucursal)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- --------------------------------------------------------
 
--- ================================================================
--- DATOS DE EJEMPLO
--- ================================================================
+--
+-- Estructura de tabla para la tabla `promociones`
+--
 
--- Insertar retiros de caja de ejemplo (comentado por defecto)
--- Descomenta para insertar datos de prueba
-/*
-INSERT INTO retiros_caja (folio, local_id, usuario_id, monto, descripcion, fecha_retiro) VALUES
-('R-20260120-001', 1, 3, 4800.00, 'RETIRO GENERADO AUTOMATICO', '2026-01-20 12:32:24'),
-('R-20260119-002', 1, 3, 5100.00, 'RETIRO GENERADO AUTOMATICO', '2026-01-19 14:19:23'),
-('R-20260119-003', 1, 3, 5100.00, 'RETIRO GENERADO AUTOMATICO', '2026-01-19 11:56:55'),
-('R-20260117-004', 1, 3, 4800.00, 'RETIRO GENERADO AUTOMATICO', '2026-01-17 09:34:12'),
-('R-20260116-005', 1, 3, 4800.00, 'RETIRO GENERADO AUTOMATICO', '2026-01-16 14:37:33'),
-('R-20260115-006', 1, 6, 4800.00, 'RETIRO GENERADO AUTOMATICO', '2026-01-15 12:04:42'),
-('R-20260114-007', 1, 3, 4800.00, 'RETIRO GENERADO AUTOMATICO', '2026-01-14 16:06:14'),
-('R-20260113-008', 1, 3, 5100.00, 'RETIRO GENERADO AUTOMATICO', '2026-01-13 15:34:31'),
-('R-20260112-009', 1, 3, 5080.00, 'ANILLOS BASTIDORES AUTO', '2026-01-12 11:18:07'),
-('R-20260112-010', 1, 3, 5080.00, 'PROD CASTROL', '2026-01-12 11:18:31')
-ON DUPLICATE KEY UPDATE folio=VALUES(folio);
-*/
+CREATE TABLE `promociones` (
+  `id` int NOT NULL,
+  `descripcion` varchar(120) NOT NULL,
+  `activa` tinyint(1) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- ================================================================
--- COMENTARIOS Y DOCUMENTACIÓN
--- ================================================================
+--
+-- Volcado de datos para la tabla `promociones`
+--
 
--- Comentarios sobre tablas de arqueos
-ALTER TABLE arqueos_caja COMMENT = 'Registro de arqueos (conciliación) de cajas';
+INSERT INTO `promociones` (`id`, `descripcion`, `activa`) VALUES
+(1, '10% de descuento en filtros de aceite', 1);
 
--- Información sobre el esquema
-SELECT 
-    'Base de datos refaccionaria_db creada exitosamente' AS mensaje,
-    '25 tablas principales creadas' AS detalle,
-    'Febrero 2026' AS ultima_actualizacion;
+-- --------------------------------------------------------
 
--- ================================================================
--- FIN DEL SCRIPT
--- ================================================================
+--
+-- Estructura de tabla para la tabla `proveedores`
+--
+
+CREATE TABLE `proveedores` (
+  `clave` varchar(50) NOT NULL,
+  `nombre` varchar(200) NOT NULL,
+  `rfc` varchar(20) DEFAULT NULL,
+  `web` varchar(200) DEFAULT NULL,
+  `calle` varchar(200) DEFAULT NULL,
+  `numero_exterior` varchar(20) DEFAULT NULL,
+  `numero_interior` varchar(20) DEFAULT NULL,
+  `colonia` varchar(100) DEFAULT NULL,
+  `codigo_postal` varchar(10) DEFAULT NULL,
+  `municipio` varchar(100) DEFAULT NULL,
+  `estado` varchar(100) DEFAULT NULL,
+  `ciudad` varchar(100) DEFAULT NULL,
+  `pais` varchar(100) DEFAULT NULL,
+  `contacto_compras_nombre` varchar(100) DEFAULT NULL,
+  `contacto_compras_email` varchar(100) DEFAULT NULL,
+  `contacto_compras_telefono` varchar(20) DEFAULT NULL,
+  `lista_precios_compra` varchar(100) DEFAULT NULL,
+  `dias_entrega` int DEFAULT NULL,
+  `tipo_moneda` enum('PESOS','DOLARES') DEFAULT NULL,
+  `descuento_factura` decimal(5,2) DEFAULT NULL,
+  `descuento_listas_precio` decimal(5,2) DEFAULT NULL,
+  `descuento_producto_factura` decimal(5,2) DEFAULT NULL,
+  `notas_compras` text,
+  `contacto_finanzas_nombre` varchar(100) DEFAULT NULL,
+  `contacto_finanzas_email` varchar(100) DEFAULT NULL,
+  `contacto_finanzas_telefono` varchar(20) DEFAULT NULL,
+  `forma_pago` enum('CONTADO','CREDITO') DEFAULT NULL,
+  `dias_credito` int DEFAULT NULL,
+  `saldo` decimal(10,2) DEFAULT NULL,
+  `activo` varchar(10) DEFAULT NULL,
+  `id` int NOT NULL,
+  `fecha_creacion` datetime DEFAULT CURRENT_TIMESTAMP,
+  `fecha_actualizacion` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `retiros_caja`
+--
+
+CREATE TABLE `retiros_caja` (
+  `folio` varchar(50) NOT NULL,
+  `local_id` int NOT NULL,
+  `usuario_id` int NOT NULL,
+  `monto` decimal(12,2) NOT NULL,
+  `fecha_retiro` datetime DEFAULT CURRENT_TIMESTAMP,
+  `descripcion` text NOT NULL,
+  `id` int NOT NULL,
+  `fecha_creacion` datetime DEFAULT CURRENT_TIMESTAMP,
+  `fecha_actualizacion` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `traspasos`
+--
+
+CREATE TABLE `traspasos` (
+  `folio` varchar(50) NOT NULL,
+  `estado` enum('PENDIENTE','EN_TRANSITO','COMPLETADO','CANCELADO') DEFAULT NULL,
+  `fecha` datetime NOT NULL,
+  `origen_id` int NOT NULL,
+  `destino_id` int NOT NULL,
+  `notas` text,
+  `usuario_id` int DEFAULT NULL,
+  `id` int NOT NULL,
+  `fecha_creacion` datetime DEFAULT CURRENT_TIMESTAMP,
+  `fecha_actualizacion` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `usuarios`
+--
+
+CREATE TABLE `usuarios` (
+  `nombre` varchar(100) NOT NULL,
+  `apellido_paterno` varchar(100) DEFAULT NULL,
+  `apellido_materno` varchar(100) DEFAULT NULL,
+  `email` varchar(100) NOT NULL,
+  `telefono` varchar(20) DEFAULT NULL,
+  `nombre_usuario` varchar(50) NOT NULL,
+  `clave_hash` varchar(255) NOT NULL,
+  `rol` enum('ADMINISTRADOR','GERENTE','VENDEDOR','ALMACENISTA','CAJERO') DEFAULT NULL,
+  `estado` enum('ACTIVO','INACTIVO','SUSPENDIDO') DEFAULT NULL,
+  `local_id` int DEFAULT NULL,
+  `ultimo_login` datetime DEFAULT NULL,
+  `intentos_fallidos` int DEFAULT NULL,
+  `bloqueado_hasta` datetime DEFAULT NULL,
+  `debe_cambiar_clave` tinyint(1) DEFAULT NULL,
+  `tema_interfaz` varchar(20) DEFAULT NULL,
+  `id` int NOT NULL,
+  `fecha_creacion` datetime DEFAULT CURRENT_TIMESTAMP,
+  `fecha_actualizacion` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `vales_venta`
+--
+
+CREATE TABLE `vales_venta` (
+  `folio` varchar(50) NOT NULL,
+  `monto` decimal(10,2) NOT NULL,
+  `concepto` varchar(200) DEFAULT NULL,
+  `fecha` datetime NOT NULL,
+  `vendedor_id` int NOT NULL,
+  `local_id` int NOT NULL,
+  `usado` tinyint(1) DEFAULT NULL,
+  `fecha_uso` datetime DEFAULT NULL,
+  `destino` varchar(50) DEFAULT NULL,
+  `tipo` enum('VENTA','DEVOLUCION') DEFAULT NULL,
+  `disponible` tinyint(1) DEFAULT NULL,
+  `descripcion` varchar(500) DEFAULT NULL,
+  `venta_origen_id` int DEFAULT NULL,
+  `id` int NOT NULL,
+  `fecha_creacion` datetime DEFAULT CURRENT_TIMESTAMP,
+  `fecha_actualizacion` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `ventas`
+--
+
+CREATE TABLE `ventas` (
+  `folio` varchar(50) NOT NULL,
+  `local_id` int NOT NULL,
+  `usuario_id` int NOT NULL,
+  `cliente_id` int DEFAULT NULL,
+  `tipo_venta` enum('CONTADO','CREDITO','APARTADO') DEFAULT NULL,
+  `estado` enum('PENDIENTE','COMPLETADA','CANCELADA','DEVUELTA') DEFAULT NULL,
+  `subtotal` decimal(10,2) DEFAULT NULL,
+  `descuento` decimal(10,2) DEFAULT NULL,
+  `iva` decimal(10,2) DEFAULT NULL,
+  `total` decimal(10,2) DEFAULT NULL,
+  `pago_recibido` decimal(10,2) DEFAULT NULL,
+  `cambio` decimal(10,2) DEFAULT NULL,
+  `fecha_limite_pago` datetime DEFAULT NULL,
+  `saldo_pendiente` decimal(10,2) DEFAULT NULL,
+  `metodo_pago` varchar(50) DEFAULT NULL,
+  `id` int NOT NULL,
+  `fecha_creacion` datetime DEFAULT CURRENT_TIMESTAMP,
+  `fecha_actualizacion` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Índices para tablas volcadas
+--
+
+--
+-- Indices de la tabla `arqueos_caja`
+--
+ALTER TABLE `arqueos_caja`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `local_id` (`local_id`),
+  ADD KEY `usuario_id` (`usuario_id`),
+  ADD KEY `ix_arqueos_caja_id` (`id`);
+
+--
+-- Indices de la tabla `asistencia_empleados`
+--
+ALTER TABLE `asistencia_empleados`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uq_asistencia_nombre_fecha` (`nombre`,`fecha`),
+  ADD KEY `ix_asistencia_empleados_fecha` (`fecha`),
+  ADD KEY `ix_asistencia_empleados_id` (`id`),
+  ADD KEY `ix_asistencia_empleados_nombre` (`nombre`);
+
+--
+-- Indices de la tabla `cierres_caja`
+--
+ALTER TABLE `cierres_caja`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `local_id` (`local_id`),
+  ADD KEY `usuario_id` (`usuario_id`),
+  ADD KEY `ix_cierres_caja_id` (`id`);
+
+--
+-- Indices de la tabla `clientes`
+--
+ALTER TABLE `clientes`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `ix_clientes_email` (`email`),
+  ADD UNIQUE KEY `ix_clientes_rfc` (`rfc`),
+  ADD KEY `local_id` (`local_id`),
+  ADD KEY `ix_clientes_alias` (`alias`),
+  ADD KEY `ix_clientes_nombre` (`nombre`),
+  ADD KEY `ix_clientes_id` (`id`);
+
+--
+-- Indices de la tabla `compras`
+--
+ALTER TABLE `compras`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `ix_compras_folio` (`folio`),
+  ADD KEY `proveedor_id` (`proveedor_id`),
+  ADD KEY `local_id` (`local_id`),
+  ADD KEY `usuario_id` (`usuario_id`),
+  ADD KEY `ix_compras_id` (`id`),
+  ADD KEY `ix_compras_factura` (`factura`);
+
+--
+-- Indices de la tabla `configuracion_sistema`
+--
+ALTER TABLE `configuracion_sistema`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `clave` (`clave`),
+  ADD KEY `idx_clave` (`clave`);
+
+--
+-- Indices de la tabla `detalle_compras`
+--
+ALTER TABLE `detalle_compras`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `compra_id` (`compra_id`),
+  ADD KEY `producto_id` (`producto_id`),
+  ADD KEY `ix_detalle_compras_id` (`id`);
+
+--
+-- Indices de la tabla `detalle_traspasos`
+--
+ALTER TABLE `detalle_traspasos`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `traspaso_id` (`traspaso_id`),
+  ADD KEY `producto_id` (`producto_id`),
+  ADD KEY `ix_detalle_traspasos_id` (`id`);
+
+--
+-- Indices de la tabla `detalle_ventas`
+--
+ALTER TABLE `detalle_ventas`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `venta_id` (`venta_id`),
+  ADD KEY `producto_id` (`producto_id`),
+  ADD KEY `local_id` (`local_id`),
+  ADD KEY `ix_detalle_ventas_id` (`id`);
+
+--
+-- Indices de la tabla `gastos`
+--
+ALTER TABLE `gastos`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `ix_gastos_folio` (`folio`),
+  ADD KEY `ix_gastos_id` (`id`);
+
+--
+-- Indices de la tabla `grupos`
+--
+ALTER TABLE `grupos`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `ix_grupos_tipo` (`tipo`),
+  ADD KEY `ix_grupos_nombre` (`nombre`),
+  ADD KEY `ix_grupos_id` (`id`);
+
+--
+-- Indices de la tabla `grupo_aplicaciones`
+--
+ALTER TABLE `grupo_aplicaciones`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `grupo_id` (`grupo_id`),
+  ADD KEY `ix_grupo_aplicaciones_id` (`id`);
+
+--
+-- Indices de la tabla `grupo_productos`
+--
+ALTER TABLE `grupo_productos`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `grupo_id` (`grupo_id`),
+  ADD KEY `producto_id` (`producto_id`),
+  ADD KEY `ix_grupo_productos_id` (`id`);
+
+--
+-- Indices de la tabla `inventario_local`
+--
+ALTER TABLE `inventario_local`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `producto_id` (`producto_id`),
+  ADD KEY `local_id` (`local_id`),
+  ADD KEY `ix_inventario_local_id` (`id`);
+
+--
+-- Indices de la tabla `locales`
+--
+ALTER TABLE `locales`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `ix_locales_id` (`id`);
+
+--
+-- Indices de la tabla `marcas`
+--
+ALTER TABLE `marcas`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `ix_marcas_nombre` (`nombre`),
+  ADD KEY `ix_marcas_id` (`id`);
+
+--
+-- Indices de la tabla `paquetes`
+--
+ALTER TABLE `paquetes`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `ix_paquetes_clase` (`clase`),
+  ADD KEY `ix_paquetes_id` (`id`),
+  ADD KEY `ix_paquetes_nombre` (`nombre`);
+
+--
+-- Indices de la tabla `paquete_productos`
+--
+ALTER TABLE `paquete_productos`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `paquete_id` (`paquete_id`),
+  ADD KEY `producto_id` (`producto_id`),
+  ADD KEY `ix_paquete_productos_id` (`id`);
+
+--
+-- Indices de la tabla `productos`
+--
+ALTER TABLE `productos`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `ix_productos_codigo` (`codigo`),
+  ADD UNIQUE KEY `ix_productos_codigo_barras` (`codigo_barras`),
+  ADD KEY `ix_productos_id` (`id`);
+
+--
+-- Indices de la tabla `promociones`
+--
+ALTER TABLE `promociones`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `ix_promociones_id` (`id`);
+
+--
+-- Indices de la tabla `proveedores`
+--
+ALTER TABLE `proveedores`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `ix_proveedores_clave` (`clave`),
+  ADD KEY `ix_proveedores_id` (`id`),
+  ADD KEY `ix_proveedores_rfc` (`rfc`);
+
+--
+-- Indices de la tabla `retiros_caja`
+--
+ALTER TABLE `retiros_caja`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `ix_retiros_caja_folio` (`folio`),
+  ADD KEY `local_id` (`local_id`),
+  ADD KEY `usuario_id` (`usuario_id`),
+  ADD KEY `ix_retiros_caja_id` (`id`);
+
+--
+-- Indices de la tabla `traspasos`
+--
+ALTER TABLE `traspasos`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `ix_traspasos_folio` (`folio`),
+  ADD KEY `origen_id` (`origen_id`),
+  ADD KEY `destino_id` (`destino_id`),
+  ADD KEY `usuario_id` (`usuario_id`),
+  ADD KEY `ix_traspasos_id` (`id`);
+
+--
+-- Indices de la tabla `usuarios`
+--
+ALTER TABLE `usuarios`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `ix_usuarios_email` (`email`),
+  ADD UNIQUE KEY `ix_usuarios_nombre_usuario` (`nombre_usuario`),
+  ADD KEY `local_id` (`local_id`),
+  ADD KEY `ix_usuarios_id` (`id`);
+
+--
+-- Indices de la tabla `vales_venta`
+--
+ALTER TABLE `vales_venta`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `ix_vales_venta_folio` (`folio`),
+  ADD KEY `vendedor_id` (`vendedor_id`),
+  ADD KEY `local_id` (`local_id`),
+  ADD KEY `venta_origen_id` (`venta_origen_id`),
+  ADD KEY `ix_vales_venta_id` (`id`);
+
+--
+-- Indices de la tabla `ventas`
+--
+ALTER TABLE `ventas`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `ix_ventas_folio` (`folio`),
+  ADD KEY `local_id` (`local_id`),
+  ADD KEY `usuario_id` (`usuario_id`),
+  ADD KEY `cliente_id` (`cliente_id`),
+  ADD KEY `ix_ventas_id` (`id`);
+
+--
+-- AUTO_INCREMENT de las tablas volcadas
+--
+
+--
+-- AUTO_INCREMENT de la tabla `arqueos_caja`
+--
+ALTER TABLE `arqueos_caja`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `asistencia_empleados`
+--
+ALTER TABLE `asistencia_empleados`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `cierres_caja`
+--
+ALTER TABLE `cierres_caja`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `clientes`
+--
+ALTER TABLE `clientes`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `compras`
+--
+ALTER TABLE `compras`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `configuracion_sistema`
+--
+ALTER TABLE `configuracion_sistema`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- AUTO_INCREMENT de la tabla `detalle_compras`
+--
+ALTER TABLE `detalle_compras`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `detalle_traspasos`
+--
+ALTER TABLE `detalle_traspasos`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `detalle_ventas`
+--
+ALTER TABLE `detalle_ventas`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `gastos`
+--
+ALTER TABLE `gastos`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT de la tabla `grupos`
+--
+ALTER TABLE `grupos`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `grupo_aplicaciones`
+--
+ALTER TABLE `grupo_aplicaciones`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `grupo_productos`
+--
+ALTER TABLE `grupo_productos`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `inventario_local`
+--
+ALTER TABLE `inventario_local`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `locales`
+--
+ALTER TABLE `locales`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `marcas`
+--
+ALTER TABLE `marcas`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `paquetes`
+--
+ALTER TABLE `paquetes`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `paquete_productos`
+--
+ALTER TABLE `paquete_productos`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `productos`
+--
+ALTER TABLE `productos`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `promociones`
+--
+ALTER TABLE `promociones`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT de la tabla `proveedores`
+--
+ALTER TABLE `proveedores`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `retiros_caja`
+--
+ALTER TABLE `retiros_caja`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `traspasos`
+--
+ALTER TABLE `traspasos`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `usuarios`
+--
+ALTER TABLE `usuarios`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `vales_venta`
+--
+ALTER TABLE `vales_venta`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `ventas`
+--
+ALTER TABLE `ventas`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- Restricciones para tablas volcadas
+--
+
+--
+-- Filtros para la tabla `arqueos_caja`
+--
+ALTER TABLE `arqueos_caja`
+  ADD CONSTRAINT `arqueos_caja_ibfk_1` FOREIGN KEY (`local_id`) REFERENCES `locales` (`id`),
+  ADD CONSTRAINT `arqueos_caja_ibfk_2` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`);
+
+--
+-- Filtros para la tabla `cierres_caja`
+--
+ALTER TABLE `cierres_caja`
+  ADD CONSTRAINT `cierres_caja_ibfk_1` FOREIGN KEY (`local_id`) REFERENCES `locales` (`id`),
+  ADD CONSTRAINT `cierres_caja_ibfk_2` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`);
+
+--
+-- Filtros para la tabla `clientes`
+--
+ALTER TABLE `clientes`
+  ADD CONSTRAINT `clientes_ibfk_1` FOREIGN KEY (`local_id`) REFERENCES `locales` (`id`);
+
+--
+-- Filtros para la tabla `compras`
+--
+ALTER TABLE `compras`
+  ADD CONSTRAINT `compras_ibfk_1` FOREIGN KEY (`proveedor_id`) REFERENCES `proveedores` (`id`),
+  ADD CONSTRAINT `compras_ibfk_2` FOREIGN KEY (`local_id`) REFERENCES `locales` (`id`),
+  ADD CONSTRAINT `compras_ibfk_3` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`);
+
+--
+-- Filtros para la tabla `detalle_compras`
+--
+ALTER TABLE `detalle_compras`
+  ADD CONSTRAINT `detalle_compras_ibfk_1` FOREIGN KEY (`compra_id`) REFERENCES `compras` (`id`),
+  ADD CONSTRAINT `detalle_compras_ibfk_2` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`);
+
+--
+-- Filtros para la tabla `detalle_traspasos`
+--
+ALTER TABLE `detalle_traspasos`
+  ADD CONSTRAINT `detalle_traspasos_ibfk_1` FOREIGN KEY (`traspaso_id`) REFERENCES `traspasos` (`id`),
+  ADD CONSTRAINT `detalle_traspasos_ibfk_2` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`);
+
+--
+-- Filtros para la tabla `detalle_ventas`
+--
+ALTER TABLE `detalle_ventas`
+  ADD CONSTRAINT `detalle_ventas_ibfk_1` FOREIGN KEY (`venta_id`) REFERENCES `ventas` (`id`),
+  ADD CONSTRAINT `detalle_ventas_ibfk_2` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`),
+  ADD CONSTRAINT `detalle_ventas_ibfk_3` FOREIGN KEY (`local_id`) REFERENCES `locales` (`id`);
+
+--
+-- Filtros para la tabla `grupo_aplicaciones`
+--
+ALTER TABLE `grupo_aplicaciones`
+  ADD CONSTRAINT `grupo_aplicaciones_ibfk_1` FOREIGN KEY (`grupo_id`) REFERENCES `grupos` (`id`);
+
+--
+-- Filtros para la tabla `grupo_productos`
+--
+ALTER TABLE `grupo_productos`
+  ADD CONSTRAINT `grupo_productos_ibfk_1` FOREIGN KEY (`grupo_id`) REFERENCES `grupos` (`id`),
+  ADD CONSTRAINT `grupo_productos_ibfk_2` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`);
+
+--
+-- Filtros para la tabla `inventario_local`
+--
+ALTER TABLE `inventario_local`
+  ADD CONSTRAINT `inventario_local_ibfk_1` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`),
+  ADD CONSTRAINT `inventario_local_ibfk_2` FOREIGN KEY (`local_id`) REFERENCES `locales` (`id`);
+
+--
+-- Filtros para la tabla `paquete_productos`
+--
+ALTER TABLE `paquete_productos`
+  ADD CONSTRAINT `paquete_productos_ibfk_1` FOREIGN KEY (`paquete_id`) REFERENCES `paquetes` (`id`),
+  ADD CONSTRAINT `paquete_productos_ibfk_2` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`);
+
+--
+-- Filtros para la tabla `retiros_caja`
+--
+ALTER TABLE `retiros_caja`
+  ADD CONSTRAINT `retiros_caja_ibfk_1` FOREIGN KEY (`local_id`) REFERENCES `locales` (`id`),
+  ADD CONSTRAINT `retiros_caja_ibfk_2` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`);
+
+--
+-- Filtros para la tabla `traspasos`
+--
+ALTER TABLE `traspasos`
+  ADD CONSTRAINT `traspasos_ibfk_1` FOREIGN KEY (`origen_id`) REFERENCES `locales` (`id`),
+  ADD CONSTRAINT `traspasos_ibfk_2` FOREIGN KEY (`destino_id`) REFERENCES `locales` (`id`),
+  ADD CONSTRAINT `traspasos_ibfk_3` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`);
+
+--
+-- Filtros para la tabla `usuarios`
+--
+ALTER TABLE `usuarios`
+  ADD CONSTRAINT `usuarios_ibfk_1` FOREIGN KEY (`local_id`) REFERENCES `locales` (`id`);
+
+--
+-- Filtros para la tabla `vales_venta`
+--
+ALTER TABLE `vales_venta`
+  ADD CONSTRAINT `vales_venta_ibfk_1` FOREIGN KEY (`vendedor_id`) REFERENCES `usuarios` (`id`),
+  ADD CONSTRAINT `vales_venta_ibfk_2` FOREIGN KEY (`local_id`) REFERENCES `locales` (`id`),
+  ADD CONSTRAINT `vales_venta_ibfk_3` FOREIGN KEY (`venta_origen_id`) REFERENCES `ventas` (`id`);
+
+--
+-- Filtros para la tabla `ventas`
+--
+ALTER TABLE `ventas`
+  ADD CONSTRAINT `ventas_ibfk_1` FOREIGN KEY (`local_id`) REFERENCES `locales` (`id`),
+  ADD CONSTRAINT `ventas_ibfk_2` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`),
+  ADD CONSTRAINT `ventas_ibfk_3` FOREIGN KEY (`cliente_id`) REFERENCES `clientes` (`id`);
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
