@@ -723,7 +723,12 @@
             btns.forEach(btn => btn.classList.remove('active'));
 
             document.getElementById(tabName).classList.add('active');
-            event.target.classList.add('active');
+
+            // Buscar el botón correspondiente y marcarlo como activo
+            const btnActivo = Array.from(btns).find(btn => btn.getAttribute('onclick')?.includes(`mostrarTab('${tabName}')`));
+            if (btnActivo) {
+                btnActivo.classList.add('active');
+            }
 
             if (tabName === 'reportes') {
                 cargarReportes();
@@ -739,12 +744,16 @@
 
         async function cargarClientes() {
             try {
-                const response = await fetch(`${API_BASE}/clientes/?activo=true`);
+                // Cargar TODOS los clientes (sin filtro de activo) para los reportes
+                const response = await fetch(`${API_BASE}/clientes/`);
                 if (!response.ok) throw new Error('Error al cargar clientes');
 
                 clientesGlobal = await response.json();
                 clientesFiltrados = clientesGlobal;
                 renderizarTablaClientes();
+
+                // Cargar reportes después de obtener los clientes
+                cargarReportes();
             } catch (error) {
                 console.error('Error:', error);
                 mostrarMensaje('Error al cargar clientes', 'error');
@@ -991,26 +1000,22 @@
                 const activos = clientesGlobal.filter(c => c.activo).length;
                 const inactivos = total - activos;
 
-                document.querySelectorAll('.card')[1].innerHTML = `
-                    <div style="padding: 20px;">
-                        <div class="grid-3">
-                            <div class="card" style="text-align: center; background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);">
-                                <div style="font-size: 36px; font-weight: bold; color: #2e7d32;">${total}</div>
-                                <div style="color: #558b2f; margin-top: 10px;">Total de Clientes</div>
-                            </div>
-                            <div class="card" style="text-align: center; background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);">
-                                <div style="font-size: 36px; font-weight: bold; color: #1565c0;">${activos}</div>
-                                <div style="color: #0d47a1; margin-top: 10px;">Clientes Activos</div>
-                            </div>
-                            <div class="card" style="text-align: center; background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);">
-                                <div style="font-size: 36px; font-weight: bold; color: #e65100;">${inactivos}</div>
-                                <div style="color: #bf360c; margin-top: 10px;">Clientes Inactivos</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
+                // Actualizar los valores en los cards del tab reportes
+                const reportesTab = document.getElementById('reportes');
+                const cards = reportesTab.querySelectorAll('.grid-3 > .card');
+
+                if (cards.length >= 3) {
+                    // Total de Clientes
+                    cards[0].querySelector('div:first-child').textContent = total;
+                    // Clientes Activos
+                    cards[1].querySelector('div:first-child').textContent = activos;
+                    // Clientes Inactivos
+                    cards[2].querySelector('div:first-child').textContent = inactivos;
+                }
+
+                console.log('✅ Reportes cargados:', { total, activos, inactivos });
             } catch (error) {
-                console.error('Error:', error);
+                console.error('Error en cargarReportes:', error);
             }
         }
     </script>

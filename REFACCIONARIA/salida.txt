@@ -1,0 +1,75 @@
+🔄 Iniciando inserción de datos de prueba...
+2026-02-05 15:16:11,177 INFO sqlalchemy.engine.Engine SELECT DATABASE()
+2026-02-05 15:16:11,177 INFO sqlalchemy.engine.Engine [raw sql] {}
+2026-02-05 15:16:11,178 INFO sqlalchemy.engine.Engine SELECT @@sql_mode
+2026-02-05 15:16:11,178 INFO sqlalchemy.engine.Engine [raw sql] {}
+2026-02-05 15:16:11,179 INFO sqlalchemy.engine.Engine SELECT @@lower_case_table_names
+2026-02-05 15:16:11,179 INFO sqlalchemy.engine.Engine [raw sql] {}
+2026-02-05 15:16:11,181 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-02-05 15:16:11,189 INFO sqlalchemy.engine.Engine SELECT count(*) AS count_1 
+FROM (SELECT clientes.alias AS clientes_alias, clientes.nombre AS clientes_nombre, clientes.apellido_paterno AS clientes_apellido_paterno, clientes.apellido_materno AS clientes_apellido_materno, clientes.email AS clientes_email, clientes.telefono AS clientes_telefono, clientes.rfc AS clientes_rfc, clientes.tipo_figura AS clientes_tipo_figura, clientes.razon_social AS clientes_razon_social, clientes.calle AS clientes_calle, clientes.numero AS clientes_numero, clientes.colonia AS clientes_colonia, clientes.ciudad AS clientes_ciudad, clientes.estado AS clientes_estado, clientes.codigo_postal AS clientes_codigo_postal, clientes.activo AS clientes_activo, clientes.local_id AS clientes_local_id, clientes.id AS clientes_id, clientes.fecha_creacion AS clientes_fecha_creacion, clientes.fecha_actualizacion AS clientes_fecha_actualizacion 
+FROM clientes) AS anon_1
+2026-02-05 15:16:11,189 INFO sqlalchemy.engine.Engine [generated in 0.00059s] {}
+2026-02-05 15:16:11,195 INFO sqlalchemy.engine.Engine SELECT usuarios.nombre AS usuarios_nombre, usuarios.apellido_paterno AS usuarios_apellido_paterno, usuarios.apellido_materno AS usuarios_apellido_materno, usuarios.email AS usuarios_email, usuarios.telefono AS usuarios_telefono, usuarios.nombre_usuario AS usuarios_nombre_usuario, usuarios.clave_hash AS usuarios_clave_hash, usuarios.rol AS usuarios_rol, usuarios.estado AS usuarios_estado, usuarios.local_id AS usuarios_local_id, usuarios.ultimo_login AS usuarios_ultimo_login, usuarios.intentos_fallidos AS usuarios_intentos_fallidos, usuarios.bloqueado_hasta AS usuarios_bloqueado_hasta, usuarios.debe_cambiar_clave AS usuarios_debe_cambiar_clave, usuarios.tema_interfaz AS usuarios_tema_interfaz, usuarios.id AS usuarios_id, usuarios.fecha_creacion AS usuarios_fecha_creacion, usuarios.fecha_actualizacion AS usuarios_fecha_actualizacion 
+FROM usuarios 
+ LIMIT %(param_1)s
+2026-02-05 15:16:11,195 INFO sqlalchemy.engine.Engine [generated in 0.00031s] {'param_1': 1}
+2026-02-05 15:16:11,200 INFO sqlalchemy.engine.Engine SELECT clientes.alias AS clientes_alias, clientes.nombre AS clientes_nombre, clientes.apellido_paterno AS clientes_apellido_paterno, clientes.apellido_materno AS clientes_apellido_materno, clientes.email AS clientes_email, clientes.telefono AS clientes_telefono, clientes.rfc AS clientes_rfc, clientes.tipo_figura AS clientes_tipo_figura, clientes.razon_social AS clientes_razon_social, clientes.calle AS clientes_calle, clientes.numero AS clientes_numero, clientes.colonia AS clientes_colonia, clientes.ciudad AS clientes_ciudad, clientes.estado AS clientes_estado, clientes.codigo_postal AS clientes_codigo_postal, clientes.activo AS clientes_activo, clientes.local_id AS clientes_local_id, clientes.id AS clientes_id, clientes.fecha_creacion AS clientes_fecha_creacion, clientes.fecha_actualizacion AS clientes_fecha_actualizacion 
+FROM clientes
+2026-02-05 15:16:11,200 INFO sqlalchemy.engine.Engine [generated in 0.00027s] {}
+2026-02-05 15:16:11,204 INFO sqlalchemy.engine.Engine SELECT productos.codigo AS productos_codigo, productos.codigo_barras AS productos_codigo_barras, productos.nombre AS productos_nombre, productos.descripcion AS productos_descripcion, productos.marca AS productos_marca, productos.modelo AS productos_modelo, productos.categoria AS productos_categoria, productos.precio_compra AS productos_precio_compra, productos.precio_venta AS productos_precio_venta, productos.precio_venta_credito AS productos_precio_venta_credito, productos.stock_total AS productos_stock_total, productos.stock_minimo AS productos_stock_minimo, productos.ubicacion_estante AS productos_ubicacion_estante, productos.ubicacion_fila AS productos_ubicacion_fila, productos.ubicacion_columna AS productos_ubicacion_columna, productos.compatibilidad AS productos_compatibilidad, productos.`año_inicio` AS `productos_año_inicio`, productos.`año_fin` AS `productos_año_fin`, productos.id AS productos_id, productos.fecha_creacion AS productos_fecha_creacion, productos.fecha_actualizacion AS productos_fecha_actualizacion 
+FROM productos
+2026-02-05 15:16:11,204 INFO sqlalchemy.engine.Engine [generated in 0.00033s] {}
+✅ Usuario: admin
+✅ Encontrados 5 clientes y 100 productos
+2026-02-05 15:16:11,216 INFO sqlalchemy.engine.Engine SELECT ventas.folio AS ventas_folio, ventas.local_id AS ventas_local_id, ventas.usuario_id AS ventas_usuario_id, ventas.cliente_id AS ventas_cliente_id, ventas.tipo_venta AS ventas_tipo_venta, ventas.estado AS ventas_estado, ventas.subtotal AS ventas_subtotal, ventas.descuento AS ventas_descuento, ventas.iva AS ventas_iva, ventas.total AS ventas_total, ventas.pago_recibido AS ventas_pago_recibido, ventas.cambio AS ventas_cambio, ventas.fecha_limite_pago AS ventas_fecha_limite_pago, ventas.saldo_pendiente AS ventas_saldo_pendiente, ventas.metodo_pago AS ventas_metodo_pago, ventas.id AS ventas_id, ventas.fecha_creacion AS ventas_fecha_creacion, ventas.fecha_actualizacion AS ventas_fecha_actualizacion 
+FROM ventas 
+WHERE ventas.estado = %(estado_1)s 
+ LIMIT %(param_1)s
+2026-02-05 15:16:11,216 INFO sqlalchemy.engine.Engine [generated in 0.00032s] {'estado_1': 'COMPLETADA', 'param_1': 1}
+Traceback (most recent call last):
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\sql\sqltypes.py", line 1647, in _object_value_for_elem
+    return self._object_lookup[elem]
+           ~~~~~~~~~~~~~~~~~~~^^^^^^
+KeyError: 'contado'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\Users\india\Documents\GitHub\Refaccionaria-Oviedo\REFACCIONARIA\insertar_datos_prueba_graficas.py", line 77, in insertar_datos_prueba
+    ).first()
+      ^^^^^^^
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\orm\query.py", line 2748, in first
+    return self.limit(1)._iter().first()  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\engine\result.py", line 1803, in first
+    return self._only_one_row(
+           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\engine\result.py", line 757, in _only_one_row
+    row: Optional[_InterimRowType[Any]] = onerow(hard_close=True)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\engine\result.py", line 1690, in _fetchone_impl
+    return self._real_result._fetchone_impl(hard_close=hard_close)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\engine\result.py", line 2282, in _fetchone_impl
+    row = next(self.iterator, _NO_ROW)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\orm\loading.py", line 215, in chunks
+    fetch = cursor._raw_all_rows()
+            ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\engine\result.py", line 547, in _raw_all_rows
+    return [make_row(row) for row in rows]
+            ^^^^^^^^^^^^^
+  File "lib\\sqlalchemy\\cyextension\\resultproxy.pyx", line 16, in sqlalchemy.cyextension.resultproxy.BaseRow.__init__
+  File "lib\\sqlalchemy\\cyextension\\resultproxy.pyx", line 73, in sqlalchemy.cyextension.resultproxy._apply_processors
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\sql\sqltypes.py", line 1767, in process
+    value = self._object_value_for_elem(value)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\dialects\mysql\enumerated.py", line 87, in _object_value_for_elem
+    return super()._object_value_for_elem(elem)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\sql\sqltypes.py", line 1649, in _object_value_for_elem
+    raise LookupError(
+LookupError: 'contado' is not among the defined enum values. Enum name: tipoventa. Possible values: CONTADO, CREDITO, APARTADO
+❌ Error: 'contado' is not among the defined enum values. Enum name: tipoventa. Possible values: CONTADO, CREDITO, APARTADO
+2026-02-05 15:16:11,226 INFO sqlalchemy.engine.Engine ROLLBACK

@@ -474,8 +474,10 @@
                 <label>Sucursal</label>
                 <input type="text" id="filtroSucursal" placeholder="Sucursal">
             </div>
-            <div>
-                <button type="submit" class="btn-primary">Filtrar</button>
+            <div style="display: flex; gap: 8px;">
+                <button type="submit" class="btn-primary" style="flex: 1;">Filtrar</button>
+                <button type="button" class="btn-primary" onclick="limpiarFiltros()"
+                    style="flex: 1; background: #666;">🗑 Limpiar</button>
             </div>
         </form>
 
@@ -675,8 +677,54 @@
             cargarDatos();
         }
 
-        function actualizarListado() {
-            cargarDatos();
+        function limpiarFiltros() {
+            // Limpiar todos los campos de filtro
+            document.getElementById('filtroFolio').value = '';
+            document.getElementById('filtroCliente').value = '';
+            document.getElementById('filtroVenta').value = '';
+            document.getElementById('filtroFecha').value = '';
+            document.getElementById('filtroMonto').value = '';
+            document.getElementById('filtroSucursal').value = '';
+
+            // Recargar todas las devoluciones sin filtros
+            cargarTodasLasDevoluciones();
+        }
+
+        async function cargarTodasLasDevoluciones() {
+            try {
+                const locales = cargarDevolucionesLocales();
+                const hoy = new Date();
+                const hace30 = new Date();
+                hace30.setDate(hoy.getDate() - 30);
+                const inicio = hace30.toISOString().slice(0, 10);
+                const fin = hoy.toISOString().slice(0, 10);
+
+                const params = new URLSearchParams({
+                    fecha_inicio: inicio,
+                    fecha_fin: fin
+                });
+
+                const resp = await fetch(`${API_BASE}/reportes/devoluciones-detalladas?${params.toString()}`);
+                let resultados = [];
+
+                if (resp.ok) {
+                    const data = await resp.json();
+                    resultados = [...locales, ...(data.devoluciones || [])];
+                } else {
+                    resultados = locales;
+                }
+
+                devoluciones = resultados;
+                renderTabla();
+                actualizarResumen(devoluciones.length, devoluciones.reduce((sum, d) => sum + parseFloat(d.total || d.monto || 0), 0));
+                mostrarAlerta('Filtros limpiados - Mostrando todas las devoluciones', 'success');
+            } catch (error) {
+                console.error('Error al cargar devoluciones:', error);
+                const locales = cargarDevolucionesLocales();
+                devoluciones = locales;
+                renderTabla();
+                actualizarResumen(devoluciones.length, devoluciones.reduce((sum, d) => sum + parseFloat(d.total || d.monto || 0), 0));
+            }
         }
 
         async function cargarDatos() {
@@ -749,6 +797,10 @@
                 actualizarResumen(devoluciones.length, devoluciones.reduce((sum, d) => sum + parseFloat(d.total || d.monto || 0), 0));
                 mostrarAlerta('Mostrando solo devoluciones locales (sin conexión al servidor)');
             }
+        }
+
+        function actualizarListado() {
+            cargarDatos();
         }
 
         function actualizarResumen(total, monto) {

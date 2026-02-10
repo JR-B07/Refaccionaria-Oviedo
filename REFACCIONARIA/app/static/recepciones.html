@@ -791,6 +791,12 @@
             border: 1px solid #f0e1a0;
         }
 
+        .badge.status-active {
+            background: #28a745;
+            color: #fff;
+            border: 1px solid #1e7e34;
+        }
+
         .erp-table-actions {
             display: flex;
             align-items: center;
@@ -811,8 +817,13 @@
             color: #c41e3a;
             background: transparent;
         }
+
+        .link-btn:hover {
+            background: rgba(196, 30, 58, 0.1);
+        }
     </style>
-    <script src="/static/js/sucursal_selector.js"></script>
+    <script src="/static/js/sucursal_selector.js?v=20260209120500"></script>
+    <!-- Cache buster: 20260209115000 -->
 </head>
 
 <body>
@@ -838,7 +849,6 @@
                     <button class="erp-btn" onclick="abrirEtiquetas()">🏷️ Etiquetar</button>
                 </div>
                 <div class="center">
-                    <div class="chip">Folio <span id="folioLabel">B2800</span></div>
                     <div style="font-weight:700;color:#c41e3a">DETALLE DE RECEPCIÓN</div>
                 </div>
                 <div class="right">
@@ -940,17 +950,158 @@
                 </div>
             </div>
         </div>
+
+        <!-- HISTORIAL DE RECEPCIONES -->
+        <div class="erp-container" style="margin-top: 20px;">
+            <div class="erp-toolbar">
+                <div class="left">
+                    <div style="font-weight:700;color:#c41e3a">HISTORIAL DE RECEPCIONES</div>
+                </div>
+                <div class="right">
+                    <button class="erp-btn" onclick="cargarHistorialRecepciones()">🔄 Recargar</button>
+                </div>
+            </div>
+
+            <!-- Filtros de búsqueda por fecha -->
+            <div class="erp-grid"
+                style="background:#fff;padding:12px;border-radius:4px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+                <div class="erp-field">
+                    <label>Fecha Inicio</label>
+                    <input type="date" id="filtroFechaInicio" placeholder="Desde">
+                </div>
+                <div class="erp-field">
+                    <label>Fecha Fin</label>
+                    <input type="date" id="filtroFechaFin" placeholder="Hasta">
+                </div>
+                <div class="erp-field">
+                    <label>Factura</label>
+                    <input type="text" id="filtroFactura" placeholder="Número de factura">
+                </div>
+                <div class="erp-field">
+                    <label>Folio</label>
+                    <input type="text" id="filtroFolio" placeholder="Folio">
+                </div>
+                <div class="erp-field">
+                    <label>Estado</label>
+                    <select id="filtroEstado">
+                        <option value="">-- Todos --</option>
+                        <option value="pendiente">Pendiente</option>
+                        <option value="parcial">Parcial</option>
+                        <option value="completo">Completo</option>
+                        <option value="cancelado">Cancelado</option>
+                    </select>
+                </div>
+                <div style="display:flex;gap:8px;align-items:flex-end;">
+                    <button class="erp-btn primary" onclick="aplicarFiltros()" style="flex:1;">🔍 Buscar</button>
+                    <button class="erp-btn" onclick="limpiarFiltros()" style="flex:1;">🗑 Limpiar</button>
+                </div>
+            </div>
+
+            <div class="erp-table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Folio</th>
+                            <th>Proveedor</th>
+                            <th>Factura</th>
+                            <th>Fecha</th>
+                            <th class="numeric">Subtotal</th>
+                            <th class="numeric">Descuento</th>
+                            <th class="numeric">IVA</th>
+                            <th class="numeric">Total</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historialRecepcionesTbody">
+                        <tr>
+                            <td colspan="10" style="text-align:center;padding:20px;color:#999;">
+                                Cargando recepciones...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
+    <!-- Modal para vista previa del ticket -->
+    <div id="ticketPreviewModal"
+        style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
+        <div
+            style="background:#fff;border-radius:8px;padding:20px;max-width:400px;max-height:90vh;overflow-y:auto;position:relative;">
+            <button onclick="cerrarTicketPreview()"
+                style="position:absolute;top:10px;right:10px;background:#c41e3a;color:#fff;border:none;border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:18px;line-height:1;">×</button>
+            <div id="ticketPreviewContent"></div>
+            <div style="margin-top:15px;display:flex;gap:10px;">
+                <button onclick="imprimirTicketRecepcion()" class="erp-btn primary" style="flex:1;">🖨️
+                    Imprimir</button>
+                <button onclick="cerrarTicketPreview()" class="erp-btn muted" style="flex:1;">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para detalle de recepción -->
+    <div id="detalleRecepcionModal"
+        style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
+        <div
+            style="background:#fff;border-radius:8px;padding:25px;max-width:900px;width:90%;max-height:90vh;overflow-y:auto;position:relative;">
+            <button onclick="cerrarDetalleRecepcion()"
+                style="position:absolute;top:15px;right:15px;background:#c41e3a;color:#fff;border:none;border-radius:50%;width:35px;height:35px;cursor:pointer;font-size:20px;line-height:1;">×</button>
+            <div id="detalleRecepcionContent"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <script>
+        // VERSION: 2.5.2 - Changed complete status color to brighter green
         const API_BASE = '/api/v1';
         const IVA = 0.16;
-        let folioActual = 'B2800';
+        let folioActual = '';
         let filas = [];
 
-        document.addEventListener('DOMContentLoaded', () => {
+        function generarFolioUnico() {
+            const timestamp = Date.now().toString().slice(-6);
+            const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+            return `REC-${timestamp}-${random}`;
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
             const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const token = localStorage.getItem('access_token');
+
+            // Verificar que hay sesión activa
+            if (!token || !user.id) {
+                console.error('❌ No hay sesión activa. Redirigiendo a login...');
+                alert('Sesión expirada. Inicia sesión nuevamente.');
+                window.location.href = '/login';
+                return;
+            }
+
+            // Verificar que el token sea válido
+            try {
+                const testResponse = await fetch(`${API_BASE}/auth/test-token`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!testResponse.ok) {
+                    console.error('❌ Token inválido o expirado');
+                    alert('Tu sesión ha expirado. Inicia sesión nuevamente.');
+                    localStorage.clear();
+                    window.location.href = '/login';
+                    return;
+                }
+                console.log('✅ Token válido');
+            } catch (error) {
+                console.error('❌ Error al verificar token:', error);
+                alert('Error al verificar sesión. Inicia sesión nuevamente.');
+                window.location.href = '/login';
+                return;
+            }
+
             document.getElementById('userName').textContent = user.name || user.username || 'Usuario';
+
+            // Generar folio único para esta recepción
+            folioActual = generarFolioUnico();
 
             const hoy = new Date();
             document.getElementById('recibidoDate').valueAsDate = hoy;
@@ -959,6 +1110,9 @@
 
             renderFilas();
             recalcular();
+
+            // Cargar historial de recepciones
+            cargarHistorialRecepciones();
         });
 
         function goBack() {
@@ -980,7 +1134,7 @@
                 const subtotal = base - descMonto + f.gastos;
                 const costo = f.recibido > 0 ? subtotal / f.recibido : f.precio;
                 return `
-                    <tr>
+                    <tr data-index="${idx}">
                         <td><input value="${f.producto || ''}" oninput="actualizarFila(${idx}, 'producto', this.value)"></td>
                         <td><input value="${f.oc ?? ''}" oninput="actualizarFila(${idx}, 'oc', this.value)"></td>
                         <td><input value="${f.factura || ''}" oninput="actualizarFila(${idx}, 'factura', this.value)"></td>
@@ -988,8 +1142,8 @@
                         <td class="numeric"><input type="number" step="0.01" min="0" value="${f.descuento}" oninput="actualizarFila(${idx}, 'descuento', parseFloat(this.value)||0)"></td>
                         <td class="numeric"><input type="number" step="1" min="0" value="${f.recibido}" oninput="actualizarFila(${idx}, 'recibido', parseFloat(this.value)||0)"></td>
                         <td class="numeric"><input type="number" step="0.01" min="0" value="${f.gastos}" oninput="actualizarFila(${idx}, 'gastos', parseFloat(this.value)||0)"></td>
-                        <td class="numeric">${subtotal.toFixed(2)}</td>
-                        <td class="numeric">${costo.toFixed(2)}</td>
+                        <td class="numeric subtotal-cell">${subtotal.toFixed(2)}</td>
+                        <td class="numeric costo-cell">${costo.toFixed(2)}</td>
                         <td class="erp-table-actions"><button class="link-btn" onclick="eliminarFila(${idx})">✕</button></td>
                     </tr>
                 `;
@@ -997,10 +1151,29 @@
             actualizarBadges();
         }
 
+        function actualizarFilaCalculada(index) {
+            const f = filas[index];
+            if (!f) return;
+
+            const base = f.precio * f.recibido;
+            const descMonto = base * (f.descuento / 100);
+            const subtotal = base - descMonto + f.gastos;
+            const costo = f.recibido > 0 ? subtotal / f.recibido : f.precio;
+
+            const row = document.querySelector(`tr[data-index="${index}"]`);
+            if (row) {
+                const subtotalCell = row.querySelector('.subtotal-cell');
+                const costoCell = row.querySelector('.costo-cell');
+                if (subtotalCell) subtotalCell.textContent = subtotal.toFixed(2);
+                if (costoCell) costoCell.textContent = costo.toFixed(2);
+            }
+        }
+
         function actualizarFila(index, campo, valor) {
             if (!filas[index]) return;
             filas[index][campo] = valor;
             recalcular();
+            actualizarFilaCalculada(index);
         }
 
         function agregarFila() {
@@ -1017,8 +1190,14 @@
 
         function sincronizarFactura() {
             const factura = document.getElementById('facturaInput').value;
-            filas = filas.map(f => ({ ...f, factura }));
-            renderFilas();
+            filas.forEach((f, idx) => {
+                f.factura = factura;
+                const row = document.querySelector(`tr[data-index="${idx}"]`);
+                if (row) {
+                    const facturaInput = row.querySelectorAll('input')[2]; // Tercer input es factura
+                    if (facturaInput) facturaInput.value = factura;
+                }
+            });
         }
 
         function recalcular() {
@@ -1052,8 +1231,7 @@
             document.getElementById('lblIva').textContent = `$ ${iva.toFixed(2)}`;
             document.getElementById('lblTotal').textContent = `$ ${total.toFixed(2)}`;
             document.getElementById('lblArticulos').textContent = articulos;
-
-            renderFilas();
+            actualizarBadges();
         }
 
         function actualizarBadges() {
@@ -1066,45 +1244,93 @@
                 return;
             }
 
-            const total = parseFloat(document.getElementById('lblTotal').textContent.replace('$', '')) || 0;
-            const subtotal = parseFloat(document.getElementById('lblSubtotal').textContent.replace('$', '')) || 0;
-            const descuento = parseFloat(document.getElementById('lblDescuento').textContent.replace('$', '')) || 0;
-            const iva = parseFloat(document.getElementById('lblIva').textContent.replace('$', '')) || 0;
+            const total = parseFloat(document.getElementById('lblTotal').textContent.replace('$', '').trim()) || 0;
+            const subtotal = parseFloat(document.getElementById('lblSubtotal').textContent.replace('$', '').trim()) || 0;
+            const descuento = parseFloat(document.getElementById('lblDescuento').textContent.replace('$', '').trim()) || 0;
+            const iva = parseFloat(document.getElementById('lblIva').textContent.replace('$', '').trim()) || 0;
+
+            // Validar que haya al menos un artículo con cantidad
+            const articulosValidos = filas.some(f => f.recibido > 0);
+            if (!articulosValidos) {
+                alert('Debe tener al menos un artículo con cantidad recibida');
+                return;
+            }
+
+            // Obtener datos del usuario
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const local_id = user.local_id || 1;
+            const usuario_id = user.id || null;
+
+            // Usar ID de proveedor genérico si no hay proveedor específico
+            let proveedor_id = 1;
 
             const payload = {
                 folio: folioActual,
-                proveedor: document.getElementById('proveedorInput').value,
-                factura: document.getElementById('facturaInput').value,
-                fecha: document.getElementById('fechaRecepcion').value,
-                recibido: document.getElementById('recibidoDate').value,
-                facturado: document.getElementById('facturadoDate').value,
-                subtotal,
-                descuento,
-                iva,
-                total,
-                items: filas.map(f => ({
-                    producto: f.producto,
-                    oc: f.oc,
-                    factura: f.factura,
-                    precio: f.precio,
-                    descuento: f.descuento,
-                    cantidad: f.recibido,
-                    gastos: f.gastos
+                proveedor_id: proveedor_id,
+                local_id: local_id,
+                factura: document.getElementById('facturaInput').value || '',
+                fecha: new Date(document.getElementById('fechaRecepcion').value + 'T00:00:00').toISOString(),
+                subtotal: parseFloat(subtotal.toFixed(2)),
+                descuento: parseFloat(descuento.toFixed(2)),
+                iva: parseFloat(iva.toFixed(2)),
+                total: parseFloat(total.toFixed(2)),
+                estado: 'pendiente',
+                notas: document.getElementById('proveedorInput').value || 'Proveedor General',
+                usuario_id: usuario_id,
+                detalles: filas.map(f => ({
+                    producto_nombre: f.producto || 'Sin especificar',
+                    oc: f.oc || '',
+                    factura: f.factura || '',
+                    precio: parseFloat(f.precio) || 0,
+                    descuento: parseFloat(f.descuento) || 0,
+                    cantidad_recibida: parseFloat(f.recibido) || 0,
+                    gastos: parseFloat(f.gastos) || 0
                 }))
             };
 
+            console.log('Payload [v2.1]:', payload);
+
             try {
+                const token = localStorage.getItem('access_token');
+                const headers = {
+                    'Content-Type': 'application/json'
+                };
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
+
                 const resp = await fetch(`${API_BASE}/compras`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'accept': 'application/json' },
+                    headers: headers,
                     body: JSON.stringify(payload)
                 });
 
-                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-                alert('Recepción guardada');
+                const respData = await resp.text();
+                console.log('Respuesta:', respData, 'Status:', resp.status);
+
+                if (!resp.ok) {
+                    try {
+                        const errorData = JSON.parse(respData);
+                        throw new Error(`HTTP ${resp.status}: ${errorData.detail || JSON.stringify(errorData)}`);
+                    } catch (parseError) {
+                        throw new Error(`HTTP ${resp.status}: ${respData || 'Error desconocido'}`);
+                    }
+                }
+
+                alert('✓ Recepción guardada exitosamente');
+                // Generar nuevo folio para la siguiente recepción
+                folioActual = generarFolioUnico();
+                // Limpiar formulario
+                filas = [];
+                document.getElementById('proveedorInput').value = '';
+                document.getElementById('facturaInput').value = '';
+                renderFilas();
+                recalcular();
+                // Recargar historial
+                cargarHistorialRecepciones();
             } catch (e) {
-                console.error(e);
-                alert('Error al guardar: ' + e.message);
+                console.error('Error completo:', e);
+                alert('❌ Error al guardar: ' + e.message);
             }
         }
 
@@ -1122,6 +1348,21 @@
 
         function verAnterior() {
             alert('Ir al historial de recepciones');
+        }
+
+        function aplicarFiltros() {
+            console.log('Aplicando filtros de búsqueda...');
+            cargarHistorialRecepciones();
+        }
+
+        function limpiarFiltros() {
+            console.log('Limpiando filtros...');
+            document.getElementById('filtroFechaInicio').value = '';
+            document.getElementById('filtroFechaFin').value = '';
+            document.getElementById('filtroFactura').value = '';
+            document.getElementById('filtroFolio').value = '';
+            document.getElementById('filtroEstado').value = '';
+            cargarHistorialRecepciones();
         }
 
         function revertirRecepcion() {
@@ -1167,6 +1408,566 @@
         if (sucursalNombre) {
             document.getElementById('sucursalBadge').textContent = sucursalNombre;
         }
+
+        // Variables para el historial y tickets
+        let recepcionesHistorial = [];
+        let recepcionParaTicket = null;
+
+        async function cargarHistorialRecepciones() {
+            try {
+                const token = localStorage.getItem('access_token');
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+                console.log('=== CARGANDO HISTORIAL DE RECEPCIONES ===');
+                console.log('Usuario actual:', user);
+                console.log('Token disponible:', !!token);
+
+                if (!token) {
+                    console.error('❌ No hay token disponible');
+                    document.getElementById('historialRecepcionesTbody').innerHTML = `
+                        <tr><td colspan="10" style="text-align:center;padding:20px;color:#c41e3a;">
+                            Error: No hay sesión activa. Inicia sesión nuevamente.
+                        </td></tr>`;
+                    return;
+                }
+
+                // Construir parámetros de filtro
+                const params = new URLSearchParams();
+
+                const fechaInicio = document.getElementById('filtroFechaInicio').value;
+                const fechaFin = document.getElementById('filtroFechaFin').value;
+                const factura = document.getElementById('filtroFactura').value;
+                const folio = document.getElementById('filtroFolio').value;
+                const estado = document.getElementById('filtroEstado').value;
+
+                if (fechaInicio) params.append('fecha_inicio', fechaInicio);
+                if (fechaFin) params.append('fecha_fin', fechaFin);
+                if (factura) params.append('factura', factura);
+                if (folio) params.append('folio', folio);
+                if (estado) params.append('estado', estado);
+
+                const queryString = params.toString();
+                const url = `${API_BASE}/compras${queryString ? '?' + queryString : ''}`;
+
+                console.log('URL de búsqueda:', url);
+
+                const headers = {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                };
+
+                console.log('Headers a enviar:', headers);
+
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: headers
+                });
+
+                console.log('Response status:', response.status);
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('✅ Datos recibidos:', data);
+                    console.log('✅ Primer elemento:', data[0]);
+                    console.log('✅ IDs disponibles:', data.map(r => r.id));
+                    recepcionesHistorial = Array.isArray(data) ? data : [];
+                    console.log('✅ recepcionesHistorial asignado:', recepcionesHistorial.length, 'elementos');
+                    renderHistorialRecepciones();
+                } else {
+                    const errorText = await response.text();
+                    console.error('❌ Error al cargar historial:', response.status, errorText);
+
+                    // Si es 401, el token expiró - redirigir al login
+                    if (response.status === 401) {
+                        document.getElementById('historialRecepcionesTbody').innerHTML = `
+                            <tr><td colspan="10" style="text-align:center;padding:30px;">
+                                <div style="background:#fff3cd;border:1px solid #ffc107;border-radius:8px;padding:20px;max-width:400px;margin:0 auto;">
+                                    <div style="font-size:48px;margin-bottom:15px;">⚠️</div>
+                                    <div style="font-size:18px;font-weight:600;color:#856404;margin-bottom:10px;">Sesión Expirada</div>
+                                    <div style="color:#856404;margin-bottom:15px;">Tu sesión ha caducado. Redirigiendo al login...</div>
+                                    <button onclick="window.location.href='/login'" class="erp-btn primary" style="margin-top:10px;">
+                                        🔐 Ir a Login
+                                    </button>
+                                </div>
+                            </td></tr>`;
+
+                        // Redirigir automáticamente después de 3 segundos
+                        setTimeout(() => {
+                            localStorage.clear();
+                            window.location.href = '/login';
+                        }, 3000);
+                    } else {
+                        document.getElementById('historialRecepcionesTbody').innerHTML = `
+                            <tr><td colspan="10" style="text-align:center;padding:20px;color:#c41e3a;">
+                                Error ${response.status} al cargar historial
+                            </td></tr>`;
+                    }
+                }
+            } catch (error) {
+                console.error('Error completo:', error);
+                document.getElementById('historialRecepcionesTbody').innerHTML = `
+                    <tr><td colspan="10" style="text-align:center;padding:20px;color:#c41e3a;">
+                        Error: ${error.message}
+                    </td></tr>`;
+            }
+        }
+
+        function renderHistorialRecepciones() {
+            const tbody = document.getElementById('historialRecepcionesTbody');
+
+            if (!recepcionesHistorial || recepcionesHistorial.length === 0) {
+                tbody.innerHTML = `
+                    <tr><td colspan="10" style="text-align:center;padding:20px;color:#999;">
+                        No hay recepciones registradas
+                    </td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = recepcionesHistorial.map((recepcion, idx) => {
+                const fecha = new Date(recepcion.fecha).toLocaleDateString('es-MX');
+                const estadoNormalized = (recepcion.estado || '').toLowerCase();
+
+                let estadoTexto = 'Pendiente';
+                let estadoColor = '#ffc107';
+                let estadoTextColor = '#000';
+
+                if (estadoNormalized === 'completo') {
+                    estadoTexto = 'Completo';
+                    estadoColor = '#28a745';
+                    estadoTextColor = '#fff';
+                } else if (estadoNormalized === 'cancelado') {
+                    estadoTexto = 'Cancelado';
+                    estadoColor = '#fd7e14';
+                    estadoTextColor = '#fff';
+                } else if (estadoNormalized === 'parcial') {
+                    estadoTexto = 'Parcial';
+                    estadoColor = '#17a2b8';
+                    estadoTextColor = '#fff';
+                }
+
+                return `
+                    <tr>
+                        <td>${recepcion.folio || '-'}</td>
+                        <td>${recepcion.proveedor_id || '-'}</td>
+                        <td>${recepcion.factura || '-'}</td>
+                        <td>${fecha}</td>
+                        <td class="numeric">$ ${parseFloat(recepcion.subtotal || 0).toFixed(2)}</td>
+                        <td class="numeric">$ ${parseFloat(recepcion.descuento || 0).toFixed(2)}</td>
+                        <td class="numeric">$ ${parseFloat(recepcion.iva || 0).toFixed(2)}</td>
+                        <td class="numeric">$ ${parseFloat(recepcion.total || 0).toFixed(2)}</td>
+                        <td><span class="badge" style="background:${estadoColor};color:${estadoTextColor};">${estadoTexto}</span></td>
+                        <td class="erp-table-actions">
+                            <button class="link-btn" onclick="verTicketRecepcion(${idx})" title="Imprimir ticket">🖨️</button>
+                            <button class="link-btn" onclick="verDetalleRecepcion(${recepcion.id})" title="Ver detalle">👁️</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function verTicketRecepcion(index) {
+            recepcionParaTicket = recepcionesHistorial[index];
+            if (!recepcionParaTicket) {
+                alert('Error: No se encontró la recepción');
+                return;
+            }
+
+            const contenidoTicket = generarTicketRecepcion(recepcionParaTicket);
+            document.getElementById('ticketPreviewContent').innerHTML = contenidoTicket;
+            document.getElementById('ticketPreviewModal').style.display = 'flex';
+
+            // Generar código de barras
+            setTimeout(() => {
+                generarCodigoBarrasRecepcion(recepcionParaTicket.folio);
+            }, 100);
+        }
+
+        function generarTicketRecepcion(recepcion) {
+            const fecha = new Date(recepcion.fecha).toLocaleDateString('es-MX');
+            const folio = recepcion.folio || 'REC-000';
+
+            return `
+<div style="font-family: 'Courier New', monospace; font-size: 10px; line-height: 1.3; color: #000; text-align: center; width: 100%; max-width: 300px; margin: 0 auto;">
+    <!-- Título principal -->
+    <div style="font-weight: bold; font-size: 12px; letter-spacing: 2px; margin-bottom: 3px;">R E C E P C I Ó N</div>
+    
+    <!-- Nombre empresa -->
+    <div style="font-weight: bold; font-size: 11px; margin-bottom: 2px;">REFACCIONARIA OVIEDO</div>
+    
+    <!-- Dirección -->
+    <div style="font-size: 8px; line-height: 1.3; margin-bottom: 4px;">
+        LIBRAMIENTO SUR #717-B COL.<br>
+        MAGISTERIAL, C.P. 37900.<br>
+        SAN LUIS DE LA PAZ, GTO.<br>
+        WhatsApp: 468 113 2367
+    </div>
+    
+    <!-- Línea punteada -->
+    <div style="border-top: 1px dashed #000; margin: 5px 0; padding-top: 3px;"></div>
+    
+    <!-- Fecha -->
+    <div style="font-size: 8px; margin-bottom: 5px;">FECHA: ${fecha}</div>
+    
+    <!-- Código de barras -->
+    <div style="margin: 6px 0; text-align: center;">
+        <svg id="recepcionBarcode" style="max-width: 110px; max-height: 34px;"></svg>
+    </div>
+    
+    <!-- Línea punteada -->
+    <div style="border-top: 1px dashed #000; margin: 5px 0; padding-top: 3px;"></div>
+    
+    <!-- Información de la recepción -->
+    <div style="border: 2px solid #000; padding: 6px; margin: 5px 0; font-size: 9px; line-height: 1.6; text-align: left;">
+        <div>FOLIO: <span style="float: right; font-weight: bold;">${folio}</span></div>
+        <div>FACTURA: <span style="float: right; font-weight: bold;">${recepcion.factura || 'N/A'}</span></div>
+        <div>PROVEEDOR: <span style="float: right; font-weight: bold;">#${recepcion.proveedor_id || '-'}</span></div>
+    </div>
+    
+    <!-- Línea punteada -->
+    <div style="border-top: 1px dashed #000; margin: 5px 0; padding-top: 3px;"></div>
+    
+    <!-- Totales -->
+    <div style="font-size: 9px; text-align: left; line-height: 1.7;">
+        <div>SUBTOTAL: <span style="float: right;">$ ${parseFloat(recepcion.subtotal || 0).toFixed(2)}</span></div>
+        <div>DESCUENTO: <span style="float: right;">$ ${parseFloat(recepcion.descuento || 0).toFixed(2)}</span></div>
+        <div>IVA: <span style="float: right;">$ ${parseFloat(recepcion.iva || 0).toFixed(2)}</span></div>
+        <div style="border-top: 1px solid #000; margin-top: 3px; padding-top: 3px; font-weight: bold; font-size: 11px;">
+            TOTAL: <span style="float: right;">$ ${parseFloat(recepcion.total || 0).toFixed(2)}</span>
+        </div>
+    </div>
+    
+    <!-- Línea punteada -->
+    <div style="border-top: 1px dashed #000; margin: 5px 0; padding-top: 3px;"></div>
+    
+    <!-- Estado -->
+    <div style="font-size: 8px; margin-bottom: 4px;">
+        <div style="text-align: left;">Estado:</div>
+        <div style="font-weight: bold; text-transform: uppercase; text-align: center; background: #f0f0f0; padding: 4px; border-radius: 3px;">${recepcion.estado || 'PENDIENTE'}</div>
+    </div>
+    
+    ${recepcion.notas ? `
+    <!-- Notas -->
+    <div style="border-top: 1px dashed #000; margin: 5px 0; padding-top: 3px;"></div>
+    <div style="font-size: 8px; text-align: left; margin-bottom: 4px;">
+        <div style="font-weight: bold;">Notas:</div>
+        <div style="margin-top: 2px;">${recepcion.notas}</div>
+    </div>
+    ` : ''}
+    
+    <!-- Línea punteada -->
+    <div style="border-top: 1px dashed #000; margin: 5px 0; padding-top: 5px;"></div>
+    
+    <!-- Logo -->
+    <div style="margin: 6px 0; text-align: center;">
+        <img src="/static/images/logo_blanconegro.png" alt="Logo" style="max-width: 120px; height: auto; opacity: 0.85;">
+    </div>
+    
+    <!-- Lema -->
+    <div style="font-style: italic; font-size: 8px; font-weight: bold; margin: 5px 0; line-height: 1.3;">
+        "NUESTRA EXPERIENCIA<br>
+        MARCA LA DIFERENCIA"
+    </div>
+    
+    <!-- Línea punteada final -->
+    <div style="border-top: 1px dashed #000; margin: 5px 0; padding-top: 3px; font-size: 7px; color: #666;">
+        Generado: ${new Date().toLocaleString('es-MX')}
+    </div>
+</div>
+            `;
+        }
+
+        function generarCodigoBarrasRecepcion(folio) {
+            const numericCode = (folio || '').replace(/[^\d]/g, '').padEnd(12, '0').substring(0, 12);
+            try {
+                if (typeof JsBarcode !== 'undefined') {
+                    const barcode = document.getElementById('recepcionBarcode');
+                    if (barcode) {
+                        JsBarcode(barcode, numericCode, {
+                            format: "CODE128",
+                            width: 1.2,
+                            height: 30,
+                            displayValue: false,
+                            margin: 0
+                        });
+                    }
+                }
+            } catch (e) {
+                console.warn('No se pudo generar código de barras:', e);
+            }
+        }
+
+        function imprimirTicketRecepcion() {
+            if (!recepcionParaTicket) {
+                alert('Error: No hay recepción seleccionada');
+                return;
+            }
+
+            const ticketContent = document.getElementById('ticketPreviewContent').innerHTML;
+
+            const printWindow = window.open('', '_blank');
+            const printHTML = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Imprimir Recepción</title>
+                    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>
+                    <style>
+                        @page {
+                            size: 80mm auto;
+                            margin: 0;
+                        }
+                        
+                        * {
+                            margin: 0;
+                            padding: 0;
+                            box-sizing: border-box;
+                        }
+                        
+                        body {
+                            font-family: 'Courier New', monospace;
+                            width: 80mm;
+                            margin: 0 auto;
+                            padding: 3px;
+                            background-color: white;
+                        }
+                        
+                        @media print {
+                            body {
+                                padding: 0;
+                                margin: 0;
+                                width: 80mm;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${ticketContent}
+                    <script>
+                        window.addEventListener('load', function() {
+                            const folio = '${recepcionParaTicket.folio}';
+                            const numericCode = (folio || '').replace(/[^\\d]/g, '').padEnd(12, '0').substring(0, 12);
+                            try {
+                                const barcode = document.getElementById('recepcionBarcode');
+                                if (barcode && typeof JsBarcode !== 'undefined') {
+                                    JsBarcode(barcode, numericCode, {
+                                        format: "CODE128",
+                                        width: 1.2,
+                                        height: 30,
+                                        displayValue: false,
+                                        margin: 0
+                                    });
+                                }
+                            } catch (e) {
+                                console.warn('Código de barras no generado:', e);
+                            }
+                            
+                            setTimeout(() => {
+                                window.print();
+                            }, 300);
+                        });
+                    <\/script>
+                </body>
+                </html>
+            `;
+
+            printWindow.document.write(printHTML);
+            printWindow.document.close();
+
+            setTimeout(() => {
+                cerrarTicketPreview();
+            }, 1000);
+        }
+
+        function cerrarTicketPreview() {
+            document.getElementById('ticketPreviewModal').style.display = 'none';
+            recepcionParaTicket = null;
+        }
+
+        async function verDetalleRecepcion(id) {
+            try {
+                console.log('=== VER DETALLE DE RECEPCIÓN ===');
+                console.log('ID recibido:', id);
+                console.log('Tipo de ID:', typeof id);
+                console.log('Historial disponible:', recepcionesHistorial);
+                console.log('Total recepciones:', recepcionesHistorial.length);
+
+                const token = localStorage.getItem('access_token');
+                if (!token) {
+                    alert('Error: No hay sesión activa');
+                    return;
+                }
+
+                // Buscar la recepción en el historial local (comparar como números)
+                const recepcion = recepcionesHistorial.find(r => {
+                    console.log(`Comparando: r.id=${r.id} (${typeof r.id}) con id=${id} (${typeof id})`);
+                    return r.id == id; // Usar == para comparación flexible
+                });
+
+                console.log('Recepción encontrada:', recepcion);
+                console.log('Estado de la recepción:', recepcion.estado, '(tipo:', typeof recepcion.estado, ')');
+                // Generar HTML del detalle
+                const fecha = new Date(recepcion.fecha).toLocaleDateString('es-MX', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                const estadoBadge = recepcion.estado && recepcion.estado.toLowerCase() === 'pendiente'
+                    ? `<span class="badge" style="background:#ffc107;color:#000;cursor:pointer;" onclick="cambiarEstadoRecepcion(${recepcion.id}, 'completo')">Pendiente ⟳</span>`
+                    : recepcion.estado && recepcion.estado.toLowerCase() === 'completo'
+                        ? `<span class="badge status-active" style="cursor:pointer;" onclick="cambiarEstadoRecepcion(${recepcion.id}, 'pendiente')">Completo ⟳</span>`
+                        : `<span class="badge" style="background:#fd7e14;color:#fff;cursor:pointer;" onclick="cambiarEstadoRecepcion(${recepcion.id}, 'pendiente')">Cancelado ⟳</span>`;
+
+                let html = `
+                    <div style="margin-bottom:20px;">
+                        <h2 style="color:#c41e3a;margin:0 0 5px 0;font-size:24px;">📦 Detalle de Recepción</h2>
+                        <div style="color:#666;font-size:14px;">ID: ${recepcion.id}</div>
+                    </div>
+
+                    <div style="background:#f8f9fa;border-radius:8px;padding:20px;margin-bottom:20px;">
+                        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;">
+                            <div>
+                                <div style="color:#666;font-size:12px;margin-bottom:5px;font-weight:600;">FOLIO</div>
+                                <div style="font-size:16px;font-weight:600;color:#333;">${recepcion.folio}</div>
+                            </div>
+                            <div>
+                                <div style="color:#666;font-size:12px;margin-bottom:5px;font-weight:600;">FACTURA</div>
+                                <div style="font-size:16px;color:#333;">${recepcion.factura || 'N/A'}</div>
+                            </div>
+                            <div>
+                                <div style="color:#666;font-size:12px;margin-bottom:5px;font-weight:600;">FECHA</div>
+                                <div style="font-size:16px;color:#333;">${fecha}</div>
+                            </div>
+                            <div>
+                                <div style="color:#666;font-size:12px;margin-bottom:5px;font-weight:600;">ESTADO</div>
+                                <div>${estadoBadge}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="background:#f8f9fa;border-radius:8px;padding:20px;margin-bottom:20px;">
+                        <div style="font-weight:600;color:#333;margin-bottom:15px;font-size:16px;">📍 Información Adicional</div>
+                        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;">
+                            <div>
+                                <div style="color:#666;font-size:12px;margin-bottom:5px;">Proveedor</div>
+                                <div style="font-size:14px;color:#333;">${recepcion.proveedor_nombre || 'N/A'}</div>
+                            </div>
+                            <div>
+                                <div style="color:#666;font-size:12px;margin-bottom:5px;">Sucursal</div>
+                                <div style="font-size:14px;color:#333;">${recepcion.local_nombre || 'N/A'}</div>
+                            </div>
+                            <div>
+                                <div style="color:#666;font-size:12px;margin-bottom:5px;">Usuario</div>
+                                <div style="font-size:14px;color:#333;">${recepcion.usuario_nombre || 'N/A'}</div>
+                            </div>
+                        </div>
+                        ${recepcion.notas ? `
+                        <div style="margin-top:15px;padding-top:15px;border-top:1px solid #dee2e6;">
+                            <div style="color:#666;font-size:12px;margin-bottom:5px;">Notas</div>
+                            <div style="font-size:14px;color:#333;">${recepcion.notas}</div>
+                        </div>
+                        ` : ''}
+                    </div>
+
+                    <div style="background:#f8f9fa;border-radius:8px;padding:20px;margin-bottom:20px;">
+                        <div style="font-weight:600;color:#333;margin-bottom:15px;font-size:16px;">💰 Resumen Financiero</div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                            <div style="display:flex;justify-content:space-between;padding:8px 0;">
+                                <span style="color:#666;">Subtotal:</span>
+                                <span style="font-weight:600;color:#333;">$${parseFloat(recepcion.subtotal || 0).toFixed(2)}</span>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;padding:8px 0;">
+                                <span style="color:#666;">Descuento:</span>
+                                <span style="font-weight:600;color:#c41e3a;">-$${parseFloat(recepcion.descuento || 0).toFixed(2)}</span>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;padding:8px 0;">
+                                <span style="color:#666;">IVA (16%):</span>
+                                <span style="font-weight:600;color:#333;">$${parseFloat(recepcion.iva || 0).toFixed(2)}</span>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;padding:8px 0;border-top:2px solid #c41e3a;margin-top:5px;">
+                                <span style="font-weight:700;color:#333;font-size:18px;">TOTAL:</span>
+                                <span style="font-weight:700;color:#c41e3a;font-size:22px;">$${parseFloat(recepcion.total || 0).toFixed(2)}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display:flex;gap:10px;justify-content:flex-end;">
+                        <button onclick="cerrarDetalleRecepcion()" class="erp-btn primary">
+                            Cerrar
+                        </button>
+                    </div>
+                `;
+
+                document.getElementById('detalleRecepcionContent').innerHTML = html;
+                document.getElementById('detalleRecepcionModal').style.display = 'flex';
+
+            } catch (error) {
+                console.error('❌ Error completo al mostrar detalle:', error);
+                console.error('Stack:', error.stack);
+                alert(`Error al cargar el detalle de la recepción:\n${error.message || error}`);
+            }
+        }
+
+        function cerrarDetalleRecepcion() {
+            document.getElementById('detalleRecepcionModal').style.display = 'none';
+        }
+
+        async function cambiarEstadoRecepcion(id, nuevoEstado) {
+            try {
+                const token = localStorage.getItem('access_token');
+                if (!token) {
+                    alert('Error: No hay sesión activa');
+                    return;
+                }
+
+                console.log(`=== CAMBIAR ESTADO ===`);
+                console.log(`Recepción ID: ${id}, Nuevo estado: ${nuevoEstado}`);
+
+                const response = await fetch(`${API_BASE}/compras/${id}/estado?nuevo_estado=${nuevoEstado}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    console.log('✅ Estado actualizado en API:', data);
+
+                    // Actualizar el estado en el historial local
+                    const recepcion = recepcionesHistorial.find(r => r.id == id);
+                    if (recepcion) {
+                        recepcion.estado = nuevoEstado;
+                        console.log('✅ Historial local actualizado');
+                        console.log('Estado actualizado a:', recepcion.estado);
+                    }
+
+                    // Recargar la tabla para mostrar el nuevo estado
+                    renderHistorialRecepciones();
+                    console.log('✅ Tabla actualizada');
+
+                    // Recargar el detalle
+                    verDetalleRecepcion(id);
+
+                    // Mostrar confirmación
+                    console.log(`✅ Estado cambió a: ${nuevoEstado}`);
+                } else {
+                    console.error('❌ Error al actualizar:', data);
+                    alert(`Error: ${data.detail || 'No se pudo actualizar el estado'}`);
+                }
+            } catch (error) {
+                console.error('❌ Error completo:', error);
+                alert(`Error al cambiar estado: ${error.message}`);
+            }
+        }
+
+        // Last update: 2026-02-09 12:45:00 - Added editable receipt status
     </script>
 </body>
 

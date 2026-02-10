@@ -10,7 +10,7 @@ def agregar_sucursales():
         conn = mysql.connector.connect(
             host='localhost',
             user='root',
-            password='',
+            password='root',
             database='refaccionaria_db'
         )
         

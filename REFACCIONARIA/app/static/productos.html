@@ -718,18 +718,15 @@
                         <div>
                             <label style="font-size:11px;color:#666;font-weight:600">Grupo:</label>
                             <select id="grupoSelect"
-                                style="width:100%;padding:8px;border:1px solid #ddd;border-radius:4px;font-size:12px"
+                                style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;font-size:12px;background-color:white;cursor:pointer;position:relative;z-index:100"
                                 onchange="grupoSeleccionarPorSelect()">
-                                <option value="">-- Seleccionar Grupo --</option>
-                                <option value="1">Kit Suspensión Delantera</option>
-                                <option value="2">Sistema Frenos Completo</option>
-                                <option value="3">Filtros Motor Diesel</option>
+                                <option value="">-- Cargando Grupos --</option>
                             </select>
                         </div>
                         <div>
                             <label style="font-size:11px;color:#666;font-weight:600">Línea:</label>
                             <select id="grupoLineaSelect"
-                                style="width:100%;padding:8px;border:1px solid #ddd;border-radius:4px;font-size:12px"
+                                style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;font-size:12px;background-color:white;cursor:pointer;position:relative;z-index:100"
                                 onchange="grupoCargar()">
                                 <option value="">-- Seleccionar Línea --</option>
                             </select>
@@ -737,7 +734,7 @@
                         <div>
                             <label style="font-size:11px;color:#666;font-weight:600">Búsqueda:</label>
                             <input type="text" id="grupoSearch" placeholder="Buscar por nombre o características..."
-                                style="width:100%;padding:8px;border:1px solid #ddd;border-radius:4px;font-size:12px"
+                                style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;font-size:12px"
                                 oninput="grupoCargar()">
                         </div>
                     </div>
@@ -1848,28 +1845,69 @@
             loadPaquetes();
         });
 
-        // Función para cargar grupos (dummy, debe ajustarse a tu API real)
+        // Función para cargar grupos desde la API
         async function loadGrupos() {
-            // Ejemplo: obtener grupos desde /api/v1/grupos
             try {
-                const resp = await fetch('/api/v1/grupos');
-                if (!resp.ok) throw new Error('No se pudieron cargar los grupos');
-                const grupos = await resp.json();
-                // Aquí deberías poblar el select o la UI correspondiente
-                // Por ejemplo:
-                // const select = document.getElementById('grupoSelect');
-                // select.innerHTML = '';
-                // grupos.forEach(g => {
-                //   const opt = document.createElement('option');
-                //   opt.value = g.id;
-                //   opt.textContent = g.nombre;
-                //   select.appendChild(opt);
-                // });
+                const select = document.getElementById('grupoSelect');
+                if (!select) {
+                    console.warn('grupoSelect no encontrado en el DOM');
+                    return;
+                }
+
+                console.log('Cargando grupos desde API...');
+                const resp = await fetch('/api/v1/grupos/');
+                if (!resp.ok) {
+                    throw new Error(`HTTP ${resp.status}: No se pudieron cargar los grupos`);
+                }
+                const data = await resp.json();
+                console.log('Datos recibidos:', data);
+
+                // Poblar el select con los grupos obtenidos del servidor
+                const grupos = data.items || data || [];
+                console.log('Grupos a poblar:', grupos);
+
+                // Limpiar select completamente
+                select.innerHTML = '';
+
+                // Agregar opción por defecto
+                const optDefault = document.createElement('option');
+                optDefault.value = '';
+                optDefault.textContent = '-- Seleccionar Grupo --';
+                select.appendChild(optDefault);
+
+                // Agregar grupos del servidor
+                if (grupos && grupos.length > 0) {
+                    grupos.forEach(g => {
+                        const opt = document.createElement('option');
+                        opt.value = String(g.id); // Asegurar que sea string
+                        opt.textContent = g.nombre;
+                        opt.dataset.id = g.id; // Guardar ID en data attribute también
+                        select.appendChild(opt);
+                        console.log(`Opción agregada: ${g.nombre} (id: ${g.id}, value: ${opt.value})`);
+                    });
+                    console.log(`✓ ${grupos.length} grupos cargados correctamente`);
+                    console.log(`Opciones en el select: ${select.options.length}`);
+                } else {
+                    console.warn('No se encontraron grupos en la respuesta');
+                    const optEmpty = document.createElement('option');
+                    optEmpty.value = '';
+                    optEmpty.textContent = '-- No hay grupos disponibles --';
+                    optEmpty.disabled = true;
+                    select.appendChild(optEmpty);
+                }
+
+                grupoLista = grupos;
             } catch (e) {
-                console.error('Error al cargar grupos:', e);
+                console.error('❌ Error al cargar grupos:', e);
+                alert('Error al cargar grupos: ' + e.message);
             }
         }
 
+        function goBack() {
+            window.location.href = '/almacen';
+        }
+
+        // Función para cambiar entre tabs
         function switchTab(tabName) {
             // Ocultar todos los tabs
             document.querySelectorAll('.tab-content').forEach(tab => {
@@ -1880,7 +1918,12 @@
             });
 
             // Mostrar el tab seleccionado
-            document.getElementById('tab-' + tabName).classList.add('active');
+            const tabElement = document.getElementById('tab-' + tabName);
+            if (tabElement) {
+                tabElement.classList.add('active');
+            }
+
+            // Marcar el botón como activo
             event.target.classList.add('active');
 
             // Cargar datos específicos del tab
@@ -1891,17 +1934,14 @@
             }
         }
 
-        // Función loadPaquetes: Inicializa la pestaña de paquetes
+        // Función para cargar paquetes
         async function loadPaquetes() {
             try {
+                console.log('Cargando paquetes...');
                 paqCargar();
             } catch (e) {
                 console.error('Error en loadPaquetes:', e);
             }
-        }
-
-        function goBack() {
-            window.location.href = '/almacen';
         }
 
         // Mostrar sucursal
@@ -2452,42 +2492,7 @@
         }
 
         // Funciones para Grupos Relaciones
-        let grupoLista = [
-            {
-                id: 1,
-                nombre: 'Kit Suspensión Delantera',
-                tipo: 'Compatibilidad',
-                productos: [
-                    { linea: 'CA-100-G', marca: 'EMBRAGUE CABEZA', caracteristica1: 'TBL', caracteristica2: 'CHEV, CHEVY...', clave: '481451-010' },
-                    { linea: 'CA-100-G', marca: 'EMBRAGUE CABEZA', caracteristica1: 'TBL', caracteristica2: 'CHEV, CHEVY...', clave: '481451-020' }
-                ],
-                aplicaciones: [
-                    { marca: 'CHEVROLET', modelo: 'CHEVY', motor: '4L 1.4 TBI SOHC 8V', desde: '1994', hasta: '2003' }
-                ]
-            },
-            {
-                id: 2,
-                nombre: 'Sistema Frenos Completo',
-                tipo: 'Complementario',
-                productos: [
-                    { linea: 'Frenos', marca: 'PASTILLAS FRENO', caracteristica1: 'FRE', caracteristica2: 'GENERAL', clave: '5C1545-010' }
-                ],
-                aplicaciones: [
-                    { marca: 'FORD', modelo: 'FOCUS', motor: '1.8L TI-VCT', desde: '2005', hasta: '2015' }
-                ]
-            },
-            {
-                id: 3,
-                nombre: 'Filtros Motor Diesel',
-                tipo: 'Grupo',
-                productos: [
-                    { linea: 'Filtros', marca: 'FILTRO AIRE', caracteristica1: 'AIR', caracteristica2: 'DIESEL', clave: '870-030' }
-                ],
-                aplicaciones: [
-                    { marca: 'HYUNDAI', modelo: 'H100', motor: '2.5L DIESEL', desde: '2000', hasta: '2010' }
-                ]
-            }
-        ];
+        let grupoLista = [];
         let grupoSeleccionado = null;
 
         async function grupoCargar() {
@@ -2558,20 +2563,41 @@
         }
 
         async function grupoSeleccionarPorSelect() {
-            const id = parseInt(document.getElementById('grupoSelect').value);
-            if (!id) {
+            const selectValue = document.getElementById('grupoSelect').value;
+            const id = selectValue ? parseInt(selectValue) : null;
+
+            console.log('🔍 grupoSeleccionarPorSelect - selectValue:', selectValue, 'id:', id);
+            console.log('📊 grupoLista:', grupoLista);
+
+            if (!id || isNaN(id)) {
                 grupoSeleccionado = null;
+                console.log('❌ Ningún grupo seleccionado');
             } else {
-                grupoSeleccionado = grupoLista.find(g => g.id === id) || null;
+                // Buscar grupo con coincidencia exacta de ID
+                grupoSeleccionado = grupoLista.find(g => {
+                    const gid = typeof g.id === 'string' ? parseInt(g.id) : g.id;
+                    return gid === id;
+                }) || null;
+
+                if (grupoSeleccionado) {
+                    console.log('✓ Grupo seleccionado:', grupoSeleccionado);
+                } else {
+                    console.warn('❌ No se encontró grupo con id:', id, 'en grupoLista');
+                }
+
                 // Poblar el selector de líneas desde API
                 try {
+                    console.log('📥 Cargando productos del grupo:', id);
                     const resp = await fetch(`/api/v1/grupos/${id}/productos`);
                     const data = await resp.json();
                     const lineas = [...new Set((data.items || []).map(p => p.linea).filter(Boolean))];
                     const lineaSelect = document.getElementById('grupoLineaSelect');
                     lineaSelect.innerHTML = '<option value="">-- Todas las líneas --</option>' +
                         lineas.map(l => `<option value="${l}">${l}</option>`).join('');
-                } catch (e) { console.error(e); }
+                    console.log('✓ Líneas cargadas:', lineas);
+                } catch (e) {
+                    console.error('❌ Error al cargar líneas:', e);
+                }
             }
             grupoCargar();
         }
@@ -2684,8 +2710,8 @@
             }
         }
 
-        // Inicializar selector al cargar
-        gruposRefrescarSelect();
+        // Inicializar selector al cargar la página (comentado porque loadGrupos() ya lo hace en DOMContentLoaded)
+        // gruposRefrescarSelect();
         loadMarcas();
 
         // ====== Sistema de Notificaciones ======
@@ -2881,6 +2907,233 @@
             } catch (e) { console.error(e); mostrarToast('✗ Error: ' + e.message, 'error'); }
         }
 
+        // ====== FUNCIONES DE IMPRESIÓN DE ETIQUETAS ======
+        let etiquetasSeleccionadas = new Map();
+
+        async function filtrarProductosEtiquetas() {
+            const tipoSelect = document.getElementById('etqTipoSelect');
+            const buscarInput = document.getElementById('etqBuscarProducto');
+            const tipoId = tipoSelect.value;
+            const buscar = buscarInput.value.toLowerCase();
+
+            try {
+                // Cargar productos desde API
+                const resp = await fetch('/api/v1/productos?limit=1000');
+                const data = await resp.json();
+                let productos = data.items || [];
+
+                // Filtrar por búsqueda
+                if (buscar) {
+                    productos = productos.filter(p =>
+                        (p.codigo || '').toLowerCase().includes(buscar) ||
+                        (p.nombre || '').toLowerCase().includes(buscar)
+                    );
+                }
+
+                // Renderizar tabla
+                const tabla = document.getElementById('etqProductosTabla');
+                tabla.innerHTML = productos.map(p => `
+                    <tr>
+                        <td><input type="checkbox" class="etq-checkbox" data-id="${p.id}" data-codigo="${p.codigo}" data-nombre="${p.nombre}" onchange="actualizarSeleccionEtiquetas()"></td>
+                        <td>${p.nombre || '-'}</td>
+                        <td>${p.unidad_medida || '-'}</td>
+                        <td>${p.descripcion || '-'}</td>
+                        <td>${new Date().toLocaleDateString()}</td>
+                        <td>-</td>
+                        <td><input type="number" class="etq-cantidad" data-id="${p.id}" value="1" min="1" max="999" onchange="actualizarSeleccionEtiquetas()" style="width:60px;padding:4px;border:1px solid #ccc;border-radius:3px"></td>
+                        <td>📄</td>
+                    </tr>
+                `).join('');
+
+                if (productos.length === 0) {
+                    tabla.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:20px;color:#999">No se encontraron productos</td></tr>';
+                }
+            } catch (e) {
+                console.error('Error al filtrar productos:', e);
+            }
+        }
+
+        function actualizarSeleccionEtiquetas() {
+            etiquetasSeleccionadas.clear();
+            const checkboxes = document.querySelectorAll('.etq-checkbox:checked');
+
+            checkboxes.forEach(cb => {
+                const id = parseInt(cb.getAttribute('data-id'));
+                const cantidad = parseInt(document.querySelector(`.etq-cantidad[data-id="${id}"]`).value || 1) || 1;
+                etiquetasSeleccionadas.set(id, {
+                    id: id,
+                    codigo: cb.getAttribute('data-codigo'),
+                    nombre: cb.getAttribute('data-nombre'),
+                    cantidad: cantidad
+                });
+            });
+
+            const total = Array.from(etiquetasSeleccionadas.values()).reduce((sum, item) => sum + item.cantidad, 0);
+            document.getElementById('etqTotalSeleccionadas').textContent = total;
+
+            console.log('Etiquetas seleccionadas:', etiquetasSeleccionadas);
+        }
+
+        function seleccionarTodasEtiquetas() {
+            const selectAll = document.getElementById('etqSelectAll');
+            const checkboxes = document.querySelectorAll('.etq-checkbox');
+            checkboxes.forEach(cb => cb.checked = selectAll.checked);
+            actualizarSeleccionEtiquetas();
+        }
+
+        async function imprimirEtiquetasSeleccionadas() {
+            if (etiquetasSeleccionadas.size === 0) {
+                alert('⚠️ Selecciona al menos un producto para imprimir');
+                return;
+            }
+
+            console.log('📋 Preparando impresión de etiquetas:', etiquetasSeleccionadas);
+
+            // Crear HTML para impresión
+            let printHtml = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Impresión de Etiquetas</title>
+                    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>
+                    <style>
+                        @page {
+                            size: 80mm 50mm;
+                            margin: 0;
+                            padding: 0;
+                        }
+                        * {
+                            margin: 0;
+                            padding: 0;
+                            box-sizing: border-box;
+                        }
+                        body {
+                            margin: 0;
+                            padding: 0;
+                            background: white;
+                        }
+                        .print-page {
+                            width: 2.5in;
+                            height: 1in;
+                            background: white;
+                            padding: 2mm;
+                            margin: 0;
+                            page-break-after: always;
+                            page-break-inside: avoid;
+                            font-family: Arial, sans-serif;
+                            display: flex;
+                            flex-direction: column;
+                            justify-content: space-between;
+                        }
+                        .print-logo {
+                            text-align: center;
+                            line-height: 1;
+                            margin-bottom: 1mm;
+                        }
+                        .print-logo img {
+                            max-width: 100%;
+                            max-height: 12px;
+                        }
+                        .print-code {
+                            font-size: 10pt;
+                            font-weight: bold;
+                            font-family: 'Courier New', monospace;
+                            text-align: center;
+                            margin: 1mm 0;
+                            letter-spacing: 1px;
+                        }
+                        .print-barcode {
+                            text-align: center;
+                            flex: 1;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                        }
+                        .print-barcode svg {
+                            max-width: 100%;
+                            max-height: 16px;
+                        }
+                    </style>
+                </head>
+                <body>
+            `;
+
+            let barcodeCount = 0;
+
+            // Generar etiquetas repetidas según la cantidad
+            etiquetasSeleccionadas.forEach((item, productId) => {
+                const codigo = item.codigo || `PROD-${productId}`;
+                const cantidad = item.cantidad || 1;
+
+                // Repetir la etiqueta según la cantidad
+                for (let i = 0; i < cantidad; i++) {
+                    const barcodeId = `barcode-${barcodeCount}`;
+                    printHtml += `
+                        <div class="print-page">
+                            <div class="print-logo">
+                                <img src="/static/images/logo-refaccionaria.PNG" alt="Logo" onerror="this.style.display='none'">
+                            </div>
+                            <div class="print-code">${codigo}</div>
+                            <div class="print-barcode">
+                                <svg id="${barcodeId}"></svg>
+                            </div>
+                        </div>
+                    `;
+                    barcodeCount++;
+                }
+            });
+
+            printHtml += `
+                    <script>
+                        window.onload = function() {
+                            // Generar códigos de barras
+                            const etiquetas = ${JSON.stringify(Array.from(etiquetasSeleccionadas.values()).map(item => ({
+                codigo: item.codigo || `PROD-${item.id}`,
+                cantidad: item.cantidad
+            })))};
+
+                            let barcodeIdx = 0;
+                            etiquetas.forEach(etiqueta => {
+                                for (let i = 0; i < etiqueta.cantidad; i++) {
+                                    const barcodeId = \`barcode-\${barcodeIdx}\`;
+                                    try {
+                                        JsBarcode(\`#\${barcodeId}\`, etiqueta.codigo, {
+                                            format: "CODE128",
+                                            width: 2,
+                                            height: 28,
+                                            margin: 0,
+                                            displayValue: false
+                                        });
+                                    } catch(e) {
+                                        console.error('Error generando código de barras:', e);
+                                    }
+                                    barcodeIdx++;
+                                }
+                            });
+
+                            // Imprimir después de que los códigos se generen
+                            setTimeout(() => {
+                                window.print();
+                                window.close();
+                            }, 500);
+                        };
+                    <\/script>
+                </body>
+                </html>
+            `;
+
+            // Abrir en nueva ventana y imprimir
+            const printWindow = window.open('', '', 'height=600,width=800');
+            printWindow.document.write(printHtml);
+            printWindow.document.close();
+
+            console.log(`✓ Abriendo ventana de impresión con ${barcodeCount} etiquetas`);
+        }
+
+        function seleccionarImpresora() {
+            alert('📋 Se utilizará la impresora predeterminada del sistema.\n\nPuedes cambiarla durante el diálogo de impresión.');
+        }
 
     </script>
 </body>

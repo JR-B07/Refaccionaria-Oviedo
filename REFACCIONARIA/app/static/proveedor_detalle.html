@@ -347,7 +347,7 @@
     <!-- Sidebar -->
     <div class="sidebar">
         <div class="sidebar-header">
-            <h3>ADMINISTRADOR GENERAL SYSDATAN</h3>
+            <h3>ADMINISTRADOR GENERAL</h3>
         </div>
         <div class="menu-item active" onclick="window.location.href='/proveedores'">
             <i class="fas fa-home"></i>
@@ -552,19 +552,6 @@
                             <label for="dias_entrega">Días de Entrega</label>
                             <input type="number" id="dias_entrega" min="0" value="0">
                         </div>
-                        <div class="form-group">
-                            <label>Tipo de moneda</label>
-                            <div class="radio-group">
-                                <div class="radio-item">
-                                    <input type="radio" id="moneda_pesos" name="tipo_moneda" value="pesos" checked>
-                                    <label for="moneda_pesos">$ Pesos Mexicanos</label>
-                                </div>
-                                <div class="radio-item">
-                                    <input type="radio" id="moneda_dolares" name="tipo_moneda" value="dolares">
-                                    <label for="moneda_dolares">$$ Dolares Americanos</label>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
@@ -611,8 +598,8 @@
                         <div class="form-group">
                             <label for="forma_pago">Forma de Pago</label>
                             <select id="forma_pago">
-                                <option value="contado">CONTADO</option>
-                                <option value="credito">CREDITO</option>
+                                <option value="CONTADO">CONTADO</option>
+                                <option value="CREDITO">CREDITO</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -736,13 +723,6 @@
             document.getElementById('lista_precios_compra').value = proveedor.lista_precios_compra || 'ninguna';
             document.getElementById('dias_entrega').value = proveedor.dias_entrega || 0;
 
-            const tipoMoneda = proveedor.tipo_moneda || 'pesos';
-            if (tipoMoneda === 'pesos') {
-                document.getElementById('moneda_pesos').checked = true;
-            } else {
-                document.getElementById('moneda_dolares').checked = true;
-            }
-
             document.getElementById('descuento_factura').value = proveedor.descuento_factura || 0;
             document.getElementById('descuento_listas_precio').value = proveedor.descuento_listas_precio || 0;
             document.getElementById('descuento_producto_factura').value = proveedor.descuento_producto_factura || 0;
@@ -751,7 +731,7 @@
             document.getElementById('contacto_finanzas_nombre').value = proveedor.contacto_finanzas_nombre || '';
             document.getElementById('contacto_finanzas_email').value = proveedor.contacto_finanzas_email || '';
             document.getElementById('contacto_finanzas_telefono').value = proveedor.contacto_finanzas_telefono || '';
-            document.getElementById('forma_pago').value = proveedor.forma_pago || 'contado';
+            document.getElementById('forma_pago').value = (proveedor.forma_pago || 'CONTADO').toUpperCase();
             document.getElementById('dias_credito').value = proveedor.dias_credito || 0;
             document.getElementById('saldo').value = proveedor.saldo || 0;
 
@@ -774,6 +754,10 @@
                 return;
             }
 
+            // Obtener estado activo del badge
+            const statusBadgeText = document.getElementById('statusBadge').textContent.trim();
+            const estadoActivo = statusBadgeText.includes('ACTIVO') ? 'ACTIVO' : 'INACTIVO';
+
             const proveedorData = {
                 clave: clave,
                 nombre: nombre,
@@ -793,7 +777,6 @@
                 contacto_compras_telefono: document.getElementById('contacto_compras_telefono').value.trim(),
                 lista_precios_compra: document.getElementById('lista_precios_compra').value,
                 dias_entrega: parseInt(document.getElementById('dias_entrega').value) || 0,
-                tipo_moneda: document.querySelector('input[name="tipo_moneda"]:checked').value,
                 descuento_factura: parseFloat(document.getElementById('descuento_factura').value) || 0,
                 descuento_listas_precio: parseFloat(document.getElementById('descuento_listas_precio').value) || 0,
                 descuento_producto_factura: parseFloat(document.getElementById('descuento_producto_factura').value) || 0,
@@ -804,7 +787,7 @@
                 forma_pago: document.getElementById('forma_pago').value,
                 dias_credito: parseInt(document.getElementById('dias_credito').value) || 0,
                 saldo: parseFloat(document.getElementById('saldo').value) || 0,
-                activo: document.getElementById('statusBadge').textContent
+                activo: estadoActivo
             };
 
             try {

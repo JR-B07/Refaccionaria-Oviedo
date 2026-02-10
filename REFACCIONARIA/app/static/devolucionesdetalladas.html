@@ -768,17 +768,20 @@
                     headers['Authorization'] = `Bearer ${token}`;
                 }
 
-                // Construir URL con parámetros
-                let url = `/api/v1/reportes/devoluciones-detalladas?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`;
+                // Construir URL con parámetros usando URL API
+                const url = new URL('/api/v1/reportes/devoluciones-detalladas', window.location.origin);
+                url.searchParams.append('fecha_inicio', fechaInicio);
+                url.searchParams.append('fecha_fin', fechaFin);
+
                 if (sucursal !== 'all') {
-                    url += `&sucursal=${encodeURIComponent(sucursal)}`;
+                    url.searchParams.append('sucursal', sucursal);
                 }
                 if (vendedor !== 'all') {
-                    url += `&vendedor=${encodeURIComponent(vendedor)}`;
+                    url.searchParams.append('vendedor', vendedor);
                 }
 
                 // Llamada real a la API
-                const response = await fetch(url, {
+                const response = await fetch(url.toString(), {
                     method: 'GET',
                     headers: headers
                 });

@@ -1,15 +1,25 @@
 # app/api/deps.py
-from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi import Depends, HTTPException, status, Header
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.core.security import verify_token
 from app.crud.usuario import usuario_crud
+from typing import Optional
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
+def extract_token_from_header(authorization: Optional[str] = Header(None)) -> Optional[str]:
+    """
+    Extrae el token del header Authorization: Bearer <token>
+    """
+    if not authorization:
+        return None
+    
+    parts = authorization.split()
+    if len(parts) == 2 and parts[0].lower() == "bearer":
+        return parts[1]
+    return None
 
 async def get_current_user(
-    token: str = Depends(oauth2_scheme),
+    authorization: Optional[str] = Header(None),
     db: Session = Depends(get_db)
 ) -> dict:
     """
@@ -21,6 +31,12 @@ async def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
     
+    # Extraer token
+    token = extract_token_from_header(authorization)
+    if not token:
+        raise credentials_exception
+    
+    # Verificar token
     payload = verify_token(token)
     if payload is None:
         raise credentials_exception
@@ -42,7 +58,8 @@ async def get_current_user(
     return {
         "id": usuario.id,
         "nombre_usuario": usuario.nombre_usuario,
-        "rol": usuario.rol.value,
+        "nombre": usuario.nombre_completo,
+        "rol": usuario.rol.value if usuario.rol else "vendedor",
         "local_id": usuario.local_id
     }
 

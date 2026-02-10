@@ -1,21 +1,13 @@
 # app/api/v1/endpoints/usuarios.py
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Any
 
 from app.core.database import get_db
 from app.schemas.usuario import UsuarioCreate, UsuarioResponse, UsuarioUpdate
 from app.crud.usuario import usuario_crud
 from app.api.deps import get_current_user, require_admin
 
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
-from typing import List, Any  # <-- Añadir Any aquí
-
-from app.core.database import get_db
-from app.schemas.usuario import UsuarioCreate, UsuarioResponse, UsuarioUpdate
-from app.crud.usuario import usuario_crud
-from app.api.deps import get_current_user, require_admin
 router = APIRouter()
 
 @router.post("/", response_model=UsuarioResponse)
@@ -45,8 +37,14 @@ async def listar_usuarios(
     """
     Listar usuarios (con paginación)
     """
-    usuarios = usuario_crud.obtener_activos(db, skip=skip, limit=limit)
-    return usuarios
+    try:
+        usuarios = usuario_crud.obtener_activos(db, skip=skip, limit=limit)
+        return usuarios
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al obtener usuarios: {str(e)}"
+        )
 
 @router.get("/{usuario_id}", response_model=UsuarioResponse)
 async def obtener_usuario(

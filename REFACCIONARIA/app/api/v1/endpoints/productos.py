@@ -289,3 +289,24 @@ async def editar_producto(producto_id: int, producto: ProductoUpdate, db: Sessio
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Error al editar el producto: {str(e)}")
 
+
+@router.delete("/{producto_id}", tags=["Productos"])
+async def eliminar_producto(producto_id: int, db: Session = Depends(get_db)):
+    """Eliminar un producto existente."""
+    try:
+        prod = db.query(Producto).filter(Producto.id == producto_id).first()
+        if not prod:
+            raise HTTPException(status_code=404, detail="Producto no encontrado")
+        
+        db.delete(prod)
+        db.commit()
+        
+        return {
+            "message": "Producto eliminado exitosamente",
+            "id": producto_id
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Error al eliminar el producto: {str(e)}")

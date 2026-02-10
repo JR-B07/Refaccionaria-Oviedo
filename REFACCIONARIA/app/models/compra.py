@@ -16,7 +16,7 @@ class Compra(ModeloBase):
     # Información básica
     folio = Column(String(50), unique=True, index=True, nullable=False)
     factura = Column(String(100), index=True)  # Número de factura del proveedor
-    estado = Column(Enum(EstadoCompra), default=EstadoCompra.PENDIENTE)
+    estado = Column(Enum(EstadoCompra, native_enum=False, values_callable=lambda x: [e.value for e in x]), default=EstadoCompra.PENDIENTE.value)
     fecha = Column(DateTime, nullable=False)
     
     # Relaciones

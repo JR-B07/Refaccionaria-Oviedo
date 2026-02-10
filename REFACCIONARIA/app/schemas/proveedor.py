@@ -26,7 +26,7 @@ class ProveedorCompras(BaseModel):
     contacto_compras_telefono: Optional[str] = None
     lista_precios_compra: Optional[str] = None
     dias_entrega: Optional[int] = 0
-    tipo_moneda: Optional[str] = "pesos"
+    # tipo_moneda: Optional[str] = None  # Campo deshabilitado
 
 class ProveedorDescuentos(BaseModel):
     descuento_factura: Optional[Decimal] = 0
@@ -64,7 +64,7 @@ class ProveedorUpdate(BaseModel):
     contacto_compras_telefono: Optional[str] = None
     lista_precios_compra: Optional[str] = None
     dias_entrega: Optional[int] = None
-    tipo_moneda: Optional[str] = None
+    # tipo_moneda: Optional[str] = None  # Campo deshabilitado
     descuento_factura: Optional[Decimal] = None
     descuento_listas_precio: Optional[Decimal] = None
     descuento_producto_factura: Optional[Decimal] = None

@@ -24,9 +24,9 @@ class Venta(ModeloBase):
     usuario_id = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
     cliente_id = Column(Integer, ForeignKey("clientes.id"))
     
-    # Tipo y estado
-    tipo_venta = Column(Enum(TipoVenta), default=TipoVenta.CONTADO)
-    estado = Column(Enum(EstadoVenta), default=EstadoVenta.COMPLETADA)
+    # Tipo y estado - COMO STRINGS para evitar problemas con enums
+    tipo_venta = Column(String(20), default="contado")  # contado, credito, apartado
+    estado = Column(String(20), default="completada")   # completada, pendiente, cancelada, devuelta
     
     # Montos
     subtotal = Column(Numeric(10, 2), default=0)
