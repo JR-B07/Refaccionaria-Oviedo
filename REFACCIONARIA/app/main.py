@@ -287,4 +287,15 @@ def reporte_grafica_ventas_page():
 def paquetes_page():
     from fastapi.responses import FileResponse
     return FileResponse("app/static/paquetes.html")
+if __name__ == "__main__":
+    import os
+    import uvicorn
 
+    port = int(os.environ.get("PORT", 8080))
+    print(f"🚀 Usando puerto Railway: {port}")
+
+    uvicorn.run(
+        "app.main:app",
+        host="0.0.0.0",
+        port=port
+    )
