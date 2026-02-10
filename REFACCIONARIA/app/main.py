@@ -292,7 +292,6 @@ if __name__ == "__main__":
     import uvicorn
 
     port = int(os.environ.get("PORT", 8080))
-    print(f"🚀 Usando puerto Railway: {port}")
 
     uvicorn.run(
         "app.main:app",
