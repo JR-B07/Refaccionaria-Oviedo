@@ -69,7 +69,7 @@ Verificar que la fila contiene:
 ✓ app/main.py (ACTUALIZADO - ruta GET /cajas-cierre)
 ✓ app/static/cajas_cierre.html (ACTUALIZADO - botón)
 ✓ app/static/cierre_caja_nuevo.html (NUEVO)
-✓ scripts/create_cierres_caja_table.sql (NUEVO - para referencia)
+✓ **../refaccionaria_db.sql** (ACTUALIZADO - Archivo maestro consolidado)
 ✓ CIERRE_CAJA_NUEVO_RESUMEN.md (NUEVO - documentación)
 ```
 

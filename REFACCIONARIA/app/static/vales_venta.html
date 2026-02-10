@@ -770,7 +770,7 @@
             <div id="ticketContent">
             </div>
             <div id="ticketFooter">
-                <button id="btnPrintTicket" onclick="window.print()"
+                <button id="btnPrintTicket" onclick="imprimirTicketVale()"
                     style="padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px; background: #28a745; color: white;">🖨️
                     Imprimir</button>
                 <button id="btnCloseTicket" onclick="cerrarTicketModal()"
@@ -918,9 +918,13 @@
             console.log('Datos a enviar:', valeData);
 
             try {
+                const token = localStorage.getItem('access_token');
                 const response = await fetch('/api/v1/vales-venta', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
                     body: JSON.stringify(valeData)
                 });
 
@@ -961,16 +965,24 @@
             ];
 
             try {
-                const response = await fetch('/api/v1/usuarios/?skip=0&limit=100', {
+                const token = localStorage.getItem('access_token');
+                const url = new URL('/api/v1/usuarios/', window.location.origin);
+                url.searchParams.append('skip', '0');
+                url.searchParams.append('limit', '100');
+
+                const response = await fetch(url.toString(), {
                     method: 'GET',
-                    headers: { 'Content-Type': 'application/json' }
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
                 });
 
                 if (response.ok) {
                     vendedoresList = await response.json();
                     console.log('Vendedores cargados:', vendedoresList.length);
                 } else {
-                    console.warn('Fallo cargar vendedores, usando lista estática');
+                    console.warn('Fallo cargar vendedores, usando lista estática - Status:', response.status);
                     vendedoresList = fallbackVendedores;
                 }
             } catch (error) {
@@ -994,9 +1006,13 @@
 
         async function cargarLocales() {
             try {
+                const token = localStorage.getItem('access_token');
                 const response = await fetch('/api/v1/locales/', {
                     method: 'GET',
-                    headers: { 'Content-Type': 'application/json' }
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
                 });
 
                 if (response.ok) {
@@ -1043,9 +1059,10 @@
             document.getElementById('emptyState').style.display = 'none';
 
             try {
-                // Construir URL con parámetros
-                const params = new URLSearchParams();
-                const folio = document.getElementById('filterFolio').value;
+                // Construir URL con parámetros de forma segura
+                const url = new URL('/api/v1/vales-venta', window.location.origin);
+
+                const folio = document.getElementById('filterFolio').value.trim();
                 const vendedor = document.getElementById('filterVendedor').value;
                 const monto = document.getElementById('filterMonto').value;
                 const sucursal = document.getElementById('filterSucursal').value;
@@ -1053,18 +1070,21 @@
                 const fechaInicio = document.getElementById('fechaInicio').value;
                 const fechaFin = document.getElementById('fechaFin').value;
 
-                if (folio) params.append('folio', folio);
-                if (vendedor) params.append('vendedor_id', vendedor);
-                if (monto) params.append('monto_aproximado', monto);
-                if (sucursal) params.append('local_id', sucursal);
-                if (tipo) params.append('tipo', tipo);
-                if (fechaInicio) params.append('fecha_inicio', fechaInicio);
-                if (fechaFin) params.append('fecha_fin', fechaFin);
+                if (folio) url.searchParams.append('folio', folio);
+                if (vendedor) url.searchParams.append('vendedor_id', vendedor);
+                if (monto) url.searchParams.append('monto_aproximado', monto);
+                if (sucursal) url.searchParams.append('local_id', sucursal);
+                if (tipo) url.searchParams.append('tipo', tipo);
+                if (fechaInicio) url.searchParams.append('fecha_inicio', fechaInicio);
+                if (fechaFin) url.searchParams.append('fecha_fin', fechaFin);
 
-                const url = `/api/v1/vales-venta?${params.toString()}`;
-                const response = await fetch(url, {
+                const token = localStorage.getItem('access_token');
+                const response = await fetch(url.toString(), {
                     method: 'GET',
-                    headers: { 'Content-Type': 'application/json' }
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
                 });
 
                 if (response.ok) {
@@ -1072,7 +1092,9 @@
                     renderizarTabla(valesData);
                     document.getElementById('resultsCount').textContent = `${valesData.length} resultados.`;
                 } else {
-                    console.error('Error al cargar vales');
+                    console.error('Error al cargar vales - Status:', response.status);
+                    const errText = await response.text();
+                    console.error('Error detail:', errText);
                     mostrarVacio();
                 }
             } catch (error) {
@@ -1123,8 +1145,7 @@
             onclick="event.stopPropagation(); toggleDisponible(${vale.id}, ${!vale.disponible});">${disponible}</span>
     </td>
     <td>
-        <button class="btn-print" onclick="event.stopPropagation(); imprimirValeModal(${JSON.stringify(vale).replace(/"
-                    / g, '&quot;')});">🖨️ Imprimir</button>
+        <button class="btn-print" onclick="event.stopPropagation(); imprimirValeModal(${JSON.stringify(vale).replace(/"/g, '&quot;')});">🖨️ Imprimir</button>
         <button class="btn-delete" onclick="event.stopPropagation(); eliminarVale(${vale.id});">🗑️ Eliminar</button>
     </td>
     `;
@@ -1181,10 +1202,12 @@
 
         async function toggleDisponible(valeId, nuevoDisponible) {
             try {
+                const token = localStorage.getItem('access_token');
                 const response = await fetch(`/api/v1/vales-venta/${valeId}`, {
                     method: 'PUT',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify({ disponible: nuevoDisponible })
                 });
@@ -1207,8 +1230,12 @@
             }
 
             try {
+                const token = localStorage.getItem('access_token');
                 const response = await fetch(`/api/v1/vales-venta/${valeId}`, {
-                    method: 'DELETE'
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
                 });
 
                 if (response.ok || response.status === 204) {
@@ -1245,7 +1272,199 @@
         <meta charset="UTF-8">
         <title>Vale de Venta - ` + folio + `</title>
         <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>
-                < style >
+        <style>
+            @page {
+                size: 80mm auto;
+                margin: 3mm;
+            }
+            * {
+                margin: 0;
+                padding: 0;
+            }
+            html, body {
+                margin: 0;
+                padding: 0;
+            }
+            body {
+                font-family: 'Courier New', monospace;
+                width: 80mm;
+                margin: 0 auto;
+                padding: 3px;
+                font-size: 11px;
+                line-height: 1.1;
+                background: white;
+            }
+            .ticket {
+                width: 100%;
+                border: 1px dashed #333;
+                padding: 5px;
+            }
+            .header {
+                text-align: center;
+                border-bottom: 1px dashed #333;
+                padding-bottom: 3px;
+                margin-bottom: 3px;
+            }
+            .header-line1 {
+                font-size: 14px;
+                font-weight: bold;
+                letter-spacing: 1px;
+            }
+            .header-line2 {
+                font-size: 11px;
+                font-weight: bold;
+            }
+            .header-line3 {
+                font-size: 9px;
+                color: #666;
+            }
+            .info-text {
+                font-size: 8px;
+                text-align: center;
+                margin: 2px 0;
+                line-height: 1.2;
+            }
+            .section {
+                border-bottom: 1px dashed #333;
+                padding: 3px 0;
+                margin: 3px 0;
+            }
+            .barcode-container {
+                text-align: center;
+                margin: 3px 0;
+                padding: 2px 0;
+            }
+            .barcode-container svg {
+                max-width: 100%;
+                height: auto;
+                max-height: 28px;
+            }
+            .data-row {
+                display: flex;
+                justify-content: space-between;
+                margin: 2px 0;
+                font-size: 10px;
+            }
+            .data-label {
+                font-weight: bold;
+            }
+            .data-value {
+                text-align: right;
+            }
+            .row-full {
+                margin: 2px 0;
+                font-size: 10px;
+            }
+            .monto-box {
+                border: 2px solid #333;
+                padding: 4px;
+                text-align: center;
+                margin: 3px 0;
+            }
+            .monto-label {
+                font-size: 9px;
+                font-weight: bold;
+            }
+            .monto-value {
+                font-size: 16px;
+                font-weight: bold;
+                color: #000;
+            }
+            .concepto-box {
+                background: #f0f0f0;
+                padding: 3px;
+                margin: 3px 0;
+                text-align: center;
+                font-size: 9px;
+                font-weight: bold;
+            }
+            .vendedor-section {
+                margin: 3px 0;
+                text-align: center;
+            }
+            .vendedor-label {
+                font-weight: bold;
+                font-size: 9px;
+            }
+            .vendedor-name {
+                font-weight: bold;
+                font-size: 11px;
+                margin-top: 1px;
+                text-decoration: underline;
+            }
+            .footer {
+                text-align: center;
+                margin-top: 3px;
+            }
+            .footer-line {
+                font-size: 10px;
+                font-weight: bold;
+            }
+            .slogan {
+                text-align: center;
+                font-style: italic;
+                font-size: 8px;
+                margin-top: 3px;
+                line-height: 1.2;
+            }
+            .conditions {
+                font-size: 7px;
+                text-align: center;
+                margin-top: 3px;
+                line-height: 1.2;
+                border-top: 1px dashed #333;
+                padding-top: 2px;
+            }
+            .logo-container {
+                text-align: center;
+                margin: 2px 0;
+            }
+            .logo-container img {
+                width: 60px;
+                height: auto;
+            }
+            .no-print {
+                text-align: center;
+                margin-top: 15px;
+                display: flex;
+                justify-content: center;
+                gap: 10px;
+                background: #f5f5f5;
+                padding: 10px;
+            }
+            .no-print button {
+                padding: 8px 15px;
+                font-size: 12px;
+                cursor: pointer;
+                background: #c41e3a;
+                color: white;
+                border: none;
+                border-radius: 4px;
+            }
+            .no-print button:hover {
+                background: #8b1428;
+            }
+            @media print {
+                .no-print {
+                    display: none;
+                }
+                * {
+                    margin: 0;
+                    padding: 0;
+                }
+                html, body {
+                    margin: 0;
+                    padding: 0;
+                    width: 80mm;
+                    height: 100%;
+                }
+                body {
+                    width: 80mm;
+                    margin: 0;
+                    padding: 0;
+                }
+            }
+        </style>
                 @page {
                 size: 80mm auto;
                 margin: 3mm;
@@ -1596,6 +1815,104 @@
             }, 100);
         }
 
+        function imprimirTicketVale() {
+            const ticketContent = document.getElementById('ticketContent').innerHTML;
+
+            // Crear ventana nueva con contenido limpio
+            const printWindow = window.open('', '', 'height=600,width=800');
+
+            const printHTML = `
+                <!DOCTYPE html>
+                <html lang="es">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Imprimir Vale de Canje</title>
+                    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>
+                    <style>
+                        @page {
+                            size: 80mm auto;
+                            margin: 0;
+                        }
+                        
+                        * {
+                            margin: 0;
+                            padding: 0;
+                            box-sizing: border-box;
+                        }
+                        
+                        body {
+                            font-family: 'Courier New', monospace;
+                            width: 80mm;
+                            margin: 0 auto;
+                            padding: 3px;
+                            background-color: white;
+                        }
+                        
+                        #ticketContent {
+                            width: 100%;
+                        }
+                        
+                        @media print {
+                            body {
+                                padding: 0;
+                                margin: 0;
+                                width: 80mm;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div id="ticketContent">${ticketContent}<\/div>
+                    <script>
+                        window.addEventListener('load', function() {
+                            // Regenerar el código de barras en la nueva ventana
+                            const barcodes = document.querySelectorAll('#ticketBarcode');
+                            barcodes.forEach((barcode, index) => {
+                                try {
+                                    const folio = '${generarHTMLTicket.folio || 'VZ000'}';
+                                    const numericCode = folio.replace(/[^\\d]/g, '').padEnd(12, '0').substring(0, 12);
+                                    if (typeof JsBarcode !== 'undefined' && barcode) {
+                                        JsBarcode(barcode, numericCode, {
+                                            format: "CODE128",
+                                            width: 1,
+                                            height: 25,
+                                            displayValue: false,
+                                            margin: 0
+                                        });
+                                    }
+                                } catch (e) {
+                                    console.warn('Código de barras no generado:', e);
+                                }
+                            });
+                            
+                            // Esperar un poco para que el código de barras se genere y luego imprimir
+                            setTimeout(() => {
+                                window.print();
+                            }, 300);
+                        });
+                    <\/script>
+                </body>
+                </html>
+            `;
+
+            printWindow.document.write(printHTML);
+            printWindow.document.close();
+
+            // Cerrar ventana después de imprimir
+            setTimeout(() => {
+                cerrarTicketModal();
+                printWindow.close();
+            }, 2000);
+        }
+
+        function cerrarTicketModal() {
+            const printModal = document.getElementById('printModal');
+            if (printModal) {
+                printModal.classList.remove('active');
+            }
+        }
+
         function generarHTMLTicket(vale) {
             const fecha = new Date(vale.fecha).toLocaleDateString('es-MX');
             const monto = parseFloat(vale.monto || 0).toFixed(2);
@@ -1648,6 +1965,11 @@
                         <div style="font-weight: bold; font-size: 11px;">${vendedor.toUpperCase()}</div>
                     </div>
 
+                    <!-- Logo -->
+                    <div style="margin: 8px 0; text-align: center;">
+                        <img src="/static/images/logo_blanconegro.png" alt="Logo" style="max-width: 100px; height: auto; opacity: 0.85;" onerror="this.style.display='none'">
+                    </div>
+
                     <!-- Logo/Marca -->
                     <div style="border-top: 2px solid #000; border-bottom: 2px solid #000; padding: 8px 0; margin: 10px 0; font-size: 12px; font-weight: bold; letter-spacing: 1px;">
                         ⚙ REFACCIONARIA ⚙<br>
@@ -1667,7 +1989,12 @@
                         <div>✓ No reembolsable en efectivo</div>
                         <div>✓ Válido por 30 días</div>
                     </div>
+                </div>
+            `;
+        }
 
+        // Event listener para el modal de impresión
+        document.addEventListener('DOMContentLoaded', function () {
             const printModal = document.getElementById('printModal');
             if (printModal) {
                 printModal.addEventListener('click', function (e) {

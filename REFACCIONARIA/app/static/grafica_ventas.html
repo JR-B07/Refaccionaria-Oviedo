@@ -215,6 +215,7 @@
     <div class="top-bar">
         <button class="btn-back" onclick="goBack()">← Volver</button>
         <h1>📊 ESTADÍSTICAS DE VENTA</h1>
+        <span class="sucursal-badge" id="sucursalBadge">Sucursal</span>
     </div>
 
     <div class="container">
@@ -239,7 +240,7 @@
                 <label for="monthFilter" style="display:none;">Mes:</label>
                 <select id="monthFilter" onchange="actualizarGraficas()" style="display:none;">
                     <option value="1">Enero</option>
-                    <option value="2">Febrero</option>
+                    <option value="2" selected>Febrero</option>
                     <option value="3">Marzo</option>
                     <option value="4">Abril</option>
                     <option value="5">Mayo</option>
@@ -294,9 +295,11 @@
         let ventasChart = null;
         let cantidadChart = null;
         let vistaActual = 'anual';
+        const API_BASE = '/api/v1/reportes/estadisticas-ventas';
+        let datosVentas = {};
 
-        // Datos de ejemplo
-        const datosVentas = {
+        // Datos de ejemplo (backup si la API falla)
+        const datosVentasDefault = {
             anual: {
                 labels: ['2020', '2021', '2022', '2023', '2024', '2025', '2026'],
                 ventas: [45000, 62000, 78000, 95000, 110000, 125000, 83264],
@@ -318,84 +321,146 @@
             }
         };
 
-        function inicializarGraficas() {
-            const ctxVentas = document.getElementById('ventasChart').getContext('2d');
-            const ctxCantidad = document.getElementById('cantidadChart').getContext('2d');
+        async function cargarDatos(tipo, anio, mes = null) {
+            try {
+                const params = new URLSearchParams({
+                    tipo: tipo,
+                    anio: anio
+                });
 
-            ventasChart = new Chart(ctxVentas, {
-                type: 'bar',
-                data: {
-                    labels: datosVentas.anual.labels,
-                    datasets: [{
-                        label: 'Monto de Ventas',
-                        data: datosVentas.anual.ventas,
-                        backgroundColor: 'rgba(196, 30, 58, 0.7)',
-                        borderColor: 'rgba(196, 30, 58, 1)',
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'top'
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function (context) {
-                                    return 'Ventas: $' + context.parsed.y.toLocaleString('es-MX', { minimumFractionDigits: 2 });
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function (value) {
-                                    return '$' + value.toLocaleString('es-MX');
-                                }
-                            }
-                        }
-                    }
+                if (tipo === 'diaria' && mes) {
+                    params.append('mes', mes);
                 }
-            });
 
-            cantidadChart = new Chart(ctxCantidad, {
-                type: 'line',
-                data: {
-                    labels: datosVentas.anual.labels,
-                    datasets: [{
-                        label: 'Cantidad de Ventas',
-                        data: datosVentas.anual.cantidad,
-                        backgroundColor: 'rgba(23, 162, 184, 0.2)',
-                        borderColor: 'rgba(23, 162, 184, 1)',
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'top'
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
+                const response = await fetch(`${API_BASE}?${params.toString()}`);
+
+                if (!response.ok) {
+                    console.warn('Error al obtener datos de API, usando datos de ejemplo');
+                    return datosVentasDefault[tipo];
                 }
-            });
+
+                const datos = await response.json();
+                return datos;
+            } catch (error) {
+                console.error('Error al cargar datos:', error);
+                return datosVentasDefault[tipo];
+            }
         }
 
-        function cambiarVista() {
+        async function inicializarGraficas() {
+            try {
+                // Cargar datos iniciales
+                const anio = parseInt(document.getElementById('yearFilter').value) || new Date().getFullYear();
+                console.log('Cargando datos para año:', anio);
+
+                datosVentas.anual = await cargarDatos('anual', anio);
+                datosVentas.mensual = await cargarDatos('mensual', anio);
+                datosVentas.diaria = await cargarDatos('diaria', anio, 2);
+
+                console.log('Datos cargados:', datosVentas);
+
+                const ctxVentas = document.getElementById('ventasChart');
+                const ctxCantidad = document.getElementById('cantidadChart');
+
+                if (!ctxVentas || !ctxCantidad) {
+                    console.error('Canvas no encontrados');
+                    return;
+                }
+
+                const ctx1 = ctxVentas.getContext('2d');
+                const ctx2 = ctxCantidad.getContext('2d');
+
+                ventasChart = new Chart(ctx1, {
+                    type: 'bar',
+                    data: {
+                        labels: datosVentas.anual.labels,
+                        datasets: [{
+                            label: 'Monto de Ventas',
+                            data: datosVentas.anual.ventas,
+                            backgroundColor: 'rgba(196, 30, 58, 0.7)',
+                            borderColor: 'rgba(196, 30, 58, 1)',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        return 'Ventas: $' + context.parsed.y.toLocaleString('es-MX', { minimumFractionDigits: 2 });
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function (value) {
+                                        return '$' + value.toLocaleString('es-MX');
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                cantidadChart = new Chart(ctx2, {
+                    type: 'line',
+                    data: {
+                        labels: datosVentas.anual.labels,
+                        datasets: [{
+                            label: 'Cantidad de Ventas',
+                            data: datosVentas.anual.cantidad,
+                            backgroundColor: 'rgba(23, 162, 184, 0.2)',
+                            borderColor: 'rgba(23, 162, 184, 1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+
+                // Actualizar estadísticas
+                const datos = datosVentas.anual;
+                const totalVentas = datos.ventas.reduce((a, b) => a + b, 0);
+                const totalCantidad = datos.cantidad.reduce((a, b) => a + b, 0);
+                const devuelto = totalVentas * 0.037;
+                const neto = totalVentas - devuelto;
+
+                document.getElementById('totalVendido').textContent = '$' + totalVentas.toLocaleString('es-MX', { minimumFractionDigits: 2 });
+                document.getElementById('totalDevuelto').textContent = '$' + devuelto.toLocaleString('es-MX', { minimumFractionDigits: 2 });
+                document.getElementById('totalNeto').textContent = '$' + neto.toLocaleString('es-MX', { minimumFractionDigits: 2 });
+                document.getElementById('cantidadVentas').textContent = totalCantidad;
+
+                console.log('Gráficas inicializadas correctamente');
+            } catch (error) {
+                console.error('Error al inicializar gráficas:', error);
+            }
+        }
+
+        async function cambiarVista() {
             vistaActual = document.getElementById('viewType').value;
             const monthFilter = document.getElementById('monthFilter');
             const monthLabel = monthFilter.previousElementSibling;
@@ -422,47 +487,83 @@
             }
             document.getElementById('graphType').textContent = titulo;
 
-            actualizarGraficas();
+            await actualizarGraficas();
         }
 
-        function actualizarGraficas() {
-            const datos = datosVentas[vistaActual];
+        async function actualizarGraficas() {
+            if (!ventasChart || !cantidadChart) {
+                console.warn('Gráficos aún no están inicializados');
+                await new Promise(resolve => setTimeout(resolve, 500));
+                return;
+            }
 
-            // Actualizar gráfica de ventas
-            ventasChart.data.labels = datos.labels;
-            ventasChart.data.datasets[0].data = datos.ventas;
-            ventasChart.update();
+            try {
+                const anio = parseInt(document.getElementById('yearFilter').value) || new Date().getFullYear();
+                const mes = document.getElementById('monthFilter').value;
 
-            // Actualizar gráfica de cantidad
-            cantidadChart.data.labels = datos.labels;
-            cantidadChart.data.datasets[0].data = datos.cantidad;
-            cantidadChart.update();
+                // Cargar datos de la API
+                const datos = await cargarDatos(vistaActual, anio, mes);
+                datosVentas[vistaActual] = datos;
 
-            // Actualizar estadísticas
-            const totalVentas = datos.ventas.reduce((a, b) => a + b, 0);
-            const totalCantidad = datos.cantidad.reduce((a, b) => a + b, 0);
-            const devuelto = totalVentas * 0.037; // ~3.7%
-            const neto = totalVentas - devuelto;
+                // Actualizar gráfica de ventas
+                ventasChart.data.labels = datos.labels;
+                ventasChart.data.datasets[0].data = datos.ventas;
+                ventasChart.update();
 
-            document.getElementById('totalVendido').textContent = '$' + totalVentas.toLocaleString('es-MX', { minimumFractionDigits: 2 });
-            document.getElementById('totalDevuelto').textContent = '$' + devuelto.toLocaleString('es-MX', { minimumFractionDigits: 2 });
-            document.getElementById('totalNeto').textContent = '$' + neto.toLocaleString('es-MX', { minimumFractionDigits: 2 });
-            document.getElementById('cantidadVentas').textContent = totalCantidad;
+                // Actualizar gráfica de cantidad
+                cantidadChart.data.labels = datos.labels;
+                cantidadChart.data.datasets[0].data = datos.cantidad;
+                cantidadChart.update();
+
+                // Actualizar estadísticas
+                const totalVentas = datos.ventas.reduce((a, b) => a + b, 0);
+                const totalCantidad = datos.cantidad.reduce((a, b) => a + b, 0);
+                const devuelto = totalVentas * 0.037; // ~3.7%
+                const neto = totalVentas - devuelto;
+
+                document.getElementById('totalVendido').textContent = '$' + totalVentas.toLocaleString('es-MX', { minimumFractionDigits: 2 });
+                document.getElementById('totalDevuelto').textContent = '$' + devuelto.toLocaleString('es-MX', { minimumFractionDigits: 2 });
+                document.getElementById('totalNeto').textContent = '$' + neto.toLocaleString('es-MX', { minimumFractionDigits: 2 });
+                document.getElementById('cantidadVentas').textContent = totalCantidad;
+            } catch (error) {
+                console.error('Error al actualizar gráficas:', error);
+            }
         }
 
         function goBack() {
             window.location.href = '/reportes';
         }
 
+        // Auto-actualizar cada 30 segundos
+        let intervaloActualizacion = null;
+        let ultimaActualizacion = Date.now();
+
+        function iniciarAutoActualizacion() {
+            if (intervaloActualizacion) {
+                clearInterval(intervaloActualizacion);
+            }
+            intervaloActualizacion = setInterval(async () => {
+                try {
+                    console.log('🔄 Actualizando gráficas automáticamente...');
+                    await actualizarGraficas();
+                    ultimaActualizacion = Date.now();
+                } catch (error) {
+                    console.error('Error en actualización automática:', error);
+                }
+            }, 25000); // Cada 25 segundos
+        }
+
         // Inicializar al cargar la página
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             // Mostrar sucursal
             const sucursalNombre = localStorage.getItem('sucursal_nombre');
             if (sucursalNombre) {
                 document.getElementById('sucursalBadge').textContent = sucursalNombre;
             }
 
-            inicializarGraficas();
+            await inicializarGraficas();
+            iniciarAutoActualizacion();
+            console.log('✓ Gráficas inicializadas con auto-actualización cada 25 segundos');
         });
     </script>
 </body>

@@ -285,9 +285,13 @@
         async function guardar() {
             const token = localStorage.getItem('token') || localStorage.getItem('access_token');
             const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+            // Obtener local_id de localStorage (sucursal actual seleccionada) o del usuario
+            const sucursalId = localStorage.getItem('sucursal_id') || user.local_id || 1;
+
             const payload = {
                 caja: $('caja').value || 'VENTAS01',
-                local_id: user.local_id || 1,
+                local_id: Number(sucursalId),
                 usuario_id: user.id || 1,
                 efectivo: getVal('efectivo'),
                 cheque: getVal('cheque'),
@@ -309,7 +313,7 @@
                 if (!res.ok) { const err = await res.json().catch(() => ({ detail: res.statusText })); throw new Error(err.detail || 'Error al guardar'); }
                 const data = await res.json();
                 alert('Cierre creado con éxito. Folio: ' + data.id + ' Total: ' + money(data.total_cierre));
-                window.location.href = '/static/cajas_cierre.html';
+                window.location.href = `/static/cajas_cierre.html?local_id=${payload.local_id}`;
             } catch (e) {
                 alert('No fue posible crear el cierre: ' + e.message);
             }
@@ -317,17 +321,31 @@
 
         function init() {
             const user = JSON.parse(localStorage.getItem('user') || '{}');
-            $('vendedor').textContent = user.name || user.username || 'Usuario';
-            $('sucursal').textContent = (user.sucursal || 'REFACCIONARIA OVIEDO');
-            const d = new Date();
-            $('fecha').textContent = d.toLocaleDateString('es-MX');
-            $('hora').textContent = d.toLocaleTimeString('es-MX');
-            document.getElementById('userInfo').textContent = `Usuario: ${$('vendedor').textContent}`;
+
+            // Verificar que los elementos existen antes de acceder
+            const vendedorEl = $('vendedor');
+            if (vendedorEl) {
+                vendedorEl.textContent = user.name || user.username || 'Usuario';
+            }
+
+            const sucursalEl = $('sucursal');
+            if (sucursalEl) {
+                // Usar sucursal de localStorage (actual) o del usuario o default
+                const sucursalNombreLocal = localStorage.getItem('sucursal_nombre') || user.sucursal || 'REFACCIONARIA OVIEDO';
+                sucursalEl.textContent = sucursalNombreLocal;
+                horaEl.textContent = d.toLocaleTimeString('es-MX');
+            }
+
+            const userInfoEl = document.getElementById('userInfo');
+            if (userInfoEl && vendedorEl) {
+                userInfoEl.textContent = `Usuario: ${vendedorEl.textContent}`;
+            }
 
             // Mostrar sucursal
             const sucursalNombre = localStorage.getItem('sucursal_nombre');
-            if (sucursalNombre) {
-                document.getElementById('sucursalBadge').textContent = sucursalNombre;
+            const sucursalBadge = document.getElementById('sucursalBadge');
+            if (sucursalNombre && sucursalBadge) {
+                sucursalBadge.textContent = sucursalNombre;
             }
         }
         document.addEventListener('DOMContentLoaded', () => { init(); });

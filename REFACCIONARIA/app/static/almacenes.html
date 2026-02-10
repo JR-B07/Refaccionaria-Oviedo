@@ -466,8 +466,7 @@
                     <select id="filtroSucursal">
                         <option value="">Todas</option>
                         <option value="Refaccionaria Oviedo" selected>Refaccionaria Oviedo</option>
-                        <option value="NORTE">Sucursal Norte</option>
-                        <option value="SUR">Sucursal Sur</option>
+                        <option value="Filtros y Lubricantes">Filtros y Lubricantes</option>
                     </select>
                 </div>
                 <div class="field">
@@ -721,8 +720,9 @@
         var productoEditando = null;
 
         function editarProducto(index) {
-            productoEditando = index;
             var p = todosLosProductos[index];
+            // Guardar el objeto completo del producto para poder acceder al ID
+            productoEditando = p;
 
             document.getElementById('modalTitulo').textContent = 'Editar Producto';
             document.getElementById('inputCodigo').value = p.codigo || '';
@@ -749,20 +749,59 @@
                 return;
             }
 
-            var p = todosLosProductos[productoEditando];
-            p.codigo = document.getElementById('inputCodigo').value;
-            p.nombre = document.getElementById('inputNombre').value;
-            p.marca = document.getElementById('inputMarca').value;
-            p.categoria = document.getElementById('inputCategoria').value;
-            p.stock_total = parseInt(document.getElementById('inputStock').value) || 0;
-            p.precio_compra = parseFloat(document.getElementById('inputPrecioCompra').value) || 0;
-            p.ubicacion_estante = document.getElementById('inputEstante').value;
-            p.ubicacion_fila = document.getElementById('inputFila').value;
-            p.ubicacion_columna = document.getElementById('inputColumna').value;
+            var producto = productoEditando;
 
-            mostrarProductos(todosLosProductos);
-            cerrarModal();
-            mostrarNotificacion('✓ Producto actualizado correctamente');
+            // Preparar los datos actualizados
+            var datosActualizados = {
+                codigo: document.getElementById('inputCodigo').value,
+                nombre: document.getElementById('inputNombre').value,
+                marca: document.getElementById('inputMarca').value,
+                categoria: document.getElementById('inputCategoria').value,
+                stock_total: parseInt(document.getElementById('inputStock').value) || 0,
+                precio_compra: parseFloat(document.getElementById('inputPrecioCompra').value) || 0,
+                ubicacion_estante: document.getElementById('inputEstante').value,
+                ubicacion_fila: document.getElementById('inputFila').value,
+                ubicacion_columna: document.getElementById('inputColumna').value
+            };
+
+            // Si el producto es de ejemplo (sin ID), solo actualizar en memoria
+            if (!producto.id) {
+                // Actualizar en el array local
+                Object.assign(producto, datosActualizados);
+                mostrarProductos(todosLosProductos);
+                cerrarModal();
+                mostrarNotificacion('✓ Producto actualizado correctamente (datos locales)');
+                return;
+            }
+
+            // Enviar actualización a la API
+            const url = `/api/v1/productos/${producto.id}`;
+
+            fetch(url, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(datosActualizados)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Error HTTP: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Actualizar el producto en el array local también
+                    Object.assign(producto, datosActualizados);
+                    mostrarProductos(todosLosProductos);
+                    cerrarModal();
+                    mostrarNotificacion('✓ Producto guardado correctamente en la base de datos');
+                })
+                .catch(error => {
+                    console.error('Error al guardar:', error);
+                    mostrarNotificacion('❌ Error al guardar: ' + error.message);
+                });
         }
 
         function eliminarProducto(index) {

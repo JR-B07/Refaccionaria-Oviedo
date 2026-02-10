@@ -26,86 +26,99 @@ async def listar_vales_venta(
     db: Session = Depends(get_db)
 ):
     """Lista vales de venta con filtros opcionales"""
-    query = db.query(
-        ValeVenta,
-        Usuario,
-        Local
-    ).join(
-        Usuario, ValeVenta.vendedor_id == Usuario.id
-    ).join(
-        Local, ValeVenta.local_id == Local.id
-    )
+    try:
+        query = db.query(ValeVenta)
 
-    # Aplicar filtros
-    if folio:
-        query = query.filter(
-            or_(
-                ValeVenta.folio.ilike(f"%{folio}%"),
-                ValeVenta.descripcion.ilike(f"%{folio}%")
+        # Aplicar filtros
+        if folio:
+            query = query.filter(
+                or_(
+                    ValeVenta.folio.ilike(f"%{folio}%"),
+                    ValeVenta.descripcion.ilike(f"%{folio}%")
+                )
             )
-        )
-    
-    if vendedor_id:
-        query = query.filter(ValeVenta.vendedor_id == vendedor_id)
-    
-    if monto_aproximado:
-        # Buscar montos cercanos (±10%)
-        monto_min = monto_aproximado * 0.9
-        monto_max = monto_aproximado * 1.1
-        query = query.filter(
-            and_(
-                ValeVenta.monto >= monto_min,
-                ValeVenta.monto <= monto_max
+        
+        if vendedor_id:
+            query = query.filter(ValeVenta.vendedor_id == vendedor_id)
+        
+        if monto_aproximado:
+            # Buscar montos cercanos (±10%)
+            monto_min = monto_aproximado * 0.9
+            monto_max = monto_aproximado * 1.1
+            query = query.filter(
+                and_(
+                    ValeVenta.monto >= monto_min,
+                    ValeVenta.monto <= monto_max
+                )
             )
-        )
-    
-    if local_id:
-        query = query.filter(ValeVenta.local_id == local_id)
-    
-    if tipo:
-        query = query.filter(ValeVenta.tipo == tipo)
-    
-    if fecha_inicio:
-        fecha_inicio_dt = datetime.strptime(fecha_inicio, "%Y-%m-%d")
-        query = query.filter(ValeVenta.fecha >= fecha_inicio_dt)
-    
-    if fecha_fin:
-        fecha_fin_dt = datetime.strptime(fecha_fin, "%Y-%m-%d")
-        fecha_fin_dt = fecha_fin_dt.replace(hour=23, minute=59, second=59)
-        query = query.filter(ValeVenta.fecha <= fecha_fin_dt)
-    
-    if disponible is not None:
-        query = query.filter(ValeVenta.disponible == disponible)
+        
+        if local_id:
+            query = query.filter(ValeVenta.local_id == local_id)
+        
+        if tipo:
+            from app.models.vale_venta import TipoVale
+            try:
+                # Convertir string a enum
+                tipo_enum = TipoVale.venta
+                if tipo.lower() == "devolucion":
+                    tipo_enum = TipoVale.devolucion
+                query = query.filter(ValeVenta.tipo == tipo_enum)
+            except:
+                pass  # Ignorar si el tipo es inválido
+        
+        if fecha_inicio:
+            try:
+                fecha_inicio_dt = datetime.strptime(fecha_inicio, "%Y-%m-%d")
+                query = query.filter(ValeVenta.fecha >= fecha_inicio_dt)
+            except ValueError:
+                pass  # Ignorar si la fecha es inválida
+        
+        if fecha_fin:
+            try:
+                fecha_fin_dt = datetime.strptime(fecha_fin, "%Y-%m-%d")
+                fecha_fin_dt = fecha_fin_dt.replace(hour=23, minute=59, second=59)
+                query = query.filter(ValeVenta.fecha <= fecha_fin_dt)
+            except ValueError:
+                pass  # Ignorar si la fecha es inválida
+        
+        if disponible is not None:
+            query = query.filter(ValeVenta.disponible == disponible)
 
-    # Ejecutar query
-    resultados = query.offset(skip).limit(limit).all()
-    
-    # Formatear respuesta
-    vales = []
-    for vale, usuario, local in resultados:
-        vale_dict = {
-            "id": vale.id,
-            "folio": vale.folio,
-            "monto": vale.monto,
-            "concepto": vale.concepto,
-            "fecha": vale.fecha,
-            "vendedor_id": vale.vendedor_id,
-            "local_id": vale.local_id,
-            "usado": vale.usado,
-            "fecha_uso": vale.fecha_uso,
-            "destino": vale.destino,
-            "tipo": vale.tipo.value if vale.tipo else "venta",
-            "disponible": vale.disponible,
-            "descripcion": vale.descripcion,
-            "venta_origen_id": vale.venta_origen_id,
-            "fecha_creacion": vale.fecha_creacion,
-            "fecha_actualizacion": vale.fecha_actualizacion,
-            "vendedor_nombre": usuario.nombre_completo if usuario else None,
-            "local_nombre": local.nombre if local else None
-        }
-        vales.append(ValeVentaResponse(**vale_dict))
-    
-    return vales
+        # Ejecutar query
+        resultados = query.offset(skip).limit(limit).all()
+        
+        # Formatear respuesta
+        vales = []
+        for vale in resultados:
+            # Obtener usuario y local por separado
+            usuario = db.query(Usuario).filter(Usuario.id == vale.vendedor_id).first() if vale.vendedor_id else None
+            local = db.query(Local).filter(Local.id == vale.local_id).first() if vale.local_id else None
+            
+            vale_dict = {
+                "id": vale.id,
+                "folio": vale.folio,
+                "monto": float(vale.monto) if vale.monto else 0,
+                "concepto": vale.concepto,
+                "fecha": vale.fecha,
+                "vendedor_id": vale.vendedor_id,
+                "local_id": vale.local_id,
+                "usado": vale.usado,
+                "fecha_uso": vale.fecha_uso,
+                "destino": vale.destino,
+                "tipo": vale.tipo.value if vale.tipo else "venta",
+                "disponible": vale.disponible,
+                "descripcion": vale.descripcion,
+                "venta_origen_id": vale.venta_origen_id,
+                "fecha_creacion": vale.fecha_creacion,
+                "fecha_actualizacion": vale.fecha_actualizacion,
+                "vendedor_nombre": usuario.nombre_completo if usuario else None,
+                "local_nombre": local.nombre if local else None
+            }
+            vales.append(ValeVentaResponse(**vale_dict))
+        
+        return vales
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al obtener vales: {str(e)}")
 
 @router.get("/vales-venta/{vale_id}", response_model=ValeVentaResponse)
 async def obtener_vale_venta(
@@ -147,72 +160,74 @@ async def crear_vale_venta(
     db: Session = Depends(get_db)
 ):
     """Crea un nuevo vale de venta"""
-    # Verificar si ya existe un vale con el mismo folio
-    existe = db.query(ValeVenta).filter(ValeVenta.folio == vale.folio).first()
-    if existe:
-        raise HTTPException(status_code=400, detail="Ya existe un vale con este folio")
-    
-    from app.models.vale_venta import TipoVale
-    
-    # Convertir tipo string a enum
-    tipo_vale = TipoVale.VENTA  # Default
-    if vale.tipo and vale.tipo.lower() == "devolucion":
-        tipo_vale = TipoVale.DEVOLUCION
-    
-    # Crear el objeto ValeVenta directamente
-    db_vale = ValeVenta()
-    db_vale.folio = vale.folio
-    db_vale.monto = vale.monto
-    db_vale.concepto = vale.concepto or "POR ANTICIPO"
-    db_vale.fecha = vale.fecha
-    db_vale.vendedor_id = vale.vendedor_id
-    db_vale.local_id = vale.local_id
-    db_vale.tipo = tipo_vale
-    db_vale.disponible = vale.disponible if vale.disponible is not None else True
-    db_vale.descripcion = vale.descripcion
-    db_vale.venta_origen_id = vale.venta_origen_id
-    db_vale.usado = False
-    db_vale.fecha_uso = None
-    db_vale.destino = None
-
-    # Validar relaciones existentes
-    if not db.query(Usuario).filter(Usuario.id == db_vale.vendedor_id).first():
-        raise HTTPException(status_code=400, detail="Vendedor no existe")
-    if not db.query(Local).filter(Local.id == db_vale.local_id).first():
-        raise HTTPException(status_code=400, detail="Sucursal no existe")
-
-    db.add(db_vale)
     try:
+        # Verificar si ya existe un vale con el mismo folio
+        existe = db.query(ValeVenta).filter(ValeVenta.folio == vale.folio).first()
+        if existe:
+            raise HTTPException(status_code=400, detail="Ya existe un vale con este folio")
+        
+        from app.models.vale_venta import TipoVale
+        
+        # Convertir tipo string a enum
+        tipo_vale = TipoVale.venta  # Default
+        if vale.tipo and vale.tipo.lower() == "devolucion":
+            tipo_vale = TipoVale.devolucion
+        
+        # Crear el objeto ValeVenta directamente
+        db_vale = ValeVenta()
+        db_vale.folio = vale.folio
+        db_vale.monto = vale.monto
+        db_vale.concepto = vale.concepto or "POR ANTICIPO"
+        db_vale.fecha = vale.fecha if vale.fecha else datetime.now()
+        db_vale.vendedor_id = vale.vendedor_id
+        db_vale.local_id = vale.local_id
+        db_vale.tipo = tipo_vale
+        db_vale.disponible = vale.disponible if vale.disponible is not None else True
+        db_vale.descripcion = vale.descripcion
+        db_vale.venta_origen_id = vale.venta_origen_id
+        db_vale.usado = False
+        db_vale.fecha_uso = None
+        db_vale.destino = None
+
+        # Validar relaciones existentes
+        if not db.query(Usuario).filter(Usuario.id == db_vale.vendedor_id).first():
+            raise HTTPException(status_code=400, detail="Vendedor no existe")
+        if not db.query(Local).filter(Local.id == db_vale.local_id).first():
+            raise HTTPException(status_code=400, detail="Sucursal no existe")
+
+        db.add(db_vale)
         db.commit()
+        db.refresh(db_vale)
+        
+        # Obtener información relacionada
+        usuario = db.query(Usuario).filter(Usuario.id == db_vale.vendedor_id).first()
+        local = db.query(Local).filter(Local.id == db_vale.local_id).first()
+        
+        return ValeVentaResponse(
+            id=db_vale.id,
+            folio=db_vale.folio,
+            monto=float(db_vale.monto) if db_vale.monto else 0,
+            concepto=db_vale.concepto,
+            fecha=db_vale.fecha,
+            vendedor_id=db_vale.vendedor_id,
+            local_id=db_vale.local_id,
+            usado=db_vale.usado,
+            fecha_uso=db_vale.fecha_uso,
+            destino=db_vale.destino,
+            tipo=db_vale.tipo.value if db_vale.tipo else "venta",
+            disponible=db_vale.disponible,
+            descripcion=db_vale.descripcion,
+            venta_origen_id=db_vale.venta_origen_id,
+            fecha_creacion=db_vale.fecha_creacion,
+            fecha_actualizacion=db_vale.fecha_actualizacion,
+            vendedor_nombre=usuario.nombre_completo if usuario else None,
+            local_nombre=local.nombre if local else None
+        )
+    except HTTPException:
+        raise
     except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=400, detail=f"Error al crear el vale: {str(e)}")
-    db.refresh(db_vale)
-    
-    # Obtener información relacionada
-    usuario = db.query(Usuario).filter(Usuario.id == db_vale.vendedor_id).first()
-    local = db.query(Local).filter(Local.id == db_vale.local_id).first()
-    
-    return ValeVentaResponse(
-        id=db_vale.id,
-        folio=db_vale.folio,
-        monto=db_vale.monto,
-        concepto=db_vale.concepto,
-        fecha=db_vale.fecha,
-        vendedor_id=db_vale.vendedor_id,
-        local_id=db_vale.local_id,
-        usado=db_vale.usado,
-        fecha_uso=db_vale.fecha_uso,
-        destino=db_vale.destino,
-        tipo=db_vale.tipo.value if db_vale.tipo else "venta",
-        disponible=db_vale.disponible,
-        descripcion=db_vale.descripcion,
-        venta_origen_id=db_vale.venta_origen_id,
-        fecha_creacion=db_vale.fecha_creacion,
-        fecha_actualizacion=db_vale.fecha_actualizacion,
-        vendedor_nombre=usuario.nombre_completo if usuario else None,
-        local_nombre=local.nombre if local else None
-    )
+        raise HTTPException(status_code=500, detail=f"Error al crear el vale: {str(e)}")
 
 @router.put("/vales-venta/{vale_id}", response_model=ValeVentaResponse)
 async def actualizar_vale_venta(

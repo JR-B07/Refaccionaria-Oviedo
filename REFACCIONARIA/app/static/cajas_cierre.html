@@ -542,7 +542,7 @@
 
         <!-- Pestañas para dos sucursales -->
         <div class="tabs-container">
-            <button class="tab-button active" onclick="cambiarTab(1)">FILTROS Y LUBRICANTES</button>
+            <button class="tab-button active" onclick="cambiarTab(1)">REFACCIONARIA OVIEDO</button>
             <button class="tab-button" onclick="cambiarTab(2)">FILTROS Y LUBRICANTES</button>
         </div>
 
@@ -682,6 +682,12 @@
 
         function cambiarTab(tabId) {
             currentTab = tabId;
+            // Guardar la sucursal actual en localStorage
+            localStorage.setItem('sucursal_id', tabId);
+            const sucursal = sucursales.find(s => s.id === tabId);
+            if (sucursal) {
+                localStorage.setItem('sucursal_nombre', sucursal.nombre);
+            }
             // Actualizar botones de pestaña
             document.querySelectorAll('.tab-button').forEach((btn, idx) => {
                 btn.classList.remove('active');
@@ -858,7 +864,11 @@
             const fechaFin = document.getElementById('fechaFin').value;
             const token = localStorage.getItem('token');
             try {
-                const res = await fetch(`/api/v1/reportes/cierres-caja/estadisticas?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`, {
+                const url = new URL('/api/v1/reportes/cierres-caja/estadisticas', window.location.origin);
+                url.searchParams.append('fecha_inicio', fechaInicio);
+                url.searchParams.append('fecha_fin', fechaFin);
+
+                const res = await fetch(url.toString(), {
                     headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) }
                 });
                 if (!res.ok) { throw new Error('Error al obtener estadísticas'); }
@@ -1032,20 +1042,25 @@
                 </tr>
             `;
 
-            // Construir URL con parámetros
-            let url = `/api/v1/reportes/cierres-caja?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}&local_id=${sucursalId}`;
+            // Construir URL con parámetros usando URL API para encoding automático
+            const url = new URL('/api/v1/reportes/cierres-caja', window.location.origin);
+            url.searchParams.append('fecha_inicio', fechaInicio);
+            url.searchParams.append('fecha_fin', fechaFin);
+            url.searchParams.append('local_id', sucursalId);
 
-            if (caja) {
-                url += `&caja=${encodeURIComponent(caja)}`;
+            if (caja && caja.trim()) {
+                url.searchParams.append('caja', caja);
             }
 
-            if (vendedor) {
-                url += `&vendedor=${encodeURIComponent(vendedor)}`;
+            if (vendedor && vendedor.trim()) {
+                url.searchParams.append('vendedor', vendedor);
             }
+
+            console.log(`🔍 Buscando: local=${sucursalId}, caja=${caja || 'N/A'}, vendedor=${vendedor || 'N/A'}`);
 
             const token = localStorage.getItem('token');
 
-            fetch(url, {
+            fetch(url.toString(), {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -1057,19 +1072,20 @@
                         if (response.status === 401) {
                             window.location.href = '/login.html';
                         }
-                        throw new Error(`Error: ${response.status}`);
+                        throw new Error(`HTTP ${response.status}`);
                     }
                     return response.json();
                 })
                 .then(data => {
+                    console.log(`✅ Recibidos ${(data.cierres || []).length} cierres para sucursal ${sucursalId}`);
                     renderCierres(data.cierres, data.total, sucursalId);
                 })
                 .catch(error => {
-                    console.error('Error:', error);
+                    console.error(`❌ Error en sucursal ${sucursalId}:`, error);
                     tableBody.innerHTML = `
                     <tr>
                         <td colspan="7" style="text-align: center; padding: 40px; color: #e74c3c;">
-                            Error al cargar los datos: ${error.message}
+                            Error: ${error.message}
                         </td>
                     </tr>
                 `;

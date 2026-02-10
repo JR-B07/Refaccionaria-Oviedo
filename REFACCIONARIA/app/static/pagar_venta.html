@@ -478,6 +478,7 @@
                 <span>📋</span>
                 <span>DETALLE DE LA VENTA - ACCESO RÁPIDO</span>
             </div>
+            <span class="sucursal-badge" id="sucursalBadge">Sucursal</span>
             <div class="header-buttons">
                 <button class="header-button surtir" onclick="surtirTodos()">Surtir</button>
                 <button class="header-button pagar" onclick="procesarVenta()">Pagar</button>
@@ -697,8 +698,10 @@
 
         function actualizarResumen() {
             document.getElementById('subtotal1').textContent = '$ ' + (ventaData.subtotal || 0).toFixed(2);
-            document.getElementById('descuento').textContent = '$ ' + (ventaData.descuentoMonto || 0).toFixed(2);
-            document.getElementById('subtotal2').textContent = '$ ' + (ventaData.subtotal - (ventaData.descuentoMonto || 0)).toFixed(2);
+            // Usar descuento si existe, si no usar descuentoMonto
+            const descuentoValor = ventaData.descuento || ventaData.descuentoMonto || 0;
+            document.getElementById('descuento').textContent = '$ ' + descuentoValor.toFixed(2);
+            document.getElementById('subtotal2').textContent = '$ ' + (ventaData.subtotal - descuentoValor).toFixed(2);
             document.getElementById('impuesto').textContent = '$ ' + (ventaData.impuesto || 0).toFixed(2);
             document.getElementById('total').textContent = '$ ' + (ventaData.total || 0).toFixed(2);
 
@@ -753,11 +756,16 @@
                 });
 
                 // Actualizar referencia mostrada
-                document.getElementById('refPago').textContent = referencia || '-';
+                const refElement = document.getElementById('refPago');
+                if (refElement) {
+                    refElement.textContent = referencia || '-';
+                }
 
                 // Actualizar info del método de pago
                 const estadoInfo = document.querySelector('.estado-info');
-                estadoInfo.textContent = `PAGADO [FORMA DE PAGO] - Referencia: ${referencia || '-'}`;
+                if (estadoInfo) {
+                    estadoInfo.textContent = `PAGADO [${metodosNombres[metodo]}] - Referencia: ${referencia || '-'}`;
+                }
 
                 actualizarResumen();
 
@@ -802,18 +810,72 @@
                 return;
             }
 
-            // Imprimir ticket automáticamente
-            imprimirTicket();
+            // Guardar venta en la BD
+            try {
+                const token = localStorage.getItem('access_token');
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
 
-            // Aquí se procesaría la venta con el backend
-            alert('Procesando venta...\n\n' +
-                'Folio: ' + (ventaData.folio || 'N/A') + '\n' +
-                'Total: $ ' + (ventaData.total || 0).toFixed(2) + '\n' +
-                'Pagado: $ ' + totalPagado.toFixed(2) + '\n\n' +
-                '🖨️ Imprimiendo ticket...');
+                // Asegurarse de que usuario_id es válido
+                let usuario_id = parseInt(user.id) || parseInt(user.usuario_id) || parseInt(user.uid) || 3;
+                let local_id = parseInt(ventaData.local_id) || parseInt(user.local_id) || 1;
 
-            // TODO: Enviar datos al servidor
-            // fetch('/api/v1/ventas/', { method: 'POST', ... })
+                // Preparar datos para el API
+                const datosVentaAPI = {
+                    folio: ventaData.folio || '',
+                    local_id: local_id,
+                    usuario_id: usuario_id,
+                    cliente_id: ventaData.cliente_id || null,
+                    estado: "completada",
+                    tipo_venta: "contado",
+                    subtotal: parseFloat(ventaData.subtotal) || 0,
+                    descuento: parseFloat(ventaData.descuento) || 0,
+                    iva: parseFloat(ventaData.iva) || parseFloat(ventaData.impuesto) || 0,
+                    total: parseFloat(ventaData.total) || 0,
+                    pago_recibido: totalPagado,
+                    cambio: totalPagado - (parseFloat(ventaData.total) || 0),
+                    metodo_pago: pagos.length > 0 ? pagos[0].metodo : 'efectivo'
+                };
+
+                console.log('[DEBUG] Usuario objeto:', user);
+                console.log('[DEBUG] usuario_id final:', usuario_id);
+                console.log('[DEBUG] Datos a enviar:', datosVentaAPI);
+
+                const response = await fetch('/api/v1/ventas/rapida', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(datosVentaAPI)
+                });
+
+                console.log('[DEBUG] Response status:', response.status);
+                const responseText = await response.text();
+                console.log('[DEBUG] Response text:', responseText);
+
+                if (!response.ok) {
+                    throw new Error(`Error al guardar venta: ${response.status} - ${responseText}`);
+                }
+
+                const resultadoVenta = JSON.parse(responseText);
+                console.log('Venta guardada en BD:', resultadoVenta);
+
+                // Imprimir ticket automáticamente después de guardar
+                imprimirTicket();
+
+                // Mostrar confirmación
+                alert('✓ Venta Procesada Exitosamente!\n\n' +
+                    'Folio: ' + (ventaData.folio || 'N/A') + '\n' +
+                    'Total: $ ' + (ventaData.total || 0).toFixed(2) + '\n' +
+                    'Pagado: $ ' + totalPagado.toFixed(2) + '\n\n' +
+                    '✓ Datos guardados en la base de datos\n' +
+                    '🖨️ Ticket impreso');
+
+            } catch (error) {
+                console.error('Error al procesar venta:', error);
+                alert('Error al guardar la venta en la base de datos:\n' + error.message);
+                return;
+            }
 
             // Limpiar y regresar
             localStorage.removeItem('ventaActual');
@@ -969,7 +1031,10 @@
             // Mostrar sucursal
             const sucursalNombre = localStorage.getItem('sucursal_nombre');
             if (sucursalNombre) {
-                document.getElementById('sucursalBadge').textContent = sucursalNombre;
+                const badge = document.getElementById('sucursalBadge');
+                if (badge) {
+                    badge.textContent = sucursalNombre;
+                }
             }
         };
     </script>

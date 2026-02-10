@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
-import hashlib
+import bcrypt
 
 from app.core.database import get_db
 from app.crud.usuario import usuario_crud
@@ -45,14 +45,17 @@ async def login(login_data: LoginRequest, db: Session = Depends(get_db)):
     if not db_user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Usuario o contraseña incorrectos")
 
-    # Comparar hash SHA256
-    password_hash = hashlib.sha256(login_data.password.encode()).hexdigest()
-    if password_hash != db_user.clave_hash:
-        # Registrar intento fallido si existe la función en el CRUD
-        try:
-            usuario_crud.registrar_login(db, db_user, exitoso=False)
-        except Exception:
-            pass
+    # Comparar con bcrypt
+    try:
+        if not bcrypt.checkpw(login_data.password.encode(), db_user.clave_hash.encode()):
+            # Registrar intento fallido
+            try:
+                usuario_crud.registrar_login(db, db_user, exitoso=False)
+            except Exception:
+                pass
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Usuario o contraseña incorrectos")
+    except Exception as e:
+        print(f"Error verificando contraseña: {e}")
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Usuario o contraseña incorrectos")
 
     # Login exitoso
@@ -63,24 +66,31 @@ async def login(login_data: LoginRequest, db: Session = Depends(get_db)):
 
     # Obtener nombre de la sucursal
     local_nombre = None
-    if db_user.local_id and db_user.local:
+    if db_user.local_id and hasattr(db_user, 'local') and db_user.local:
         local_nombre = db_user.local.nombre
 
     token_data = {
         "sub": db_user.nombre_usuario,
         "id": db_user.id,
-        "role": getattr(db_user.rol, 'value', str(db_user.rol)),
+        "role": getattr(db_user.rol, 'value', str(db_user.rol)) if db_user.rol else "vendedor",
         "local_id": db_user.local_id,
         "local_nombre": local_nombre
     }
 
     access_token = create_access_token(token_data)
 
+    # Construir nombre completo
+    nombre_completo = db_user.nombre or ""
+    if db_user.apellido_paterno:
+        nombre_completo += f" {db_user.apellido_paterno}"
+    if db_user.apellido_materno:
+        nombre_completo += f" {db_user.apellido_materno}"
+
     user_info = {
         "id": db_user.id,
         "username": db_user.nombre_usuario,
-        "name": db_user.nombre_completo,
-        "role": getattr(db_user.rol, 'value', str(db_user.rol)),
+        "name": nombre_completo.strip(),
+        "role": getattr(db_user.rol, 'value', str(db_user.rol)) if db_user.rol else "vendedor",
         "local_id": db_user.local_id,
         "local_nombre": local_nombre
     }

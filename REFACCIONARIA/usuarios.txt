@@ -1,0 +1,16 @@
+2026-02-06 11:58:19,640 INFO sqlalchemy.engine.Engine SELECT DATABASE()
+2026-02-06 11:58:19,640 INFO sqlalchemy.engine.Engine [raw sql] {}
+2026-02-06 11:58:19,642 INFO sqlalchemy.engine.Engine SELECT @@sql_mode
+2026-02-06 11:58:19,642 INFO sqlalchemy.engine.Engine [raw sql] {}
+2026-02-06 11:58:19,642 INFO sqlalchemy.engine.Engine SELECT @@lower_case_table_names
+2026-02-06 11:58:19,643 INFO sqlalchemy.engine.Engine [raw sql] {}
+2026-02-06 11:58:19,645 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-02-06 11:58:19,649 INFO sqlalchemy.engine.Engine SELECT usuarios.nombre AS usuarios_nombre, usuarios.apellido_paterno AS usuarios_apellido_paterno, usuarios.apellido_materno AS usuarios_apellido_materno, usuarios.email AS usuarios_email, usuarios.telefono AS usuarios_telefono, usuarios.nombre_usuario AS usuarios_nombre_usuario, usuarios.clave_hash AS usuarios_clave_hash, usuarios.rol AS usuarios_rol, usuarios.estado AS usuarios_estado, usuarios.local_id AS usuarios_local_id, usuarios.ultimo_login AS usuarios_ultimo_login, usuarios.intentos_fallidos AS usuarios_intentos_fallidos, usuarios.bloqueado_hasta AS usuarios_bloqueado_hasta, usuarios.debe_cambiar_clave AS usuarios_debe_cambiar_clave, usuarios.tema_interfaz AS usuarios_tema_interfaz, usuarios.id AS usuarios_id, usuarios.fecha_creacion AS usuarios_fecha_creacion, usuarios.fecha_actualizacion AS usuarios_fecha_actualizacion 
+FROM usuarios
+2026-02-06 11:58:19,650 INFO sqlalchemy.engine.Engine [generated in 0.00067s] {}
+Usuarios en la BD:
+  ID: 3, Nombre: Administrador, Usuario: admin
+  ID: 4, Nombre: Gerente, Usuario: sucursal1
+  ID: 5, Nombre: Gerente, Usuario: sucursal2
+  ID: 6, Nombre: Usuario, Usuario: almacenero
+2026-02-06 11:58:19,655 INFO sqlalchemy.engine.Engine ROLLBACK

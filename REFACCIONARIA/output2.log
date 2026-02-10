@@ -1,0 +1,138 @@
+🔄 Iniciando inserción de datos de prueba...
+2026-02-05 15:16:57,454 INFO sqlalchemy.engine.Engine SELECT DATABASE()
+2026-02-05 15:16:57,455 INFO sqlalchemy.engine.Engine [raw sql] {}
+2026-02-05 15:16:57,456 INFO sqlalchemy.engine.Engine SELECT @@sql_mode
+2026-02-05 15:16:57,456 INFO sqlalchemy.engine.Engine [raw sql] {}
+2026-02-05 15:16:57,457 INFO sqlalchemy.engine.Engine SELECT @@lower_case_table_names
+2026-02-05 15:16:57,457 INFO sqlalchemy.engine.Engine [raw sql] {}
+2026-02-05 15:16:57,458 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-02-05 15:16:57,468 INFO sqlalchemy.engine.Engine SELECT count(*) AS count_1 
+FROM (SELECT clientes.alias AS clientes_alias, clientes.nombre AS clientes_nombre, clientes.apellido_paterno AS clientes_apellido_paterno, clientes.apellido_materno AS clientes_apellido_materno, clientes.email AS clientes_email, clientes.telefono AS clientes_telefono, clientes.rfc AS clientes_rfc, clientes.tipo_figura AS clientes_tipo_figura, clientes.razon_social AS clientes_razon_social, clientes.calle AS clientes_calle, clientes.numero AS clientes_numero, clientes.colonia AS clientes_colonia, clientes.ciudad AS clientes_ciudad, clientes.estado AS clientes_estado, clientes.codigo_postal AS clientes_codigo_postal, clientes.activo AS clientes_activo, clientes.local_id AS clientes_local_id, clientes.id AS clientes_id, clientes.fecha_creacion AS clientes_fecha_creacion, clientes.fecha_actualizacion AS clientes_fecha_actualizacion 
+FROM clientes) AS anon_1
+2026-02-05 15:16:57,469 INFO sqlalchemy.engine.Engine [generated in 0.00145s] {}
+2026-02-05 15:16:57,482 INFO sqlalchemy.engine.Engine SELECT usuarios.nombre AS usuarios_nombre, usuarios.apellido_paterno AS usuarios_apellido_paterno, usuarios.apellido_materno AS usuarios_apellido_materno, usuarios.email AS usuarios_email, usuarios.telefono AS usuarios_telefono, usuarios.nombre_usuario AS usuarios_nombre_usuario, usuarios.clave_hash AS usuarios_clave_hash, usuarios.rol AS usuarios_rol, usuarios.estado AS usuarios_estado, usuarios.local_id AS usuarios_local_id, usuarios.ultimo_login AS usuarios_ultimo_login, usuarios.intentos_fallidos AS usuarios_intentos_fallidos, usuarios.bloqueado_hasta AS usuarios_bloqueado_hasta, usuarios.debe_cambiar_clave AS usuarios_debe_cambiar_clave, usuarios.tema_interfaz AS usuarios_tema_interfaz, usuarios.id AS usuarios_id, usuarios.fecha_creacion AS usuarios_fecha_creacion, usuarios.fecha_actualizacion AS usuarios_fecha_actualizacion 
+FROM usuarios 
+ LIMIT %(param_1)s
+2026-02-05 15:16:57,483 INFO sqlalchemy.engine.Engine [generated in 0.00036s] {'param_1': 1}
+2026-02-05 15:16:57,488 INFO sqlalchemy.engine.Engine SELECT clientes.alias AS clientes_alias, clientes.nombre AS clientes_nombre, clientes.apellido_paterno AS clientes_apellido_paterno, clientes.apellido_materno AS clientes_apellido_materno, clientes.email AS clientes_email, clientes.telefono AS clientes_telefono, clientes.rfc AS clientes_rfc, clientes.tipo_figura AS clientes_tipo_figura, clientes.razon_social AS clientes_razon_social, clientes.calle AS clientes_calle, clientes.numero AS clientes_numero, clientes.colonia AS clientes_colonia, clientes.ciudad AS clientes_ciudad, clientes.estado AS clientes_estado, clientes.codigo_postal AS clientes_codigo_postal, clientes.activo AS clientes_activo, clientes.local_id AS clientes_local_id, clientes.id AS clientes_id, clientes.fecha_creacion AS clientes_fecha_creacion, clientes.fecha_actualizacion AS clientes_fecha_actualizacion 
+FROM clientes
+2026-02-05 15:16:57,489 INFO sqlalchemy.engine.Engine [generated in 0.00028s] {}
+2026-02-05 15:16:57,493 INFO sqlalchemy.engine.Engine SELECT productos.codigo AS productos_codigo, productos.codigo_barras AS productos_codigo_barras, productos.nombre AS productos_nombre, productos.descripcion AS productos_descripcion, productos.marca AS productos_marca, productos.modelo AS productos_modelo, productos.categoria AS productos_categoria, productos.precio_compra AS productos_precio_compra, productos.precio_venta AS productos_precio_venta, productos.precio_venta_credito AS productos_precio_venta_credito, productos.stock_total AS productos_stock_total, productos.stock_minimo AS productos_stock_minimo, productos.ubicacion_estante AS productos_ubicacion_estante, productos.ubicacion_fila AS productos_ubicacion_fila, productos.ubicacion_columna AS productos_ubicacion_columna, productos.compatibilidad AS productos_compatibilidad, productos.`año_inicio` AS `productos_año_inicio`, productos.`año_fin` AS `productos_año_fin`, productos.id AS productos_id, productos.fecha_creacion AS productos_fecha_creacion, productos.fecha_actualizacion AS productos_fecha_actualizacion 
+FROM productos
+2026-02-05 15:16:57,494 INFO sqlalchemy.engine.Engine [generated in 0.00035s] {}
+✅ Usuario: admin
+✅ Encontrados 5 clientes y 100 productos
+📝 Insertando datos de ventas...
+2026-02-05 15:16:57,511 INFO sqlalchemy.engine.Engine INSERT INTO ventas (folio, local_id, usuario_id, cliente_id, tipo_venta, estado, subtotal, descuento, iva, total, pago_recibido, cambio, fecha_limite_pago, saldo_pendiente, metodo_pago, fecha_creacion, fecha_actualizacion) VALUES (%(folio)s, %(local_id)s, %(usuario_id)s, %(cliente_id)s, %(tipo_venta)s, %(estado)s, %(subtotal)s, %(descuento)s, %(iva)s, %(total)s, %(pago_recibido)s, %(cambio)s, %(fecha_limite_pago)s, %(saldo_pendiente)s, %(metodo_pago)s, %(fecha_creacion)s, %(fecha_actualizacion)s)
+2026-02-05 15:16:57,511 INFO sqlalchemy.engine.Engine [generated in 0.00041s] {'folio': 'VTA-2020010000', 'local_id': 1, 'usuario_id': 3, 'cliente_id': 2, 'tipo_venta': 'CONTADO', 'estado': 'COMPLETADA', 'subtotal': 933.37, 'descuento': 0, 'iva': 149.34, 'total': 1082.71, 'pago_recibido': 0, 'cambio': 0, 'fecha_limite_pago': None, 'saldo_pendiente': 0, 'metodo_pago': 'efectivo', 'fecha_creacion': datetime.datetime(2020, 1, 3, 0, 0), 'fecha_actualizacion': datetime.datetime(2020, 1, 3, 0, 0)}
+2026-02-05 15:16:57,516 INFO sqlalchemy.engine.Engine ROLLBACK
+Traceback (most recent call last):
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\engine\base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\engine\default.py", line 922, in do_execute
+    cursor.execute(statement, parameters)
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\pymysql\cursors.py", line 153, in execute
+    result = self._query(query)
+             ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\pymysql\cursors.py", line 322, in _query
+    conn.query(q)
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\pymysql\connections.py", line 558, in query
+    self._affected_rows = self._read_query_result(unbuffered=unbuffered)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\pymysql\connections.py", line 822, in _read_query_result
+    result.read()
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\pymysql\connections.py", line 1200, in read
+    first_packet = self.connection._read_packet()
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\pymysql\connections.py", line 772, in _read_packet
+    packet.raise_for_error()
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\pymysql\protocol.py", line 221, in raise_for_error
+    err.raise_mysql_exception(self._data)
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\pymysql\err.py", line 143, in raise_mysql_exception
+    raise errorclass(errno, errval)
+pymysql.err.IntegrityError: (1062, "Duplicate entry 'VTA-2020010000' for key 'ventas.folio'")
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\Users\india\Documents\GitHub\Refaccionaria-Oviedo\REFACCIONARIA\insertar_datos_prueba_graficas.py", line 126, in insertar_datos_prueba
+    db.commit()
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\orm\session.py", line 1969, in commit
+    trans.commit(_to_root=True)
+  File "<string>", line 2, in commit
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\orm\state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\orm\session.py", line 1256, in commit
+    self._prepare_impl()
+  File "<string>", line 2, in _prepare_impl
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\orm\state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\orm\session.py", line 1231, in _prepare_impl
+    self.session.flush()
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\orm\session.py", line 4312, in flush
+    self._flush(objects)
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\orm\session.py", line 4447, in _flush
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\util\langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\orm\session.py", line 4408, in _flush
+    flush_context.execute()
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\orm\unitofwork.py", line 466, in execute
+    rec.execute(self)
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\orm\unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\orm\persistence.py", line 93, in save_obj
+    _emit_insert_statements(
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\orm\persistence.py", line 1226, in _emit_insert_statements
+    result = connection.execute(
+             ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\engine\base.py", line 1416, in execute
+    return meth(
+           ^^^^^
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\sql\elements.py", line 516, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\engine\base.py", line 1639, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\engine\base.py", line 1848, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\engine\base.py", line 1988, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\engine\base.py", line 2343, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\engine\base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\sqlalchemy\engine\default.py", line 922, in do_execute
+    cursor.execute(statement, parameters)
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\pymysql\cursors.py", line 153, in execute
+    result = self._query(query)
+             ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\pymysql\cursors.py", line 322, in _query
+    conn.query(q)
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\pymysql\connections.py", line 558, in query
+    self._affected_rows = self._read_query_result(unbuffered=unbuffered)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\pymysql\connections.py", line 822, in _read_query_result
+    result.read()
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\pymysql\connections.py", line 1200, in read
+    first_packet = self.connection._read_packet()
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\pymysql\connections.py", line 772, in _read_packet
+    packet.raise_for_error()
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\pymysql\protocol.py", line 221, in raise_for_error
+    err.raise_mysql_exception(self._data)
+  File "C:\Users\india\AppData\Roaming\Python\Python312\site-packages\pymysql\err.py", line 143, in raise_mysql_exception
+    raise errorclass(errno, errval)
+sqlalchemy.exc.IntegrityError: (pymysql.err.IntegrityError) (1062, "Duplicate entry 'VTA-2020010000' for key 'ventas.folio'")
+[SQL: INSERT INTO ventas (folio, local_id, usuario_id, cliente_id, tipo_venta, estado, subtotal, descuento, iva, total, pago_recibido, cambio, fecha_limite_pago, saldo_pendiente, metodo_pago, fecha_creacion, fecha_actualizacion) VALUES (%(folio)s, %(local_id)s, %(usuario_id)s, %(cliente_id)s, %(tipo_venta)s, %(estado)s, %(subtotal)s, %(descuento)s, %(iva)s, %(total)s, %(pago_recibido)s, %(cambio)s, %(fecha_limite_pago)s, %(saldo_pendiente)s, %(metodo_pago)s, %(fecha_creacion)s, %(fecha_actualizacion)s)]
+[parameters: {'folio': 'VTA-2020010000', 'local_id': 1, 'usuario_id': 3, 'cliente_id': 2, 'tipo_venta': 'CONTADO', 'estado': 'COMPLETADA', 'subtotal': 933.37, 'descuento': 0, 'iva': 149.34, 'total': 1082.71, 'pago_recibido': 0, 'cambio': 0, 'fecha_limite_pago': None, 'saldo_pendiente': 0, 'metodo_pago': 'efectivo', 'fecha_creacion': datetime.datetime(2020, 1, 3, 0, 0), 'fecha_actualizacion': datetime.datetime(2020, 1, 3, 0, 0)}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+❌ Error: (pymysql.err.IntegrityError) (1062, "Duplicate entry 'VTA-2020010000' for key 'ventas.folio'")
+[SQL: INSERT INTO ventas (folio, local_id, usuario_id, cliente_id, tipo_venta, estado, subtotal, descuento, iva, total, pago_recibido, cambio, fecha_limite_pago, saldo_pendiente, metodo_pago, fecha_creacion, fecha_actualizacion) VALUES (%(folio)s, %(local_id)s, %(usuario_id)s, %(cliente_id)s, %(tipo_venta)s, %(estado)s, %(subtotal)s, %(descuento)s, %(iva)s, %(total)s, %(pago_recibido)s, %(cambio)s, %(fecha_limite_pago)s, %(saldo_pendiente)s, %(metodo_pago)s, %(fecha_creacion)s, %(fecha_actualizacion)s)]
+[parameters: {'folio': 'VTA-2020010000', 'local_id': 1, 'usuario_id': 3, 'cliente_id': 2, 'tipo_venta': 'CONTADO', 'estado': 'COMPLETADA', 'subtotal': 933.37, 'descuento': 0, 'iva': 149.34, 'total': 1082.71, 'pago_recibido': 0, 'cambio': 0, 'fecha_limite_pago': None, 'saldo_pendiente': 0, 'metodo_pago': 'efectivo', 'fecha_creacion': datetime.datetime(2020, 1, 3, 0, 0), 'fecha_actualizacion': datetime.datetime(2020, 1, 3, 0, 0)}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)

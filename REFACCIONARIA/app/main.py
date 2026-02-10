@@ -72,6 +72,17 @@ import os
 static_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
+# Servir favicon.ico desde la raíz
+@app.get("/favicon.ico")
+async def favicon():
+    from fastapi.responses import FileResponse
+    favicon_path = os.path.join(static_dir, "favicon.ico")
+    if os.path.exists(favicon_path):
+        return FileResponse(favicon_path, media_type="image/x-icon")
+    # Si no existe, retornar un favicon vacío
+    from fastapi.responses import Response
+    return Response(content=b"", media_type="image/x-icon", status_code=204)
+
 # CORS
 app.add_middleware(
     CORSMiddleware,

@@ -165,4 +165,4 @@ Campos calculados automáticamente:
 - **Tabla BD**: `cierres_caja`
 - **Modelo**: `app.models.cierre_caja.CierreCaja`
 - **Automático**: La tabla se crea al iniciar la aplicación
-- **Backup SQL**: `scripts/create_cierres_caja_table.sql`
+- **Schema Maestro**: `../refaccionaria_db.sql` (archivo consolidado)

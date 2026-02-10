@@ -4,13 +4,13 @@ from sqlalchemy.orm import relationship
 from app.models.base import ModeloBase
 import enum
 
-class TipoMoneda(enum.Enum):
-    PESOS = "pesos"
-    DOLARES = "dolares"
+# class TipoMoneda(str, enum.Enum):
+#     PESOS = "pesos"
+#     DOLARES = "dolares"
 
-class FormaPago(enum.Enum):
-    CONTADO = "contado"
-    CREDITO = "credito"
+# class FormaPago(str, enum.Enum):
+#     CONTADO = "contado"
+#     CREDITO = "credito"
 
 class Proveedor(ModeloBase):
     __tablename__ = "proveedores"
@@ -38,7 +38,7 @@ class Proveedor(ModeloBase):
     contacto_compras_telefono = Column(String(20))
     lista_precios_compra = Column(String(100))
     dias_entrega = Column(Integer, default=0)
-    tipo_moneda = Column(Enum(TipoMoneda), default=TipoMoneda.PESOS)
+    tipo_moneda = Column(String(20), nullable=True)  # Opcional: pesos, dolares
     
     # Información de Descuentos
     descuento_factura = Column(Numeric(5, 2), default=0)  # Porcentaje
@@ -50,7 +50,7 @@ class Proveedor(ModeloBase):
     contacto_finanzas_nombre = Column(String(100))
     contacto_finanzas_email = Column(String(100))
     contacto_finanzas_telefono = Column(String(20))
-    forma_pago = Column(Enum(FormaPago), default=FormaPago.CONTADO)
+    forma_pago = Column(String(20), nullable=True)  # Opcional: CONTADO, CREDITO
     dias_credito = Column(Integer, default=0)
     saldo = Column(Numeric(10, 2), default=0)
     

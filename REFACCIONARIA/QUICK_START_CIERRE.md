@@ -70,7 +70,7 @@ Botón en la esquina superior derecha, junto a "Sucursal"
 - `CIERRE_CAJA_NUEVO_RESUMEN.md` - Resumen completo
 - `TESTING_CIERRE_CAJA.md` - Checklist de pruebas
 - `VISUAL_GUIDE_CIERRE_CAJA.md` - Guía visual
-- `scripts/create_cierres_caja_table.sql` - SQL de referencia
+- **Schema DB**: `../refaccionaria_db.sql` - Archivo maestro consolidado
 
 ---
 

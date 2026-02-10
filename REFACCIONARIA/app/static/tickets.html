@@ -786,15 +786,95 @@
 
             // Pequeño delay para asegurar que todo esté listo
             setTimeout(() => {
-                // Mostrar el diálogo de impresión
-                window.print();
+                // Obtener el contenido del ticket
+                const ticketContent = document.getElementById('previewContent').innerHTML;
 
-                // Después de imprimir, cerrar el modal
+                // Crear ventana nueva con contenido limpio
+                const printWindow = window.open('', '', 'height=600,width=800');
+
+                const printHTML = `
+                    <!DOCTYPE html>
+                    <html lang="es">
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <title>Imprimir Vale de Canje</title>
+                        <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>
+                        <style>
+                            @page {
+                                size: 80mm auto;
+                                margin: 0;
+                            }
+                            
+                            * {
+                                margin: 0;
+                                padding: 0;
+                                box-sizing: border-box;
+                            }
+                            
+                            body {
+                                font-family: 'Courier New', monospace;
+                                width: 80mm;
+                                margin: 0 auto;
+                                padding: 3px;
+                                background-color: white;
+                            }
+                            
+                            #previewContent {
+                                width: 100%;
+                            }
+                            
+                            @media print {
+                                body {
+                                    padding: 0;
+                                    margin: 0;
+                                    width: 80mm;
+                                }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div id="previewContent">${ticketContent}<\/div>
+                        <script>
+                            // Regenerar código de barras en la nueva ventana
+                            window.addEventListener('load', function() {
+                                const folio = '${ticketActualParaImprimir}';
+                                const numericCode = (folio || '').replace(/[^\\d]/g, '').padEnd(12, '0').substring(0, 12);
+                                try {
+                                    const barcode = document.getElementById('ticketBarcode');
+                                    if (barcode && typeof JsBarcode !== 'undefined') {
+                                        JsBarcode(barcode, numericCode, {
+                                            format: "CODE128",
+                                            width: 1.2,
+                                            height: 30,
+                                            displayValue: false,
+                                            margin: 0
+                                        });
+                                    }
+                                } catch (e) {
+                                    console.warn('Código de barras no generado:', e);
+                                }
+                                
+                                // Esperar un poco para que el código de barras se genere y luego imprimir
+                                setTimeout(() => {
+                                    window.print();
+                                }, 300);
+                            });
+                        <\/script>
+                    </body>
+                    </html>
+                `;
+
+                printWindow.document.write(printHTML);
+                printWindow.document.close();
+
+                // Después de imprimir, cerrar el modal y limpiar
                 setTimeout(() => {
                     cerrarPreviewModal();
                     msg.textContent = `Ticket ${ticketActualParaImprimir} enviado a la impresora.`;
+                    printWindow.close();
                     ticketActualParaImprimir = null;
-                }, 500);
+                }, 2000);
             }, 300);
         }
 

@@ -34,16 +34,20 @@ async def crear_proveedor(
     db: Session = Depends(get_db)
 ):
     """Crea un nuevo proveedor"""
-    # Verificar si ya existe un proveedor con la misma clave
-    existe = db.query(Proveedor).filter(Proveedor.clave == proveedor.clave).first()
-    if existe:
-        raise HTTPException(status_code=400, detail="Ya existe un proveedor con esta clave")
-    
-    db_proveedor = Proveedor(**proveedor.dict())
-    db.add(db_proveedor)
-    db.commit()
-    db.refresh(db_proveedor)
-    return db_proveedor
+    try:
+        # Verificar si ya existe un proveedor con la misma clave
+        existe = db.query(Proveedor).filter(Proveedor.clave == proveedor.clave).first()
+        if existe:
+            raise HTTPException(status_code=400, detail="Ya existe un proveedor con esta clave")
+        
+        db_proveedor = Proveedor(**proveedor.dict())
+        db.add(db_proveedor)
+        db.commit()
+        db.refresh(db_proveedor)
+        return db_proveedor
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Error al crear proveedor: {str(e)}")
 
 @router.put("/proveedores/{proveedor_id}", response_model=ProveedorResponse)
 async def actualizar_proveedor(
@@ -52,27 +56,33 @@ async def actualizar_proveedor(
     db: Session = Depends(get_db)
 ):
     """Actualiza un proveedor existente"""
-    db_proveedor = db.query(Proveedor).filter(Proveedor.id == proveedor_id).first()
-    if not db_proveedor:
-        raise HTTPException(status_code=404, detail="Proveedor no encontrado")
-    
-    # Verificar si la clave ya existe en otro proveedor
-    if proveedor.clave and proveedor.clave != db_proveedor.clave:
-        existe = db.query(Proveedor).filter(
-            Proveedor.clave == proveedor.clave,
-            Proveedor.id != proveedor_id
-        ).first()
-        if existe:
-            raise HTTPException(status_code=400, detail="Ya existe otro proveedor con esta clave")
-    
-    # Actualizar solo los campos proporcionados
-    update_data = proveedor.dict(exclude_unset=True)
-    for field, value in update_data.items():
-        setattr(db_proveedor, field, value)
-    
-    db.commit()
-    db.refresh(db_proveedor)
-    return db_proveedor
+    try:
+        db_proveedor = db.query(Proveedor).filter(Proveedor.id == proveedor_id).first()
+        if not db_proveedor:
+            raise HTTPException(status_code=404, detail="Proveedor no encontrado")
+        
+        # Verificar si la clave ya existe en otro proveedor
+        if proveedor.clave and proveedor.clave != db_proveedor.clave:
+            existe = db.query(Proveedor).filter(
+                Proveedor.clave == proveedor.clave,
+                Proveedor.id != proveedor_id
+            ).first()
+            if existe:
+                raise HTTPException(status_code=400, detail="Ya existe otro proveedor con esta clave")
+        
+        # Actualizar solo los campos proporcionados
+        update_data = proveedor.dict(exclude_unset=True)
+        for field, value in update_data.items():
+            setattr(db_proveedor, field, value)
+        
+        db.commit()
+        db.refresh(db_proveedor)
+        return db_proveedor
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Error al actualizar proveedor: {str(e)}")
 
 @router.delete("/proveedores/{proveedor_id}", status_code=204)
 async def eliminar_proveedor(

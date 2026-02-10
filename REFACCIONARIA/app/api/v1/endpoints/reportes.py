@@ -136,3 +136,140 @@ async def productos_mas_vendidos(
     }).fetchall()
     
     return result
+@router.get("/reportes/estadisticas-ventas")
+async def estadisticas_ventas(
+    tipo: str = "anual",
+    anio: int = 2026,
+    mes: int = None,
+    local_id: int = None,
+    db: Session = Depends(get_db)
+):
+    """
+    Obtiene estadísticas de ventas para gráficas.
+    
+    Parámetros:
+    - tipo: 'anual', 'mensual' o 'diaria'
+    - anio: Año para filtrar
+    - mes: Mes (solo para tipo='diaria')
+    - local_id: ID del local (opcional)
+    """
+    from app.models.venta import Venta, EstadoVenta
+    from sqlalchemy import func, extract
+    from datetime import datetime
+    
+    try:
+        query = db.query(
+            Venta.total,
+            func.count(Venta.id).label('cantidad')
+        ).filter(Venta.estado == EstadoVenta.COMPLETADA)
+        
+        if local_id:
+            query = query.filter(Venta.local_id == local_id)
+        
+        if tipo == 'anual':
+            # Datos por año (últimos 7 años)
+            query_result = db.query(
+                extract('year', Venta.fecha_creacion).label('year'),
+                func.sum(Venta.total).label('total_ventas'),
+                func.count(Venta.id).label('cantidad')
+            ).filter(Venta.estado == EstadoVenta.COMPLETADA)
+            
+            if local_id:
+                query_result = query_result.filter(Venta.local_id == local_id)
+            
+            query_result = query_result.group_by('year').order_by('year').all()
+            
+            años = []
+            ventas = []
+            cantidades = []
+            for row in query_result:
+                if row[0]:
+                    años.append(str(int(row[0])))
+                    ventas.append(float(row[1] or 0))
+                    cantidades.append(int(row[2] or 0))
+            
+            # Si hay menos de 7 años, agregar años vacíos
+            while len(años) < 7:
+                años.insert(0, str(2026 - len(años)))
+                ventas.insert(0, 0)
+                cantidades.insert(0, 0)
+            
+            return {
+                "labels": años[-7:],
+                "ventas": ventas[-7:],
+                "cantidad": cantidades[-7:]
+            }
+        
+        elif tipo == 'mensual':
+            # Datos por mes del año actual
+            query_result = db.query(
+                extract('month', Venta.fecha_creacion).label('mes'),
+                func.sum(Venta.total).label('total_ventas'),
+                func.count(Venta.id).label('cantidad')
+            ).filter(
+                extract('year', Venta.fecha_creacion) == anio,
+                Venta.estado == EstadoVenta.COMPLETADA
+            )
+            
+            if local_id:
+                query_result = query_result.filter(Venta.local_id == local_id)
+            
+            query_result = query_result.group_by('mes').order_by('mes').all()
+            
+            meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+            ventas = [0] * 12
+            cantidades = [0] * 12
+            
+            for row in query_result:
+                if row[0]:
+                    mes_idx = int(row[0]) - 1
+                    ventas[mes_idx] = float(row[1] or 0)
+                    cantidades[mes_idx] = int(row[2] or 0)
+            
+            return {
+                "labels": meses,
+                "ventas": ventas,
+                "cantidad": cantidades
+            }
+        
+        elif tipo == 'diaria':
+            # Datos diarios del mes actual
+            if not mes:
+                mes = datetime.now().month
+            
+            query_result = db.query(
+                extract('day', Venta.fecha_creacion).label('dia'),
+                func.sum(Venta.total).label('total_ventas'),
+                func.count(Venta.id).label('cantidad')
+            ).filter(
+                extract('year', Venta.fecha_creacion) == anio,
+                extract('month', Venta.fecha_creacion) == mes,
+                Venta.estado == EstadoVenta.COMPLETADA
+            )
+            
+            if local_id:
+                query_result = query_result.filter(Venta.local_id == local_id)
+            
+            query_result = query_result.group_by('dia').order_by('dia').all()
+            
+            dias = list(range(1, 32))
+            ventas = [0] * 31
+            cantidades = [0] * 31
+            
+            for row in query_result:
+                if row[0]:
+                    dia_idx = int(row[0]) - 1
+                    ventas[dia_idx] = float(row[1] or 0)
+                    cantidades[dia_idx] = int(row[2] or 0)
+            
+            return {
+                "labels": [str(d) for d in dias],
+                "ventas": ventas,
+                "cantidad": cantidades
+            }
+        
+        else:
+            raise HTTPException(status_code=400, detail="Tipo inválido")
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

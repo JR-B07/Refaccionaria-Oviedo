@@ -4,14 +4,16 @@ from sqlalchemy.orm import relationship
 from app.models.base import ModeloBase
 import enum
 
-class TipoVale(enum.Enum):
-    VENTA = "venta"
-    DEVOLUCION = "devolucion"
+class TipoVale(str, enum.Enum):
+    """Enum para tipo de vale - hereda de str para compatibilidad con BD"""
+    venta = "venta"
+    devolucion = "devolucion"
 
-class EstadoVale(enum.Enum):
-    DISPONIBLE = "disponible"
-    USADO = "usado"
-    CANCELADO = "cancelado"
+class EstadoVale(str, enum.Enum):
+    """Enum para estado del vale"""
+    disponible = "disponible"
+    usado = "usado"
+    cancelado = "cancelado"
 
 class ValeVenta(ModeloBase):
     __tablename__ = "vales_venta"
@@ -30,7 +32,7 @@ class ValeVenta(ModeloBase):
     usado = Column(Boolean, default=False)
     fecha_uso = Column(DateTime)  # Fecha en que se usó el vale
     destino = Column(String(50))  # Folio de venta donde se usó
-    tipo = Column(Enum(TipoVale), default=TipoVale.VENTA)
+    tipo = Column(Enum(TipoVale), default=TipoVale.venta)
     disponible = Column(Boolean, default=True)
     
     # Información adicional

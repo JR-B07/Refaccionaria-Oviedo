@@ -64,6 +64,12 @@ except Exception as e:
     print("⚠️  Módulo productos no encontrado o error al importarlo:", e)
 
 try:
+    from app.api.v1.endpoints import ventas as ventas_module
+    api_router.include_router(ventas_module.router, tags=["Ventas"])
+except Exception as e:
+    print("⚠️  Módulo ventas no encontrado o error al importarlo:", e)
+
+try:
     from app.api.v1.endpoints import paquetes as paquetes_module
     api_router.include_router(paquetes_module.router, tags=["Paquetes (Kits)"])
 except Exception as e:
