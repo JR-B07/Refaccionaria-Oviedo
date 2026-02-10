@@ -17,3 +17,4 @@ python-barcode==0.14.0 # Generar códigos de barras
 pillow==10.1.0         # Manipulación de imágenes
 pywebview==4.4.1       # Aplicación de escritorio
 requests==2.31.0       # HTTP client
+pydantic[email] # sin esto no jala el servidor
