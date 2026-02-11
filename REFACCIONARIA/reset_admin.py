@@ -9,9 +9,8 @@ try:
     sucursal1 = db.query(Usuario).filter(Usuario.nombre_usuario == 'sucursal1').first()
     sucursal2 = db.query(Usuario).filter(Usuario.nombre_usuario == 'sucursal2').first()
 
-    import bcrypt
     if admin:
-        admin.clave_hash = bcrypt.hashpw("admin".encode(), bcrypt.gensalt()).decode()
+        admin.clave_hash = hashlib.sha256("admin".encode()).hexdigest()
         admin.intentos_fallidos = 0
         admin.debe_cambiar_clave = False
     else:
@@ -22,7 +21,7 @@ try:
             email="admin@refaccionaria.local",
             telefono="",
             nombre_usuario="admin",
-            clave_hash=bcrypt.hashpw("admin".encode(), bcrypt.gensalt()).decode(),
+            clave_hash=hashlib.sha256("admin".encode()).hexdigest(),
             rol=RolUsuario.ADMINISTRADOR,
             estado=EstadoUsuario.ACTIVO,
             local_id=None,
@@ -31,7 +30,7 @@ try:
         db.add(admin)
 
     if sucursal1:
-        sucursal1.clave_hash = bcrypt.hashpw("sucursal1".encode(), bcrypt.gensalt()).decode()
+        sucursal1.clave_hash = hashlib.sha256("sucursal1".encode()).hexdigest()
         sucursal1.intentos_fallidos = 0
         sucursal1.debe_cambiar_clave = False
     else:
@@ -42,7 +41,7 @@ try:
             email="sucursal1@refaccionaria.local",
             telefono="",
             nombre_usuario="sucursal1",
-            clave_hash=bcrypt.hashpw("sucursal1".encode(), bcrypt.gensalt()).decode(),
+            clave_hash=hashlib.sha256("sucursal1".encode()).hexdigest(),
             rol=RolUsuario.GERENTE,
             estado=EstadoUsuario.ACTIVO,
             local_id=1,
@@ -51,7 +50,7 @@ try:
         db.add(sucursal1)
 
     if sucursal2:
-        sucursal2.clave_hash = bcrypt.hashpw("sucursal2".encode(), bcrypt.gensalt()).decode()
+        sucursal2.clave_hash = hashlib.sha256("sucursal2".encode()).hexdigest()
         sucursal2.intentos_fallidos = 0
         sucursal2.debe_cambiar_clave = False
     else:
@@ -62,7 +61,7 @@ try:
             email="sucursal2@refaccionaria.local",
             telefono="",
             nombre_usuario="sucursal2",
-            clave_hash=bcrypt.hashpw("sucursal2".encode(), bcrypt.gensalt()).decode(),
+            clave_hash=hashlib.sha256("sucursal2".encode()).hexdigest(),
             rol=RolUsuario.GERENTE,
             estado=EstadoUsuario.ACTIVO,
             local_id=3,
@@ -81,7 +80,7 @@ try:
         usuario.estado = EstadoUsuario.INACTIVO
         usuario.debe_cambiar_clave = True
         usuario.intentos_fallidos = 0
-        usuario.clave_hash = bcrypt.hashpw(secrets.token_hex(16).encode(), bcrypt.gensalt()).decode()
+        usuario.clave_hash = hashlib.sha256(secrets.token_hex(16).encode()).hexdigest()
         usuario.nombre_usuario = f"disabled_{usuario.id}"
         usuario.email = f"disabled_{usuario.id}@refaccionaria.local"
         desactivados += 1

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import bcrypt
+import hashlib
 
 passwords = {
     'admin': 'admin',
@@ -8,7 +8,7 @@ passwords = {
     'sucursal2': 'sucursal2'
 }
 
-print("Hashes bcrypt generados:\n")
+print("Hashes SHA256 generados:\n")
 for user, password in passwords.items():
-    hash_val = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+    hash_val = hashlib.sha256(password.encode()).hexdigest()
     print(f'{user}:{hash_val}')

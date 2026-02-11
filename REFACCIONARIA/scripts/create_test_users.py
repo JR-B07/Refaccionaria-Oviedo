@@ -33,7 +33,7 @@ def ensure_local(db):
 def ensure_user(db, *, nombre, apellido_paterno=None, apellido_materno=None, email,
                 telefono='', nombre_usuario, clave_plana, rol=RolUsuario.VENDEDOR,
                 local_id=1):
-    """Crea un usuario si no existe, usando contraseñas con bcrypt."""
+    """Crea un usuario si no existe, usando contraseñas con SHA256."""
     existing = db.query(Usuario).filter(Usuario.nombre_usuario == nombre_usuario).first()
     if existing:
         print(f'✅ Usuario {nombre_usuario} ya existe (ID: {existing.id})')

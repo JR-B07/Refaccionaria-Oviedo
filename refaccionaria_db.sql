@@ -81,7 +81,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
 -- ================================================================
 -- USUARIOS INICIALES PARA LOGIN DEL SISTEMA
 -- ================================================================
--- Contraseñas en hash SHA256 (solo para ejemplo, cambiar a bcrypt en producción)
+-- Contraseñas en hash SHA256
 -- admin: admin
 -- sucursal1: sucursal1
 -- sucursal2: sucursal2

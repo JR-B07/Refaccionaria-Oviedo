@@ -1,5 +1,5 @@
-import bcrypt
+import hashlib
 
 password = "admin"
-hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-print(hashed.decode('utf-8'))
+hashed = hashlib.sha256(password.encode('utf-8')).hexdigest()
+print(hashed)

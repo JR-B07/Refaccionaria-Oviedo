@@ -28,7 +28,7 @@ INSERT INTO usuarios (
     fecha_creacion
 ) VALUES (
     'admin',
-    '$2b$12$eImiTXuWVxfaHNAVZ3/hu.pHTwbDlHjGp5ZWPvW/Lo4u/syJlS9LK', -- bcrypt hash de: admin123
+    '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9', -- SHA256 hash de: admin123
     'admin@refaccionaria.com',
     'Administrador',
     'ADMIN',
@@ -54,7 +54,7 @@ INSERT INTO usuarios (
     fecha_creacion
 ) VALUES (
     'sucursal1',
-    '$2b$12$9bwyCCGS6RXMSzPwbGKE.uPCZzQKzY4xqNqNxPx7H.LxD5h.kEgvm', -- bcrypt hash de: sucursal123
+    'c28ec11529a52c617e5b700350aa494b4d3b1d55958a4b9bd125a8a6696005a6', -- SHA256 hash de: sucursal123
     'sucursal1@refaccionaria.com',
     'Usuario Sucursal 1',
     'VENDEDOR',
@@ -80,7 +80,7 @@ INSERT INTO usuarios (
     fecha_creacion
 ) VALUES (
     'sucursal2',
-    '$2b$12$9bwyCCGS6RXMSzPwbGKE.uPCZzQKzY4xqNqNxPx7H.LxD5h.kEgvm', -- bcrypt hash de: sucursal123
+    'c28ec11529a52c617e5b700350aa494b4d3b1d55958a4b9bd125a8a6696005a6', -- SHA256 hash de: sucursal123
     'sucursal2@refaccionaria.com',
     'Usuario Sucursal 2',
     'VENDEDOR',
@@ -106,7 +106,7 @@ INSERT INTO usuarios (
     fecha_creacion
 ) VALUES (
     'almacenero',
-    '$2b$12$9bwyCCGS6RXMSzPwbGKE.uPCZzQKzY4xqNqNxPx7H.LxD5h.kEgvm', -- bcrypt hash de: sucursal123
+    'c28ec11529a52c617e5b700350aa494b4d3b1d55958a4b9bd125a8a6696005a6', -- SHA256 hash de: sucursal123
     'almacenero@refaccionaria.com',
     'Usuario Almacenero',
     'ALMACENERO',
@@ -137,12 +137,12 @@ ORDER BY usuario_id;
 -- =============================================================================
 -- NOTAS IMPORTANTES:
 -- =============================================================================
--- Contraseñas usadas (bcrypt hashed):
+-- Contraseñas usadas (SHA256 hashed):
 -- - admin: admin123
 -- - sucursal1: sucursal123
 -- - sucursal2: sucursal123
 -- - almacenero: sucursal123
 --
--- Para generar nuevos hashes bcrypt, usar Python:
--- python -c "import bcrypt; print(bcrypt.hashpw(b'tu_password', bcrypt.gensalt()).decode())"
+-- Para generar nuevos hashes SHA256, usar Python:
+-- python -c "import hashlib; print(hashlib.sha256(b'tu_password').hexdigest())"
 -- =============================================================================
