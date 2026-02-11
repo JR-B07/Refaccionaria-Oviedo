@@ -1,16 +1,16 @@
--- ================================================================
+﻿-- ================================================================
 -- BASE DE DATOS REFACCIONARIA OVIEDO
--- Sistema completo de gestión de refacciones automotrices
--- Última actualización: Febrero 2026
+-- Sistema completo de gestiÃ³n de refacciones automotrices
+-- Ãšltima actualizaciÃ³n: Febrero 2026
 -- ================================================================
-
+SET FOREIGN_KEY_CHECKS=0;
 
 CREATE DATABASE IF NOT EXISTS refaccionaria_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 USE refaccionaria_db;
 
 -- ================================================================
--- CONFIGURACIÓN DEL SISTEMA
+-- CONFIGURACIÃ“N DEL SISTEMA
 -- ================================================================
 
 CREATE TABLE IF NOT EXISTS configuracion_sistema (
@@ -28,11 +28,11 @@ CREATE TABLE IF NOT EXISTS configuracion_sistema (
 INSERT INTO configuracion_sistema (clave, valor, tipo, descripcion) VALUES
 ('empresa_nombre', 'Refaccionaria Automotriz', 'string', 'Nombre de la empresa'),
 ('empresa_rfc', 'XAXX010101000', 'string', 'RFC de la empresa'),
-('empresa_direccion', 'Calle Principal #123', 'string', 'Dirección fiscal'),
+('empresa_direccion', 'Calle Principal #123', 'string', 'DirecciÃ³n fiscal'),
 ('iva_porcentaje', '16', 'decimal', 'Porcentaje de IVA'),
 ('ticket_mensaje', 'Gracias por su compra', 'string', 'Mensaje en ticket'),
-('stock_minimo_global', '5', 'integer', 'Stock mínimo global para alertas'),
-('ventas_folio_inicial', '1000', 'integer', 'Número inicial para folios')
+('stock_minimo_global', '5', 'integer', 'Stock mÃ­nimo global para alertas'),
+('ventas_folio_inicial', '1000', 'integer', 'NÃºmero inicial para folios')
 ON DUPLICATE KEY UPDATE valor=VALUES(valor);
 
 -- ================================================================
@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS locales (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ================================================================
--- USUARIOS Y AUTENTICACIÓN
+-- USUARIOS Y AUTENTICACIÃ“N
 -- ================================================================
 
 CREATE TABLE IF NOT EXISTS usuarios (
@@ -82,7 +82,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
 -- ================================================================
 -- USUARIOS INICIALES PARA LOGIN DEL SISTEMA
 -- ================================================================
--- Contraseñas en hash SHA256 (solo para ejemplo, cambiar a bcrypt en producción)
+-- ContraseÃ±as en hash SHA256 (solo para ejemplo, cambiar a bcrypt en producciÃ³n)
 -- admin: admin
 -- sucursal1: sucursal1
 -- sucursal2: sucursal2
@@ -127,8 +127,8 @@ CREATE TABLE IF NOT EXISTS productos (
     ubicacion_fila VARCHAR(10),
     ubicacion_columna VARCHAR(10),
     compatibilidad JSON,
-    anio_inicio INT,
-    anio_fin INT,
+    aÃ±o_inicio INT,
+    aÃ±o_fin INT,
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_codigo (codigo),
@@ -170,7 +170,7 @@ CREATE TABLE IF NOT EXISTS clientes (
     email VARCHAR(100) UNIQUE,
     telefono VARCHAR(20),
     rfc VARCHAR(13) UNIQUE,
-    tipo_figura VARCHAR(50) DEFAULT 'Persona Física',
+    tipo_figura VARCHAR(50) DEFAULT 'Persona FÃ­sica',
     razon_social VARCHAR(200),
     calle VARCHAR(200),
     numero VARCHAR(20),
@@ -398,53 +398,53 @@ CREATE TABLE IF NOT EXISTS gastos (
 
 -- Insertar ejemplos de gastos
 INSERT INTO gastos (folio, estado, fecha, total, categoria, factura, usuario, sucursal_origen, departamento, proveedor, sucursal_destino, descripcion) VALUES
-('G-1023', 'Pendiente', '2024-12-18', 1850.00, 'Refacciones', 'F-8812', 'Laura Martínez', 'Matriz', 'Ventas', 'Autopartes MX', 'Sucursal Norte', 'Pastillas y balatas para revisión técnica'),
-('G-1024', 'Pagado', '2024-12-22', 920.00, 'Insumos', 'F-8820', 'Carlos Pérez', 'Matriz', 'Compras', 'Suministros del Norte', 'Matriz', 'Papelería y etiquetas para inventario'),
-('G-1025', 'Pendiente', '2025-01-05', 3120.00, 'Servicios', 'F-8890', 'Laura Martínez', 'Sucursal Norte', 'Ventas', 'Servicio Rápido', 'Sucursal Norte', 'Mantenimiento de racks y estantes'),
-('G-1026', 'Cancelado', '2025-01-08', 450.00, 'Viáticos', 'F-8899', 'Diego Rodríguez', 'Matriz', 'Operaciones', 'Hotel Central', 'Matriz', 'Viaje a visita de proveedor'),
+('G-1023', 'Pendiente', '2024-12-18', 1850.00, 'Refacciones', 'F-8812', 'Laura MartÃ­nez', 'Matriz', 'Ventas', 'Autopartes MX', 'Sucursal Norte', 'Pastillas y balatas para revisiÃ³n tÃ©cnica'),
+('G-1024', 'Pagado', '2024-12-22', 920.00, 'Insumos', 'F-8820', 'Carlos PÃ©rez', 'Matriz', 'Compras', 'Suministros del Norte', 'Matriz', 'PapelerÃ­a y etiquetas para inventario'),
+('G-1025', 'Pendiente', '2025-01-05', 3120.00, 'Servicios', 'F-8890', 'Laura MartÃ­nez', 'Sucursal Norte', 'Ventas', 'Servicio RÃ¡pido', 'Sucursal Norte', 'Mantenimiento de racks y estantes'),
+('G-1026', 'Cancelado', '2025-01-08', 450.00, 'ViÃ¡ticos', 'F-8899', 'Diego RodrÃ­guez', 'Matriz', 'Operaciones', 'Hotel Central', 'Matriz', 'Viaje a visita de proveedor'),
 ('G-1027', 'Pagado', '2025-01-12', 1750.00, 'Refacciones', 'F-8905', 'Ana Karen', 'Sucursal Centro', 'Taller', 'Autopartes MX', 'Sucursal Centro', 'Filtros y correas de motor')
 ON DUPLICATE KEY UPDATE folio=VALUES(folio);
 
 -- ================================================================
--- MÓDULO DE CAJA
+-- MÃ“DULO DE CAJA
 -- ================================================================
 
--- Arqueos de Caja - Registro de arqueos (conciliación) de cajas
+-- Arqueos de Caja - Registro de arqueos (conciliaciÃ³n) de cajas
 CREATE TABLE IF NOT EXISTS arqueos_caja (
     id INT PRIMARY KEY AUTO_INCREMENT,
     caja VARCHAR(50) NOT NULL COMMENT 'Identificador/nombre de la caja (ej: Caja 1)',
     local_id INT NOT NULL,
     usuario_id INT NOT NULL,
     fecha_arqueo DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora del arqueo',
-    turno VARCHAR(50) COMMENT 'Turno: Mañana, Tarde, Noche',
+    turno VARCHAR(50) COMMENT 'Turno: MaÃ±ana, Tarde, Noche',
     -- Montos declarados
-    efectivo_declarado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de efectivo según sistema',
-    retiros_declarado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de retiros según sistema',
-    cheque_declarado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de cheques según sistema',
-    tarjeta_declarado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de tarjeta según sistema',
-    debito_declarado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de débito según sistema',
-    deposito_declarado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de depósito según sistema',
-    credito_declarado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de crédito según sistema',
-    vale_declarado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de vales según sistema',
-    lealtad_declarado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de programa lealtad según sistema',
+    efectivo_declarado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de efectivo segÃºn sistema',
+    retiros_declarado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de retiros segÃºn sistema',
+    cheque_declarado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de cheques segÃºn sistema',
+    tarjeta_declarado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de tarjeta segÃºn sistema',
+    debito_declarado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de dÃ©bito segÃºn sistema',
+    deposito_declarado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de depÃ³sito segÃºn sistema',
+    credito_declarado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de crÃ©dito segÃºn sistema',
+    vale_declarado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de vales segÃºn sistema',
+    lealtad_declarado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de programa lealtad segÃºn sistema',
     -- Montos contados
-    efectivo_contado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de efectivo contado físicamente',
-    retiros_contado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de retiros contado físicamente',
-    cheque_contado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de cheques contado físicamente',
-    tarjeta_contado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de tarjeta contado físicamente',
-    debito_contado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de débito contado físicamente',
-    deposito_contado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de depósito contado físicamente',
-    credito_contado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de crédito contado físicamente',
-    vale_contado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de vales contado físicamente',
-    lealtad_contado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de programa lealtad contado físicamente',
+    efectivo_contado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de efectivo contado fÃ­sicamente',
+    retiros_contado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de retiros contado fÃ­sicamente',
+    cheque_contado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de cheques contado fÃ­sicamente',
+    tarjeta_contado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de tarjeta contado fÃ­sicamente',
+    debito_contado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de dÃ©bito contado fÃ­sicamente',
+    deposito_contado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de depÃ³sito contado fÃ­sicamente',
+    credito_contado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de crÃ©dito contado fÃ­sicamente',
+    vale_contado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de vales contado fÃ­sicamente',
+    lealtad_contado DECIMAL(12, 2) DEFAULT 0 COMMENT 'Monto de programa lealtad contado fÃ­sicamente',
     -- Diferencias
     diferencia_efectivo DECIMAL(12, 2) DEFAULT 0 COMMENT 'Diferencia = Contado - Declarado',
     diferencia_retiros DECIMAL(12, 2) DEFAULT 0 COMMENT 'Diferencia retiros = Contado - Declarado',
     diferencia_cheque DECIMAL(12, 2) DEFAULT 0 COMMENT 'Diferencia cheques = Contado - Declarado',
     diferencia_tarjeta DECIMAL(12, 2) DEFAULT 0 COMMENT 'Diferencia tarjeta = Contado - Declarado',
-    diferencia_debito DECIMAL(12, 2) DEFAULT 0 COMMENT 'Diferencia débito = Contado - Declarado',
-    diferencia_deposito DECIMAL(12, 2) DEFAULT 0 COMMENT 'Diferencia depósito = Contado - Declarado',
-    diferencia_credito DECIMAL(12, 2) DEFAULT 0 COMMENT 'Diferencia crédito = Contado - Declarado',
+    diferencia_debito DECIMAL(12, 2) DEFAULT 0 COMMENT 'Diferencia dÃ©bito = Contado - Declarado',
+    diferencia_deposito DECIMAL(12, 2) DEFAULT 0 COMMENT 'Diferencia depÃ³sito = Contado - Declarado',
+    diferencia_credito DECIMAL(12, 2) DEFAULT 0 COMMENT 'Diferencia crÃ©dito = Contado - Declarado',
     diferencia_vale DECIMAL(12, 2) DEFAULT 0 COMMENT 'Diferencia vales = Contado - Declarado',
     diferencia_lealtad DECIMAL(12, 2) DEFAULT 0 COMMENT 'Diferencia lealtad = Contado - Declarado',
     -- Totales
@@ -454,9 +454,9 @@ CREATE TABLE IF NOT EXISTS arqueos_caja (
     -- Observaciones
     observaciones TEXT COMMENT 'Notas y observaciones del arqueo',
     reconciliado BOOLEAN DEFAULT FALSE COMMENT 'TRUE si el arqueo fue reconciliado/validado',
-    responsable_reconciliacion VARCHAR(255) COMMENT 'Nombre/ID del gerente que reconcilió',
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creación del registro',
-    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de última actualización',
+    responsable_reconciliacion VARCHAR(255) COMMENT 'Nombre/ID del gerente que reconciliÃ³',
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de creaciÃ³n del registro',
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha y hora de Ãºltima actualizaciÃ³n',
     FOREIGN KEY (local_id) REFERENCES locales(id) ON DELETE RESTRICT,
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE RESTRICT,
     INDEX idx_caja (caja),
@@ -628,7 +628,7 @@ CREATE TABLE IF NOT EXISTS promociones (
     fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Insertar promoción de ejemplo
+-- Insertar promociÃ³n de ejemplo
 INSERT INTO promociones (descripcion, activa) VALUES 
 ('10% de descuento en filtros de aceite', TRUE)
 ON DUPLICATE KEY UPDATE descripcion=VALUES(descripcion);
@@ -676,13 +676,13 @@ ON DUPLICATE KEY UPDATE folio=VALUES(folio);
 */
 
 -- ================================================================
--- COMENTARIOS Y DOCUMENTACIÓN
+-- COMENTARIOS Y DOCUMENTACIÃ“N
 -- ================================================================
 
 -- Comentarios sobre tablas de arqueos
-ALTER TABLE arqueos_caja COMMENT = 'Registro de arqueos (conciliación) de cajas';
+ALTER TABLE arqueos_caja COMMENT = 'Registro de arqueos (conciliaciÃ³n) de cajas';
 
--- Información sobre el esquema
+-- InformaciÃ³n sobre el esquema
 SELECT 
     'Base de datos refaccionaria_db creada exitosamente' AS mensaje,
     '25 tablas principales creadas' AS detalle,
@@ -691,3 +691,4 @@ SELECT
 -- ================================================================
 -- FIN DEL SCRIPT
 -- ================================================================
+SET FOREIGN_KEY_CHECKS=1;
