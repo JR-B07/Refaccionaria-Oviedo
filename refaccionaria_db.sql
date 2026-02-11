@@ -79,7 +79,19 @@ CREATE TABLE IF NOT EXISTS usuarios (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ================================================================
--- CATÁLOGO DE MARCAS
+-- USUARIOS INICIALES PARA LOGIN DEL SISTEMA
+-- ================================================================
+-- Contraseñas en hash SHA256 (solo para ejemplo, cambiar a bcrypt en producción)
+-- admin: admin
+-- sucursal1: sucursal1
+-- sucursal2: sucursal2
+INSERT INTO usuarios (nombre, apellido_paterno, apellido_materno, email, telefono, nombre_usuario, clave_hash, rol, estado, local_id, debe_cambiar_clave, tema_interfaz)
+VALUES
+('Administrador', '', '', 'admin@refaccionaria.local', '', 'admin', SHA2('admin',256), 'administrador', 'activo', NULL, FALSE, 'claro'),
+('Sucursal Uno', '', '', 'sucursal1@refaccionaria.local', '', 'sucursal1', SHA2('sucursal1',256), 'gerente', 'activo', 1, FALSE, 'claro'),
+('Sucursal Dos', '', '', 'sucursal2@refaccionaria.local', '', 'sucursal2', SHA2('sucursal2',256), 'gerente', 'activo', 2, FALSE, 'claro')
+ON DUPLICATE KEY UPDATE nombre_usuario=nombre_usuario;
+
 -- ================================================================
 
 CREATE TABLE IF NOT EXISTS marcas (

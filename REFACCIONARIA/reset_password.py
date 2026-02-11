@@ -16,9 +16,9 @@ try:
     admin = usuario_crud.obtener_por_nombre_usuario(db, "admin")
     
     if admin:
-        # Usar un hash simple SHA256 para esta contraseña
+        import bcrypt
         password = "Admin123!"
-        admin.clave_hash = hashlib.sha256(password.encode()).hexdigest()
+        admin.clave_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
         db.commit()
         print("✅ Contraseña del usuario admin restablecida exitosamente")
         print("   Usuario: admin")

@@ -14,7 +14,7 @@ def crear_usuarios_sucursal2():
     carlos = session.query(Usuario).filter_by(nombre_usuario="carlos").first()
     
     if not maria:
-        # Crear usuario para sucursal 2 (REFACCIONARIA OVIEDO)
+        import bcrypt
         usuario_sucursal2 = Usuario(
             nombre="María",
             apellido_paterno="García",
@@ -22,7 +22,7 @@ def crear_usuarios_sucursal2():
             email="maria@refac.com",
             telefono="555-0001",
             nombre_usuario="maria",
-            clave_hash=hashlib.sha256("password123".encode()).hexdigest(),
+            clave_hash=bcrypt.hashpw("password123".encode(), bcrypt.gensalt()).decode(),
             rol=RolUsuario.VENDEDOR,
             estado=EstadoUsuario.ACTIVO,
             local_id=2,  # Sucursal REFACCIONARIA OVIEDO
@@ -34,7 +34,7 @@ def crear_usuarios_sucursal2():
         print("⚠️ Usuario María ya existe")
     
     if not carlos:
-        # Crear usuario gerente para sucursal 2
+        import bcrypt
         usuario_gerente2 = Usuario(
             nombre="Carlos",
             apellido_paterno="Mendez",
@@ -42,7 +42,7 @@ def crear_usuarios_sucursal2():
             email="carlos@refac.com",
             telefono="555-0002",
             nombre_usuario="carlos",
-            clave_hash=hashlib.sha256("password123".encode()).hexdigest(),
+            clave_hash=bcrypt.hashpw("password123".encode(), bcrypt.gensalt()).decode(),
             rol=RolUsuario.GERENTE,
             estado=EstadoUsuario.ACTIVO,
             local_id=2,  # Sucursal REFACCIONARIA OVIEDO
