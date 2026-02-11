@@ -22,19 +22,14 @@ async def listar_compras(
     estado: Optional[str] = Query(None, description="Estado de la compra"),
     skip: int = 0,
     limit: int = 100,
-    db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
     """
-    Lista compras SOLO de la sucursal del usuario autenticado, con filtros opcionales
-    Los administradores ven todas las compras
+    Lista compras con filtros opcionales
+    Sin autenticación requerida (compatible con acceso público)
     """
-    local_id = current_user["local_id"]
-    # Los administradores ven todas las compras, los gerentes solo su sucursal
-    if current_user.get("rol") == "administrador" or current_user.get("rol") == "superadministrador":
-        query = db.query(Compra)
-    else:
-        query = db.query(Compra).filter(Compra.local_id == local_id)
+    # Sin autenticación, retornar todas las compras
+    query = db.query(Compra)
 
     # Aplicar filtros
     if folio:
@@ -69,11 +64,14 @@ async def listar_compras(
         # Manejar estado que puede ser enum o string
         estado_valor = compra.estado if isinstance(compra.estado, str) else (compra.estado.value if compra.estado else "pendiente")
         
+        # Convertir datetime a date si es necesario
+        fecha_valor = compra.fecha.date() if hasattr(compra.fecha, 'date') else compra.fecha
+        
         compra_dict = {
             "id": compra.id,
             "folio": compra.folio,
             "factura": compra.factura,
-            "fecha": compra.fecha,
+            "fecha": fecha_valor,
             "proveedor_id": compra.proveedor_id,
             "local_id": compra.local_id,
             "estado": estado_valor,
@@ -162,31 +160,16 @@ async def crear_compra(
             if not usuario:
                 raise HTTPException(status_code=400, detail=f"Usuario con ID {compra.usuario_id} no encontrado")
         
-        # Crear compra
-        try:
-            # Normalizar estado: puede venir como "pendiente" string
-            if compra.estado:
-                estado_valor = compra.estado.lower()
-                # Buscar el enum por su value
-                estado_enum = None
-                for es in EstadoCompra:
-                    if es.value == estado_valor:
-                        estado_enum = es
-                        break
-                if not estado_enum:
-                    raise HTTPException(status_code=400, detail=f"Estado inválido: {compra.estado}. Valores permitidos: pendiente, completo, cancelado, parcial")
-            else:
-                estado_enum = EstadoCompra.PENDIENTE
-        except Exception as e:
-            raise HTTPException(status_code=400, detail=f"Error al procesar estado: {str(e)}")
+        # Normalizar estado
+        estado_valor = (compra.estado or "pendiente").lower()
         
         db_compra = Compra(
             folio=compra.folio,
             factura=compra.factura,
-            fecha=compra.fecha,
+            fecha=compra.fecha if hasattr(compra.fecha, 'timestamp') else datetime.combine(compra.fecha, datetime.min.time()) if compra.fecha else datetime.now(),
             proveedor_id=compra.proveedor_id,
             local_id=compra.local_id,
-            estado=estado_enum.value,  # Guardar el valor del enum (string)
+            estado=estado_valor,  # Guardar directamente como string
             total=compra.total,
             subtotal=compra.subtotal or 0,
             descuento=compra.descuento or 0,
@@ -219,13 +202,15 @@ async def crear_compra(
             fecha_actualizacion=db_compra.fecha_actualizacion,
             proveedor_nombre=proveedor.nombre if proveedor else None,
             local_nombre=local.nombre if local else None,
-            usuario_nombre=usuario.nombre_completo if usuario else None
+            usuario_nombre=usuario.nombre if usuario else None
         )
     except HTTPException:
         raise
     except Exception as e:
         db.rollback()
         print(f"❌ Error al crear compra: {str(e)}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Error al crear compra: {str(e)}")
 
 @router.patch("/compras/{compra_id}/estado")

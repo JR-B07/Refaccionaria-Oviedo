@@ -1,0 +1,19 @@
+======================================================================
+COMPARACIÓN DE ENDPOINTS GET
+======================================================================
+
+[TEST] GET /usuarios
+  Status: 500
+  Error: Internal Server Error
+
+[TEST] GET /empleados
+  Status: 200
+  Data: ✅ Lista con 7 items
+
+[TEST] GET /usuarios/
+  Status: 500
+  Error: Internal Server Error
+
+[TEST] GET /empleados/
+  Status: 200
+  Data: ✅ Lista con 7 items

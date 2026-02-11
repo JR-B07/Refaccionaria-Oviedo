@@ -6,6 +6,7 @@ from app.models.venta import Venta
 from app.models.arqueo_caja import ArqueoCaja
 from app.models.cierre_caja import CierreCaja
 from app.models.retiro_caja import RetiroCaja
+from app.models.empleado import Empleado
 
 __all__ = [
     'ModeloBase',
@@ -14,5 +15,6 @@ __all__ = [
     'Venta',
     'ArqueoCaja',
     'CierreCaja',
-    'RetiroCaja'
+    'RetiroCaja',
+    'Empleado'
 ]

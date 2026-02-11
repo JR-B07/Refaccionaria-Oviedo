@@ -76,7 +76,7 @@ async def reporte_devoluciones_detalladas(
     db: Session = Depends(get_db)
 ):
     """
-    Reporte detallado de devoluciones por fecha
+    Reporte detallado de devoluciones (VENTAS) por fecha
     
     Parámetros:
     - fecha_inicio: Fecha en formato YYYY-MM-DD
@@ -93,6 +93,40 @@ async def reporte_devoluciones_detalladas(
             vendedor=vendedor,
             folio=folio,
             cliente=cliente,
+            estado=estado
+        )
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.get("/reportes/devoluciones-compra-detalladas", response_model=DevolucionesDetalladasResponse)
+async def reporte_devoluciones_compra_detalladas(
+    fecha_inicio: str,
+    fecha_fin: str,
+    sucursal: Optional[str] = None,
+    proveedor: Optional[str] = None,
+    folio: Optional[str] = None,
+    estado: Optional[str] = None,
+    db: Session = Depends(get_db)
+):
+    """
+    Reporte detallado de devoluciones de COMPRA por fecha
+    
+    Parámetros:
+    - fecha_inicio: Fecha en formato YYYY-MM-DD
+    - fecha_fin: Fecha en formato YYYY-MM-DD
+    - sucursal: Nombre de la sucursal (opcional)
+    - proveedor: Nombre del proveedor (opcional)
+    - folio: Folio de la devolución (opcional)
+    - estado: Estado de la devolución (pendiente/aprobada/rechazada) (opcional)
+    """
+    try:
+        servicio = ReporteService(db)
+        return await servicio.generar_reporte_devoluciones_compra(
+            fecha_inicio=fecha_inicio,
+            fecha_fin=fecha_fin,
+            sucursal=sucursal,
+            proveedor=proveedor,
+            folio=folio,
             estado=estado
         )
     except Exception as e:
@@ -153,7 +187,7 @@ async def estadisticas_ventas(
     - mes: Mes (solo para tipo='diaria')
     - local_id: ID del local (opcional)
     """
-    from app.models.venta import Venta, EstadoVenta
+    from app.models.venta import Venta
     from sqlalchemy import func, extract
     from datetime import datetime
     
@@ -161,7 +195,7 @@ async def estadisticas_ventas(
         query = db.query(
             Venta.total,
             func.count(Venta.id).label('cantidad')
-        ).filter(Venta.estado == EstadoVenta.COMPLETADA)
+        ).filter(Venta.estado == "completada")
         
         if local_id:
             query = query.filter(Venta.local_id == local_id)
@@ -172,7 +206,7 @@ async def estadisticas_ventas(
                 extract('year', Venta.fecha_creacion).label('year'),
                 func.sum(Venta.total).label('total_ventas'),
                 func.count(Venta.id).label('cantidad')
-            ).filter(Venta.estado == EstadoVenta.COMPLETADA)
+            ).filter(Venta.estado == "completada")
             
             if local_id:
                 query_result = query_result.filter(Venta.local_id == local_id)
@@ -208,7 +242,7 @@ async def estadisticas_ventas(
                 func.count(Venta.id).label('cantidad')
             ).filter(
                 extract('year', Venta.fecha_creacion) == anio,
-                Venta.estado == EstadoVenta.COMPLETADA
+                Venta.estado == "completada"
             )
             
             if local_id:
@@ -244,7 +278,7 @@ async def estadisticas_ventas(
             ).filter(
                 extract('year', Venta.fecha_creacion) == anio,
                 extract('month', Venta.fecha_creacion) == mes,
-                Venta.estado == EstadoVenta.COMPLETADA
+                Venta.estado == "completada"
             )
             
             if local_id:

@@ -16,7 +16,7 @@ class CRUDUsuario:
         return db.query(Usuario).filter(Usuario.email == email).first()
     
     def obtener_activos(self, db: Session, skip: int = 0, limit: int = 100) -> List[Usuario]:
-        return db.query(Usuario).filter(Usuario.estado == EstadoUsuario.activo).offset(skip).limit(limit).all()
+        return db.query(Usuario).filter(Usuario.estado == "activo").offset(skip).limit(limit).all()
     
     def obtener_por_local(self, db: Session, local_id: int) -> List[Usuario]:
         return db.query(Usuario).filter(Usuario.local_id == local_id).all()

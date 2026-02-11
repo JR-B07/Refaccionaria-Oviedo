@@ -1,0 +1,18 @@
+2026-02-09 20:44:00,692 INFO sqlalchemy.engine.Engine SELECT DATABASE()
+2026-02-09 20:44:00,693 INFO sqlalchemy.engine.Engine [raw sql] {}
+2026-02-09 20:44:00,697 INFO sqlalchemy.engine.Engine SELECT @@sql_mode
+2026-02-09 20:44:00,697 INFO sqlalchemy.engine.Engine [raw sql] {}
+2026-02-09 20:44:00,697 INFO sqlalchemy.engine.Engine SELECT @@lower_case_table_names
+2026-02-09 20:44:00,697 INFO sqlalchemy.engine.Engine [raw sql] {}
+2026-02-09 20:44:00,699 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-02-09 20:44:00,701 INFO sqlalchemy.engine.Engine SELECT locales.nombre AS locales_nombre, locales.direccion AS locales_direccion, locales.telefono AS locales_telefono, locales.email AS locales_email, locales.id AS locales_id, locales.fecha_creacion AS locales_fecha_creacion, locales.fecha_actualizacion AS locales_fecha_actualizacion 
+FROM locales
+2026-02-09 20:44:00,701 INFO sqlalchemy.engine.Engine [generated in 0.00036s] {}
+======================================================================
+SUCURSALES EN LA BASE DE DATOS
+======================================================================
+ID: 1 - Nombre: Refaccionaria Oviedo
+ID: 2 - Nombre: Filtros y Lubricantes
+
+Total: 2 sucursales
+2026-02-09 20:44:00,721 INFO sqlalchemy.engine.Engine ROLLBACK

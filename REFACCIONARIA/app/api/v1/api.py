@@ -58,6 +58,12 @@ except Exception as e:
     print("⚠️  Módulo compras no encontrado o error al importarlo:", e)
 
 try:
+    from app.api.v1.endpoints import devoluciones_compra as devoluciones_compra_module
+    api_router.include_router(devoluciones_compra_module.router, tags=["Devoluciones de Compra"])
+except Exception as e:
+    print("⚠️  Módulo devoluciones_compra no encontrado o error al importarlo:", e)
+
+try:
     from app.api.v1.endpoints import productos as productos_module
     api_router.include_router(productos_module.router, prefix="/productos", tags=["Productos"])
 except Exception as e:
@@ -132,6 +138,13 @@ try:
     api_router.include_router(promociones_module.router, prefix="/promociones", tags=["Promociones"])
 except Exception as e:
     print("⚠️  Módulo promociones no encontrado o error al importarlo:", e)
+
+# Empleados
+try:
+    from app.api.v1.endpoints import empleados as empleados_module
+    api_router.include_router(empleados_module.router, prefix="/empleados", tags=["Empleados"])
+except Exception as e:
+    print("⚠️  Módulo empleados no encontrado o error al importarlo:", e)
 
 # Asistencia de empleados (RRHH)
 try:
