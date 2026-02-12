@@ -864,7 +864,7 @@
             const fechaFin = document.getElementById('fechaFin').value;
             const token = localStorage.getItem('token');
             try {
-                const url = new URL('/api/v1/reportes/cierres-caja/estadisticas', window.location.origin);
+                const url = new URL('/api/v1/reportes/cierres-caja/estadisticas/', window.location.origin);
                 url.searchParams.append('fecha_inicio', fechaInicio);
                 url.searchParams.append('fecha_fin', fechaFin);
 
@@ -1043,7 +1043,7 @@
             `;
 
             // Construir URL con parámetros usando URL API para encoding automático
-            const url = new URL('/api/v1/reportes/cierres-caja', window.location.origin);
+            const url = new URL('/api/v1/reportes/cierres-caja/', window.location.origin);
             url.searchParams.append('fecha_inicio', fechaInicio);
             url.searchParams.append('fecha_fin', fechaFin);
             url.searchParams.append('local_id', sucursalId);

@@ -796,7 +796,7 @@
                 return;
             }
             // Buscar producto por clave
-            fetch(`/api/v1/productos/?codigo=${encodeURIComponent(clave)}`)
+            fetch(`/api/v1/productos?codigo=${encodeURIComponent(clave)}`)
                 .then(res => res.json())
                 .then(data => {
                     let descripcion = '';
@@ -974,7 +974,7 @@
                 if (codigo) params.append('codigo', codigo);
                 params.append('limit', 50);
 
-                const response = await fetch(`/api/v1/productos/?${params.toString()}`);
+                const response = await fetch(`/api/v1/productos?${params.toString()}`);
                 if (!response.ok) throw new Error('Error en la búsqueda');
 
                 const data = await response.json();
@@ -1079,7 +1079,7 @@
                 params.append('q', q);
                 params.append('limit', 50);
 
-                const response = await fetch(`/api/v1/paquetes/?${params.toString()}`);
+                const response = await fetch(`/api/v1/paquetes?${params.toString()}`);
                 if (!response.ok) throw new Error('Error en la búsqueda');
 
                 const data = await response.json();

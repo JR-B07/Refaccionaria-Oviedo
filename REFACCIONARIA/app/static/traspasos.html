@@ -947,7 +947,7 @@
             timeoutBusqueda = setTimeout(async () => {
                 try {
                     const token = localStorage.getItem('access_token');
-                    const response = await fetch(`/api/v1/productos/?q=${encodeURIComponent(termino)}&limit=10`, {
+                    const response = await fetch(`/api/v1/productos?q=${encodeURIComponent(termino)}&limit=10`, {
                         headers: { 'Authorization': 'Bearer ' + token }
                     });
 
@@ -1106,7 +1106,7 @@
                     headers['Authorization'] = `Bearer ${token}`;
                 }
 
-                const response = await fetch('/api/v1/traspasos', {
+                const response = await fetch('/api/v1/traspasos/', {
                     method: 'POST',
                     headers: headers,
                     body: JSON.stringify(traspasoData)

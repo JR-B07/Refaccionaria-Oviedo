@@ -268,7 +268,7 @@
                 const token = localStorage.getItem('token');
                 console.log('Token:', token ? 'Existe (longitud: ' + token.length + ')' : 'NO EXISTE');
 
-                const url = `/api/v1/paquetes?q=${encodeURIComponent(q)}`;
+                const url = `/api/v1/paquetes/?q=${encodeURIComponent(q)}`;
                 console.log('URL:', url);
 
                 const r = await fetch(url, {
@@ -370,7 +370,7 @@
                 }
                 const token = localStorage.getItem('token');
                 if (document.getElementById('modalPaqueteTitulo').innerText.includes('Nuevo')) {
-                    const r = await fetch('/api/v1/paquetes', {
+                    const r = await fetch('/api/v1/paquetes/', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                         body: JSON.stringify({ nombre, clase, descripcion })
@@ -473,7 +473,7 @@
             const q = document.getElementById('itemBuscar').value.trim();
             if (q.length < 2) { document.getElementById('itemResultados').innerHTML = ''; return; }
             const token = localStorage.getItem('token');
-            const r = await fetch(`/api/v1/productos?q=${encodeURIComponent(q)}&limit=10`, {
+            const r = await fetch(`/api/v1/productos/?q=${encodeURIComponent(q)}&limit=10`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const d = await r.json();

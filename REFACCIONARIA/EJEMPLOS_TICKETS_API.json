@@ -165,7 +165,7 @@
             "Sección de POLÍTICAS DE DEVOLUCIÓN",
             "Pie de página con mensaje de agradecimiento"
         ],
-        "api_endpoint": "POST /api/v1/tickets/generar-formato",
+        "api_endpoint": "POST /api/v1/tickets/generar-formato/",
         "response_format": {
             "folio": "string",
             "contenido_ticket": "string (formato para impresora térmica)",

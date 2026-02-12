@@ -482,7 +482,7 @@
                     fecha: now.toISOString().slice(0, 10),
                     hora: hora24
                 };
-                const res = await fetch('/api/v1/asistencia/registrar', {
+                const res = await fetch('/api/v1/asistencia/registrar/', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)

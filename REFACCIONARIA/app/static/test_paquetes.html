@@ -28,8 +28,8 @@
                     return;
                 }
 
-                log('\n=== Probando GET /api/v1/paquetes ===');
-                const response = await fetch('/api/v1/paquetes', {
+                log('\n=== Probando GET /api/v1/paquetes/ ===');
+                const response = await fetch('/api/v1/paquetes/', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -41,8 +41,8 @@
                 const data = await response.json();
                 log('Response: ' + JSON.stringify(data, null, 2));
 
-                log('\n=== Probando POST /api/v1/paquetes ===');
-                const nuevoResponse = await fetch('/api/v1/paquetes', {
+                log('\n=== Probando POST /api/v1/paquetes/ ===');
+                const nuevoResponse = await fetch('/api/v1/paquetes/', {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`,

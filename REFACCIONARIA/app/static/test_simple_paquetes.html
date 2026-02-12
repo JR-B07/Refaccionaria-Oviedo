@@ -35,9 +35,9 @@
             }
 
             // 2. Probar endpoint GET
-            log('\n2. Probando GET /api/v1/paquetes:');
+            log('\n2. Probando GET /api/v1/paquetes/:');
             try {
-                const response = await fetch('/api/v1/paquetes', {
+                const response = await fetch('/api/v1/paquetes/', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -70,7 +70,7 @@
             }
 
             // 3. Probar crear paquete
-            log('\n3. Probando POST /api/v1/paquetes:');
+            log('\n3. Probando POST /api/v1/paquetes/:');
             try {
                 const testPaquete = {
                     nombre: 'Test Paquete ' + new Date().getTime(),
@@ -80,7 +80,7 @@
 
                 log('   Enviando: ' + JSON.stringify(testPaquete));
 
-                const response = await fetch('/api/v1/paquetes', {
+                const response = await fetch('/api/v1/paquetes/', {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`,

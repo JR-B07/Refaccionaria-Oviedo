@@ -820,8 +820,8 @@
 
                 // Construir URL con parámetros usando URL API
                 const endpoint = tipoReporte === 'compra'
-                    ? '/api/v1/reportes/devoluciones-compra-detalladas'
-                    : '/api/v1/reportes/devoluciones-detalladas';
+                    ? '/api/v1/reportes/devoluciones-compra-detalladas/'
+                    : '/api/v1/reportes/devoluciones-detalladas/';
                 const url = new URL(endpoint, window.location.origin);
                 url.searchParams.append('fecha_inicio', fechaInicio);
                 url.searchParams.append('fecha_fin', fechaFin);
@@ -964,7 +964,7 @@
         // Función para cargar sucursales desde la API
         async function cargarSucursales() {
             try {
-                const response = await fetch('/api/v1/locales');
+                const response = await fetch('/api/v1/locales/');
                 if (response.ok) {
                     const sucursales = await response.json();
                     const selectSucursal = document.getElementById('branch');
@@ -988,7 +988,7 @@
         // Función para cargar vendedores desde la API
         async function cargarVendedores() {
             try {
-                const response = await fetch('/api/v1/usuarios/?skip=0&limit=100');
+                const response = await fetch('/api/v1/usuarios?skip=0&limit=100');
                 if (response.ok) {
                     const usuarios = await response.json();
                     const selectVendedor = document.getElementById('seller');
@@ -1013,7 +1013,7 @@
         // Función para cargar proveedores desde la API
         async function cargarProveedores() {
             try {
-                const response = await fetch('/api/v1/proveedores');
+                const response = await fetch('/api/v1/proveedores/');
                 if (response.ok) {
                     const proveedores = await response.json();
                     const selectProveedor = document.getElementById('seller');

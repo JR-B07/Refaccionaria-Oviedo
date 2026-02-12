@@ -1346,7 +1346,7 @@
             async function paqCargar() {
                 try {
                     const search = (document.getElementById('paqSearch')?.value || '').trim();
-                    const url = search ? `/api/v1/paquetes/?q=${encodeURIComponent(search)}` : `/api/v1/paquetes/`;
+                    const url = search ? `/api/v1/paquetes?q=${encodeURIComponent(search)}` : `/api/v1/paquetes/`;
 
                     const resp = await fetch(url);
                     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
@@ -1641,7 +1641,7 @@
                 }
 
                 try {
-                    const url = new URL('/api/v1/productos', window.location.origin);
+                    const url = new URL('/api/v1/productos/', window.location.origin);
                     url.searchParams.set('q', q);
                     url.searchParams.set('limit', 10);
                     const resp = await fetch(url.toString());
@@ -1831,7 +1831,7 @@
     </div>
 
     <script>
-        const API_BASE = '/api/v1/productos';
+        const API_BASE = '/api/v1/productos/';
         let page = 0;
 
 
@@ -2282,7 +2282,7 @@
         // Funciones para Líneas de Producto
         async function loadLineas() {
             try {
-                const resp = await fetch('/api/v1/grupos/?activo=1&limit=1000');
+                const resp = await fetch('/api/v1/grupos?activo=1&limit=1000');
                 const data = await resp.json();
                 const lineas = data.items || [];
 
@@ -2394,7 +2394,7 @@
         // Funciones para Marcas de Producto
         async function loadMarcas() {
             try {
-                const resp = await fetch('/api/v1/marcas/?activo=1&limit=1000');
+                const resp = await fetch('/api/v1/marcas?activo=1&limit=1000');
                 const data = await resp.json();
                 const marcas = data.items || [];
 
@@ -2821,7 +2821,7 @@
             const q = (document.getElementById('grupoProdBusc').value || '').trim();
             if (!q) { document.getElementById('grupoProdRes').innerHTML = ''; return; }
             try {
-                const url = new URL('/api/v1/productos', window.location.origin);
+                const url = new URL('/api/v1/productos/', window.location.origin);
                 url.searchParams.set('q', q);
                 url.searchParams.set('limit', 10);
                 const resp = await fetch(url.toString());

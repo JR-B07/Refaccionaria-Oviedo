@@ -305,7 +305,7 @@
             };
 
             try {
-                const res = await fetch('/api/v1/cajas/cierres', {
+                const res = await fetch('/api/v1/cajas/cierres/', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
                     body: JSON.stringify(payload)
