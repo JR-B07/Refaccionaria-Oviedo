@@ -133,7 +133,7 @@
             window.location.href = '/static/ventas.html';
         }
         async function fetchPromos() {
-            const res = await fetch('/api/v1/promociones/promociones/');
+            const res = await fetch('/api/v1/promociones/promociones');
             const promos = await res.json();
             renderPromos(promos);
         }
@@ -159,7 +159,7 @@
             e.preventDefault();
             const desc = document.getElementById('promoDesc').value.trim();
             if (!desc) return;
-            await fetch('/api/v1/promociones/promociones/', {
+            await fetch('/api/v1/promociones/promociones', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ descripcion: desc })
