@@ -840,7 +840,7 @@
                 console.log('[DEBUG] usuario_id final:', usuario_id);
                 console.log('[DEBUG] Datos a enviar:', datosVentaAPI);
 
-                const response = await fetch('/api/v1/ventas/rapida', {
+                const response = await fetch('/api/v1/ventas/rapida/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -884,7 +884,7 @@
 
         async function obtenerProductoPorCodigo(codigo) {
             if (!codigo) return null;
-            const response = await fetch(`/api/v1/productos/?codigo=${encodeURIComponent(codigo)}`);
+            const response = await fetch(`/api/v1/productos?codigo=${encodeURIComponent(codigo)}`);
             if (!response.ok) return null;
             const data = await response.json();
             const items = Array.isArray(data.items) ? data.items : [];
@@ -992,7 +992,7 @@
                 vendedor: vendedorNombre,
                 incluir_qr: false
             };
-            fetch('/api/v1/tickets/generar-formato', {
+            fetch('/api/v1/tickets/generar-formato/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(datosTicket)

@@ -56,7 +56,7 @@ class DevolucionCompraResponse(BaseModel):
     usuario_id: int
     usuario_nombre: Optional[str] = None
     fecha_creacion: datetime
-    fecha_actualizacion: datetime
+    fecha_actualizacion: Optional[datetime] = None
     
     class Config:
         from_attributes = True

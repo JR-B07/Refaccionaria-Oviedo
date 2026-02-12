@@ -730,7 +730,7 @@
                     headers['Authorization'] = `Bearer ${token}`;
                 }
 
-                const response = await fetch('/api/v1/compras', {
+                const response = await fetch('/api/v1/compras/', {
                     method: 'POST',
                     headers: headers,
                     body: JSON.stringify(compraData)
