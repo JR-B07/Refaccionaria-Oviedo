@@ -575,7 +575,7 @@
 
         async function cargarTickets() {
             try {
-                const response = await fetch(`${API_URL}/tickets`);
+                const response = await fetch(`${API_URL}/tickets/`);
                 if (!response.ok) throw new Error('Error al cargar tickets');
                 tickets = await response.json();
                 renderTickets(tickets);

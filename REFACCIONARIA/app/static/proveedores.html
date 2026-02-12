@@ -219,7 +219,7 @@
                     headers['Authorization'] = `Bearer ${token}`;
                 }
 
-                const response = await fetch('/api/v1/proveedores/', {
+                const response = await fetch('/api/v1/proveedores', {
                     method: 'GET',
                     headers: headers
                 });
