@@ -438,8 +438,8 @@
             margin-bottom: 20px;
         }
     </style>
-    <script src="componentes/selector-sucursal.js"></script>
-    <script src="/static/js/sucursal_selector.js"></script>
+    <!-- <script src="componentes/selector-sucursal.js"></script> -->
+    <!-- <script src="/static/js/sucursal_selector.js"></script> -->
 </head>
 
 <body>
@@ -755,6 +755,7 @@
     <script>
         const API_BASE = '/api/v1';
         let usuarioId = null;
+        let localesCargados = false; // Bandera para evitar cargas múltiples
 
         // Inicialización
         document.addEventListener('DOMContentLoaded', function () {
@@ -790,10 +791,47 @@
                 if (!response.ok) throw new Error('Error al cargar locales');
 
                 const locales = await response.json();
+                console.log('📊 Locales recibidos de API:', locales);
+
                 const select = document.getElementById('local_id');
                 const filterSelect = document.getElementById('filterLocal');
 
+                if (!select || !filterSelect) {
+                    console.error('Selectores no encontrados');
+                    return;
+                }
+
+                // Filtrar duplicados por nombre (más robusto que por ID)
+                const localesUnicos = [];
+                const nombresVistos = new Set();
+
                 locales.forEach(local => {
+                    const nombreNormalizado = local.nombre.trim().toLowerCase();
+                    if (!nombresVistos.has(nombreNormalizado)) {
+                        nombresVistos.add(nombreNormalizado);
+                        localesUnicos.push(local);
+                    }
+                });
+
+                console.log('🔍 Locales únicos:', localesUnicos);
+
+                // Limpiar completamente y crear desde cero
+                select.innerHTML = '';
+                filterSelect.innerHTML = '';
+
+                // Agregar primera opción
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.textContent = 'Seleccionar...';
+                select.appendChild(defaultOption);
+
+                const defaultFilterOption = document.createElement('option');
+                defaultFilterOption.value = '';
+                defaultFilterOption.textContent = 'Todos los locales';
+                filterSelect.appendChild(defaultFilterOption);
+
+                // Agregar locales únicos
+                localesUnicos.forEach(local => {
                     const option = document.createElement('option');
                     option.value = local.id;
                     option.textContent = local.nombre;
@@ -804,6 +842,9 @@
                     filterOption.textContent = local.nombre;
                     filterSelect.appendChild(filterOption);
                 });
+
+                localesCargados = true;
+                console.log('✅ Locales cargados correctamente:', localesUnicos.length);
             } catch (error) {
                 console.error('Error al cargar locales:', error);
             }
