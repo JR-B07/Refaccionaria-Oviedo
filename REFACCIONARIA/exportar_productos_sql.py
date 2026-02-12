@@ -51,7 +51,7 @@ try:
                 id, codigo, codigo_barras, nombre, descripcion, marca, modelo,
                 categoria, precio_compra, precio_venta, precio_venta_credito,
                 stock_total, stock_minimo, ubicacion_estante, ubicacion_fila,
-                ubicacion_columna, año_inicio, año_fin
+                ubicacion_columna, ano_inicio, ano_fin
             FROM productos
             ORDER BY id
         """)
@@ -107,12 +107,12 @@ try:
                 values.append(escape_sql_string(row[14]))
                 # ubicacion_columna
                 values.append(escape_sql_string(row[15]))
-                # año_inicio
+                # ano_inicio
                 values.append(escape_sql_string(row[16]))
-                # año_fin
+                # ano_fin
                 values.append(escape_sql_string(row[17]))
                 
-                insert_sql = f"""INSERT INTO productos (id, codigo, codigo_barras, nombre, descripcion, marca, modelo, categoria, precio_compra, precio_venta, precio_venta_credito, stock_total, stock_minimo, ubicacion_estante, ubicacion_fila, ubicacion_columna, año_inicio, año_fin)
+                insert_sql = f"""INSERT INTO productos (id, codigo, codigo_barras, nombre, descripcion, marca, modelo, categoria, precio_compra, precio_venta, precio_venta_credito, stock_total, stock_minimo, ubicacion_estante, ubicacion_fila, ubicacion_columna, ano_inicio, ano_fin)
 VALUES ({', '.join(values)});
 """
                 f.write(insert_sql)

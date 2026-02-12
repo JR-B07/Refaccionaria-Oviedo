@@ -31,8 +31,8 @@ class Producto(ModeloBase):
     
     # Para auto partes específicas
     compatibilidad = Column(JSON)  # Ej: {"marcas": ["Toyota", "Honda"], "modelos": ["Corolla", "Civic"]}
-    año_inicio = Column(Integer)
-    año_fin = Column(Integer)
+    ano_inicio = Column(Integer)
+    ano_fin = Column(Integer)
     
     # Relaciones
     inventario_locales = relationship("InventarioLocal", back_populates="producto")
