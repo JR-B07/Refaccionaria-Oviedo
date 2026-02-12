@@ -2282,7 +2282,7 @@
         // Funciones para Líneas de Producto
         async function loadLineas() {
             try {
-                const resp = await fetch('/api/v1/grupos?activo=1&limit=1000');
+                const resp = await fetch('/api/v1/grupos/?activo=1&limit=1000');
                 const data = await resp.json();
                 const lineas = data.items || [];
 
@@ -2394,7 +2394,7 @@
         // Funciones para Marcas de Producto
         async function loadMarcas() {
             try {
-                const resp = await fetch('/api/v1/marcas?activo=1&limit=1000');
+                const resp = await fetch('/api/v1/marcas/?activo=1&limit=1000');
                 const data = await resp.json();
                 const marcas = data.items || [];
 
