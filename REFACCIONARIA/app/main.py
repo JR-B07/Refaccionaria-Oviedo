@@ -65,7 +65,6 @@ app = FastAPI(
     lifespan=lifespan,
     docs_url="/docs",
     redoc_url="/redoc",
-    redirect_slashes=False
 )
 
 # Montar archivos estáticos (CSS, JS, imágenes)
