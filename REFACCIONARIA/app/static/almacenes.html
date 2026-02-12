@@ -615,7 +615,7 @@
             try {
                 console.log('Intentando cargar productos desde API...');
 
-                let response = await fetch('/api/v1/productos', {
+                let response = await fetch('/api/v1/productos/', {
                     method: 'GET',
                     headers: {
                         'Authorization': 'Bearer ' + token,
@@ -625,7 +625,7 @@
 
                 if (!response.ok) {
                     console.warn('Error ' + response.status + ', intentando con slash...');
-                    response = await fetch('/api/v1/productos', {
+                    response = await fetch('/api/v1/productos/', {
                         method: 'GET',
                         headers: {
                             'Authorization': 'Bearer ' + token,
