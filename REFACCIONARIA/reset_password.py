@@ -16,7 +16,7 @@ try:
     admin = usuario_crud.obtener_por_nombre_usuario(db, "admin")
     
     if admin:
-        # Usar un hash simple SHA256 para esta contraseña
+        import hashlib
         password = "Admin123!"
         admin.clave_hash = hashlib.sha256(password.encode()).hexdigest()
         db.commit()

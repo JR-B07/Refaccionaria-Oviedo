@@ -2,11 +2,8 @@
 from datetime import datetime, timedelta
 from typing import Optional
 from jose import JWTError, jwt
-from passlib.context import CryptContext
+import hashlib
 from app.core.config import settings
-
-# Configuración de encriptación de contraseñas
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # Configuración JWT
 ALGORITHM = settings.ALGORITHM
@@ -14,12 +11,13 @@ SECRET_KEY = settings.SECRET_KEY
 ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Verifica si la contraseña en texto plano coincide con el hash"""
-    return pwd_context.verify(plain_password, hashed_password)
+    """Verifica si la contraseña en texto plano coincide con el hash SHA256"""
+    password_hash = hashlib.sha256(plain_password.encode()).hexdigest()
+    return password_hash == hashed_password
 
 def get_password_hash(password: str) -> str:
-    """Genera hash de contraseña"""
-    return pwd_context.hash(password)
+    """Genera hash SHA256 de contraseña"""
+    return hashlib.sha256(password.encode()).hexdigest()
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     """Crea token JWT de acceso"""

@@ -7,7 +7,7 @@ Ejecutar después de que MySQL esté corriendo: python crear_usuarios.py
 
 import os
 import sys
-import bcrypt
+import hashlib
 from datetime import datetime
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
@@ -32,8 +32,8 @@ def get_database_url() -> str:
         return f"mysql+pymysql://{user}@{host}:{port}/{database}"
 
 def hash_password(password: str) -> str:
-    """Generar hash bcrypt de contraseña"""
-    return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+    """Generar hash SHA256 de contraseña"""
+    return hashlib.sha256(password.encode()).hexdigest()
 
 def crear_usuarios():
     """Crear usuarios en la base de datos"""

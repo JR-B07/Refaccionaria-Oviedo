@@ -67,12 +67,15 @@ print("\n4. Verificando endpoint de API de login...")
 try:
     response = requests.post(
         f"{BASE_URL}/api/v1/auth/login",
-        json={"username": "admin", "password": "admin123"},
+        json={"username": "admin", "password": "admin"},
         timeout=5
     )
     print(f"   ✅ Status Code: {response.status_code}")
     if response.status_code == 200:
         print(f"   ✅ Login exitoso")
+        data = response.json()
+        print(f"   👤 Usuario: {data.get('user', {}).get('name', 'N/A')}")
+        print(f"   🔑 Token recibido: {data.get('access_token', '')[:50]}...")
     else:
         print(f"   ⚠️  Login falló: {response.text[:200]}")
 except Exception as e:

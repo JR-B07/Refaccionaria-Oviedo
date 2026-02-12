@@ -116,7 +116,7 @@ python actualizar_contrasenas.py
 
 ## 📝 Notas Importantes
 
-1. **Las contraseñas están hasheadas** con bcrypt (no se guardan en texto plano)
+1. **Las contraseñas están hasheadas** con SHA256 (no se guardan en texto plano)
 2. **MySQL debe estar corriendo** antes de iniciar la API
 3. **El .env contiene las credenciales** para conectarse a MySQL
 4. **La API usa SQLAlchemy** para ORM

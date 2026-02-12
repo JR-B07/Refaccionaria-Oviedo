@@ -24,11 +24,11 @@ def get_database_url_with_password() -> str:
     else:
         return f"mysql+pymysql://{user}@{host}:{port}/{database}"
 
-# Hashes bcrypt para las nuevas contraseñas
+# Hashes SHA256 para las nuevas contraseñas
 HASHES = {
-    'admin': '$2b$12$vGQTHL2wS0snxC4/uO4ceeki4nmAMP4RHK6PO4qA5/4iCQdNGPLV.',
-    'sucursal1': '$2b$12$N6Zi49AKunHqDrbSWrdw/OACnIgYc/qS8KS3ZzZO0X8W3Ba9kmrku',
-    'sucursal2': '$2b$12$GwhoV0TZIrwanLxvYGek8e1qWzdYD9bWF8R6YVT2e5koxUlnDRltW',
+    'admin': '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918',  # SHA256 de 'admin'
+    'sucursal1': 'e606e38b0d8c19b24cf0ee3808183162ea7cd63ff7912dbb22b5e803286b4446',  # SHA256 de 'sucursal1'
+    'sucursal2': '6cf8efacae19431476020c1e2ebd2d8cb9375a3be9d3c8c3e7e1cf37429ec61e',  # SHA256 de 'sucursal2'
 }
 
 try:

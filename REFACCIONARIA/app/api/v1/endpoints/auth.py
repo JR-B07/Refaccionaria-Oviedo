@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
-import bcrypt
+import hashlib
 
 from app.core.database import get_db
 from app.crud.usuario import usuario_crud
@@ -45,9 +45,10 @@ async def login(login_data: LoginRequest, db: Session = Depends(get_db)):
     if not db_user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Usuario o contraseña incorrectos")
 
-    # Comparar con bcrypt
+    # Comparar con SHA256
     try:
-        if not bcrypt.checkpw(login_data.password.encode(), db_user.clave_hash.encode()):
+        password_hash = hashlib.sha256(login_data.password.encode()).hexdigest()
+        if password_hash != db_user.clave_hash:
             # Registrar intento fallido
             try:
                 usuario_crud.registrar_login(db, db_user, exitoso=False)

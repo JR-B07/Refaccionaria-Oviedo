@@ -14,7 +14,7 @@ def crear_usuarios_sucursal2():
     carlos = session.query(Usuario).filter_by(nombre_usuario="carlos").first()
     
     if not maria:
-        # Crear usuario para sucursal 2 (REFACCIONARIA OVIEDO)
+        import hashlib
         usuario_sucursal2 = Usuario(
             nombre="María",
             apellido_paterno="García",
@@ -34,7 +34,7 @@ def crear_usuarios_sucursal2():
         print("⚠️ Usuario María ya existe")
     
     if not carlos:
-        # Crear usuario gerente para sucursal 2
+        import hashlib
         usuario_gerente2 = Usuario(
             nombre="Carlos",
             apellido_paterno="Mendez",
