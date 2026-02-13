@@ -71,7 +71,6 @@ app = FastAPI(
 # Middleware para manejar HTTPS detrás de proxy (Railway)
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.trustedhost import TrustedHostMiddleware
-from starlette.middleware.proxy_headers import ProxyHeadersMiddleware
 from starlette.requests import Request
 from starlette.responses import RedirectResponse
 
@@ -132,13 +131,10 @@ class HTTPSProxyFixMiddleware(BaseHTTPMiddleware):
 
 # Agregar middlewares en orden correcto (de abajo hacia arriba en el código)
 # IMPORTANTE: Los middlewares se agregan en orden inverso - el primero agregado se ejecuta último
-# Orden de ejecución: SecurityHeadersMiddleware → ProxyHeadersMiddleware → HTTPSProxyFixMiddleware → TrustedHostMiddleware → CORS → App
+# Orden de ejecución: SecurityHeadersMiddleware → HTTPSProxyFixMiddleware → TrustedHostMiddleware → CORS → App
 
 # SecurityHeadersMiddleware PRIMERA (se ejecuta ÚLTIMA - aplicar headers a todas las respuestas)
 app.add_middleware(SecurityHeadersMiddleware)
-
-# ProxyHeadersMiddleware para manejar proxies
-app.add_middleware(ProxyHeadersMiddleware, trusted_hosts=["*"])
 
 # Middleware HTTPS para redirecciones
 app.add_middleware(HTTPSProxyFixMiddleware)
