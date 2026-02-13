@@ -33,7 +33,8 @@ async def lifespan(app: FastAPI):
     print("🚀 Sistema de Refaccionaria ERP")
     print(f"📊 Versión: {settings.VERSION}")
     print(f"🔧 Debug: {settings.DEBUG}")
-    print(f"🏪 Local ID: {settings.LOCAL_ID}")
+    print(f"� Environment: {settings.ENVIRONMENT}")
+    print(f"�🏪 Local ID: {settings.LOCAL_ID}")
     print("=" * 50)
     
     if HAS_DB:
@@ -67,6 +68,87 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
+# Middleware para manejar HTTPS detrás de proxy (Railway)
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.middleware.trustedhost import TrustedHostMiddleware
+from starlette.middleware.proxy_fix import ProxyFixMiddleware
+from starlette.requests import Request
+from starlette.responses import RedirectResponse
+
+# Headers de seguridad comunes a todas las respuestas
+SECURITY_HEADERS = {
+    "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "X-XSS-Protection": "1; mode=block; report=https://refaccionaria-oviedo-production.up.railway.app/xss-report",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Permissions-Policy": "geolocation=(), microphone=(), camera=()",
+    "Content-Security-Policy": (
+        "upgrade-insecure-requests; "
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline'; "
+        "style-src 'self' 'unsafe-inline'; "
+        "img-src 'self' data: https:; "
+        "font-src 'self' data:; "
+        "connect-src 'self' https:; "
+        "frame-ancestors 'none'; "
+        "base-uri 'self'; "
+        "form-action 'self'"
+    )
+}
+
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    """
+    Middleware que asegura que TODOS los headers de seguridad se envíen en TODAS las respuestas.
+    """
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        
+        # Aplicar headers de seguridad a TODAS las respuestas
+        for header, value in SECURITY_HEADERS.items():
+            response.headers[header] = value
+        
+        return response
+
+class HTTPSProxyFixMiddleware(BaseHTTPMiddleware):
+    """
+    Middleware para manejar HTTPS detrás de proxies como Railway.
+    Respeta el header X-Forwarded-Proto para determinar el protocolo real.
+    """
+    async def dispatch(self, request: Request, call_next):
+        # Verificar si viene de un proxy con X-Forwarded-Proto
+        forwarded_proto = request.headers.get('X-Forwarded-Proto')
+        forwarded_host = request.headers.get('X-Forwarded-Host')
+        
+        # En producción con proxy, forzar HTTPS
+        if settings.ENVIRONMENT == "production" and forwarded_proto == "http":
+            # Redirect HTTP to HTTPS
+            url = request.url.replace(scheme="https")
+            return RedirectResponse(url=url, status_code=301)
+        
+        response = await call_next(request)
+        
+        return response
+
+# Agregar middlewares en orden correcto (de abajo hacia arriba en el código)
+# IMPORTANTE: Los middlewares se agregan en orden inverso - el primero agregado se ejecuta último
+# Orden de ejecución: SecurityHeadersMiddleware → ProxyFixMiddleware → HTTPSProxyFixMiddleware → TrustedHostMiddleware → CORS → App
+
+# SecurityHeadersMiddleware PRIMERA (se ejecuta ÚLTIMA - aplicar headers a todas las respuestas)
+app.add_middleware(SecurityHeadersMiddleware)
+
+# ProxyFixMiddleware para manejar proxies
+app.add_middleware(ProxyFixMiddleware, num_proxies=1)
+
+# Middleware HTTPS para redirecciones
+app.add_middleware(HTTPSProxyFixMiddleware)
+
+# TrustedHostMiddleware confía en todos los hosts
+app.add_middleware(
+    TrustedHostMiddleware,
+    allowed_hosts=["*"],
+)
+
 # Montar archivos estáticos (CSS, JS, imágenes)
 import os
 static_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
@@ -83,7 +165,7 @@ async def favicon():
     from fastapi.responses import Response
     return Response(content=b"", media_type="image/x-icon", status_code=204)
 
-# CORS
+# CORS - Debe ir AL FINAL (se ejecuta primero)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.BACKEND_CORS_ORIGINS,
