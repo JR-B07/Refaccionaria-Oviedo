@@ -1269,7 +1269,7 @@
                 proveedor_id: proveedor_id,
                 local_id: local_id,
                 factura: document.getElementById('facturaInput').value || '',
-                fecha: new Date(document.getElementById('fechaRecepcion').value + 'T00:00:00').toISOString(),
+                fecha: document.getElementById('fechaRecepcion').value,  // Solo la fecha en formato YYYY-MM-DD
                 subtotal: parseFloat(subtotal.toFixed(2)),
                 descuento: parseFloat(descuento.toFixed(2)),
                 iva: parseFloat(iva.toFixed(2)),
