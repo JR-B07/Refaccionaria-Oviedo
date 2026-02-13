@@ -1013,7 +1013,7 @@
         // Función para cargar proveedores desde la API
         async function cargarProveedores() {
             try {
-                const response = await fetch('/api/v1/proveedores/');
+                const response = await fetch('/api/v1/proveedores');
                 if (response.ok) {
                     const proveedores = await response.json();
                     const selectProveedor = document.getElementById('seller');

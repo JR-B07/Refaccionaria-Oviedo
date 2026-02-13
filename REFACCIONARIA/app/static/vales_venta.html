@@ -919,7 +919,7 @@
 
             try {
                 const token = localStorage.getItem('access_token');
-                const response = await fetch('/api/v1/vales-venta/', {
+                const response = await fetch('/api/v1/vales-venta', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1060,7 +1060,7 @@
 
             try {
                 // Construir URL con parámetros de forma segura
-                const url = new URL('/api/v1/vales-venta/', window.location.origin);
+                const url = new URL('/api/v1/vales-venta', window.location.origin);
 
                 const folio = document.getElementById('filterFolio').value.trim();
                 const vendedor = document.getElementById('filterVendedor').value;
