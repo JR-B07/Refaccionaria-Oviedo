@@ -10,7 +10,10 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
     PROJECT_NAME: str = "Refaccionaria ERP"
     VERSION: str = "1.0.0"
-    DEBUG: bool = True
+    DEBUG: bool = os.getenv("DEBUG", "True").lower() == "true"
+    
+    # Environment
+    ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development")  # development, production
     
     # MySQL
     MYSQL_SERVER: str = os.getenv("MYSQL_SERVER", "localhost")
@@ -27,8 +30,13 @@ class Settings(BaseSettings):
     # Aplicación
     LOCAL_ID: int = 1
     
-    # CORS
-    BACKEND_CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:8000"]
+    # CORS - Agregamos las URLs de producción
+    BACKEND_CORS_ORIGINS: List[str] = [
+        "http://localhost:3000",
+        "http://localhost:8000",
+        "https://refaccionaria-oviedo-production.up.railway.app",
+        "https://refaccionaria-oviedo.up.railway.app",
+    ]
     
     @property
     def DATABASE_URL(self) -> str:

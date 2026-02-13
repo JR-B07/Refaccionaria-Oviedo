@@ -67,6 +67,32 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
+# Middleware para forzar HTTPS en producción
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.middleware.trustedhost import TrustedHostMiddleware
+from starlette.requests import Request
+from starlette.responses import RedirectResponse
+
+class HTTPSRedirectMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        # En producción, forzar HTTPS
+        if settings.ENVIRONMENT == "production":
+            # Agregar headers de seguridad para forzar HTTPS
+            response = await call_next(request)
+            response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+            return response
+        return await call_next(request)
+
+# Agregar middlewares en orden correcto
+# IMPORTANTE: TrustedHostMiddleware debe ir después de CORS
+app.add_middleware(HTTPSRedirectMiddleware)
+
+# Agregar middleware para confiar en headers de proxy (NECESARIO para Railway)
+app.add_middleware(
+    TrustedHostMiddleware,
+    allowed_hosts=["*"],
+)
+
 # Montar archivos estáticos (CSS, JS, imágenes)
 import os
 static_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
@@ -83,7 +109,7 @@ async def favicon():
     from fastapi.responses import Response
     return Response(content=b"", media_type="image/x-icon", status_code=204)
 
-# CORS
+# CORS - Debe ir AL FINAL (se ejecuta primero)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.BACKEND_CORS_ORIGINS,

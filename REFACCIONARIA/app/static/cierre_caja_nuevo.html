@@ -321,6 +321,19 @@
 
         function init() {
             const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const now = new Date();
+
+            // Mostrar fecha
+            const fechaEl = $('fecha');
+            if (fechaEl) {
+                fechaEl.textContent = now.toLocaleDateString('es-MX');
+            }
+
+            // Mostrar hora
+            const horaEl = $('hora');
+            if (horaEl) {
+                horaEl.textContent = now.toLocaleTimeString('es-MX');
+            }
 
             // Verificar que los elementos existen antes de acceder
             const vendedorEl = $('vendedor');
@@ -333,7 +346,6 @@
                 // Usar sucursal de localStorage (actual) o del usuario o default
                 const sucursalNombreLocal = localStorage.getItem('sucursal_nombre') || user.sucursal || 'REFACCIONARIA OVIEDO';
                 sucursalEl.textContent = sucursalNombreLocal;
-                horaEl.textContent = d.toLocaleTimeString('es-MX');
             }
 
             const userInfoEl = document.getElementById('userInfo');
