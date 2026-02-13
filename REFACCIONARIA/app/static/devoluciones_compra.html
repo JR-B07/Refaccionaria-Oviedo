@@ -735,17 +735,22 @@
             const monto_total = cantidad * precioUnitario;
             const precio_unitario = precioUnitario;
 
+            // Asegurar que fecha_devolucion sea solo YYYY-MM-DD
+            const fechaLimpia = typeof fecha_devolucion === 'string' 
+                ? fecha_devolucion.split('T')[0] 
+                : fecha_devolucion;
+
             const devolucionData = {
                 folio: folio,
                 factura: factura,
                 proveedor_id: proveedor_id ? parseInt(proveedor_id) : null,
                 estado: estado,
-                fecha_devolucion: fecha_devolucion,
+                fecha_devolucion: fechaLimpia,
                 nota_credito: nota_credito || null,
                 producto_nombre: producto,
-                cantidad: cantidad,
-                precio_unitario: precio_unitario,
-                monto_total: monto_total,
+                cantidad: parseInt(cantidad),
+                precio_unitario: parseFloat(precio_unitario),
+                monto_total: parseFloat(monto_total),
                 descripcion: descripcion || null,
                 local_id: parseInt(local_id),
                 usuario_id: parseInt(usuario_id)
