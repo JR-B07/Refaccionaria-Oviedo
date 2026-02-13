@@ -988,7 +988,7 @@
         // Función para cargar vendedores desde la API
         async function cargarVendedores() {
             try {
-                const response = await fetch('/api/v1/usuarios?skip=0&limit=100');
+                const response = await fetch('/api/v1/usuarios/?skip=0&limit=100');
                 if (response.ok) {
                     const usuarios = await response.json();
                     const selectVendedor = document.getElementById('seller');

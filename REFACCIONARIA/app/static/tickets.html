@@ -1032,7 +1032,7 @@
                     msg.textContent = 'Actualizando vale...';
                 } else {
                     // Crear nuevo vale
-                    response = await fetch(`${API_URL}/tickets`, {
+                    response = await fetch(`${API_URL}/tickets/`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(datos)
