@@ -68,27 +68,82 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
-# Middleware para forzar HTTPS en producción
+# Middleware para manejar HTTPS detrás de proxy (Railway)
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.trustedhost import TrustedHostMiddleware
+from starlette.middleware.proxy_fix import ProxyFixMiddleware
 from starlette.requests import Request
 from starlette.responses import RedirectResponse
 
-class HTTPSRedirectMiddleware(BaseHTTPMiddleware):
+# Headers de seguridad comunes a todas las respuestas
+SECURITY_HEADERS = {
+    "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "X-XSS-Protection": "1; mode=block; report=https://refaccionaria-oviedo-production.up.railway.app/xss-report",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Permissions-Policy": "geolocation=(), microphone=(), camera=()",
+    "Content-Security-Policy": (
+        "upgrade-insecure-requests; "
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline'; "
+        "style-src 'self' 'unsafe-inline'; "
+        "img-src 'self' data: https:; "
+        "font-src 'self' data:; "
+        "connect-src 'self' https:; "
+        "frame-ancestors 'none'; "
+        "base-uri 'self'; "
+        "form-action 'self'"
+    )
+}
+
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    """
+    Middleware que asegura que TODOS los headers de seguridad se envíen en TODAS las respuestas.
+    """
     async def dispatch(self, request: Request, call_next):
-        # En producción, forzar HTTPS
-        if settings.ENVIRONMENT == "production":
-            # Agregar headers de seguridad para forzar HTTPS
-            response = await call_next(request)
-            response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
-            return response
-        return await call_next(request)
+        response = await call_next(request)
+        
+        # Aplicar headers de seguridad a TODAS las respuestas
+        for header, value in SECURITY_HEADERS.items():
+            response.headers[header] = value
+        
+        return response
 
-# Agregar middlewares en orden correcto
-# IMPORTANTE: TrustedHostMiddleware debe ir después de CORS
-app.add_middleware(HTTPSRedirectMiddleware)
+class HTTPSProxyFixMiddleware(BaseHTTPMiddleware):
+    """
+    Middleware para manejar HTTPS detrás de proxies como Railway.
+    Respeta el header X-Forwarded-Proto para determinar el protocolo real.
+    """
+    async def dispatch(self, request: Request, call_next):
+        # Verificar si viene de un proxy con X-Forwarded-Proto
+        forwarded_proto = request.headers.get('X-Forwarded-Proto')
+        forwarded_host = request.headers.get('X-Forwarded-Host')
+        
+        # En producción con proxy, forzar HTTPS
+        if settings.ENVIRONMENT == "production" and forwarded_proto == "http":
+            # Redirect HTTP to HTTPS
+            url = request.url.replace(scheme="https")
+            return RedirectResponse(url=url, status_code=301)
+        
+        response = await call_next(request)
+        
+        return response
 
-# Agregar middleware para confiar en headers de proxy (NECESARIO para Railway)
+# Agregar middlewares en orden correcto (de abajo hacia arriba en el código)
+# IMPORTANTE: Los middlewares se agregan en orden inverso - el primero agregado se ejecuta último
+# Orden de ejecución: SecurityHeadersMiddleware → ProxyFixMiddleware → HTTPSProxyFixMiddleware → TrustedHostMiddleware → CORS → App
+
+# SecurityHeadersMiddleware PRIMERA (se ejecuta ÚLTIMA - aplicar headers a todas las respuestas)
+app.add_middleware(SecurityHeadersMiddleware)
+
+# ProxyFixMiddleware para manejar proxies
+app.add_middleware(ProxyFixMiddleware, num_proxies=1)
+
+# Middleware HTTPS para redirecciones
+app.add_middleware(HTTPSProxyFixMiddleware)
+
+# TrustedHostMiddleware confía en todos los hosts
 app.add_middleware(
     TrustedHostMiddleware,
     allowed_hosts=["*"],

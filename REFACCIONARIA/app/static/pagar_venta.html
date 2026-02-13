@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     <title>Detalle de la Venta - Acceso Rápido</title>
     <style>
         * {
@@ -619,6 +620,22 @@
     </div>
 
     <script>
+        // Asegurar que TODAS las solicitudes sean HTTPS
+        // Forzar el protocolo a https si está en producción  
+        const originalFetch = window.fetch;
+        window.fetch = function (...args) {
+            const url = args[0];
+            if (typeof url === 'string') {
+                // Si es una URL relativa, usará automáticamente el protocolo actual (https)
+                // Si es una URL absoluta con http, convertir a https
+                if (url.startsWith('http://')) {
+                    args[0] = url.replace('http://', 'https://');
+                    console.log('⚠️ Converted HTTP to HTTPS:', args[0]);
+                }
+            }
+            return originalFetch.apply(this, args);
+        };
+
         let ventaData = {};
         let pagos = [];
 

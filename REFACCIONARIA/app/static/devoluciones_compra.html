@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     <title>Devoluciones de Compra</title>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -736,8 +737,8 @@
             const precio_unitario = precioUnitario;
 
             // Asegurar que fecha_devolucion sea solo YYYY-MM-DD
-            const fechaLimpia = typeof fecha_devolucion === 'string' 
-                ? fecha_devolucion.split('T')[0] 
+            const fechaLimpia = typeof fecha_devolucion === 'string'
+                ? fecha_devolucion.split('T')[0]
                 : fecha_devolucion;
 
             const devolucionData = {
