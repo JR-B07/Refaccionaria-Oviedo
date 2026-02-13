@@ -751,6 +751,64 @@
 
         async function cargarLocales() {
             try {
+                const token = localStorage.getItem('access_token');
+                const headers = {
+                    'Content-Type': 'application/json'
+                };
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
+
+                // Traer locales desde la API
+                const response = await fetch('/api/v1/locales/', {
+                    method: 'GET',
+                    headers: headers
+                });
+
+                if (response.ok) {
+                    const locales = await response.json();
+                    localesList = locales;
+
+                    const select = document.getElementById('filterSucursal');
+                    locales.forEach(local => {
+                        const option = document.createElement('option');
+                        option.value = local.id;
+                        option.textContent = local.nombre;
+                        select.appendChild(option);
+                    });
+
+                    // También llenar el select del modal
+                    const selectModal = document.getElementById('nuevoSucursal');
+                    if (selectModal) {
+                        selectModal.innerHTML = '<option value="">Selecciona una sucursal</option>';
+                        locales.forEach(local => {
+                            const option = document.createElement('option');
+                            option.value = local.id;
+                            option.textContent = local.nombre;
+                            selectModal.appendChild(option);
+                        });
+                    }
+                } else {
+                    console.warn('No se pudieron cargar locales de la API, usando valores por defecto');
+                    // Fallback a valores por defecto
+                    const opcionesLocales = [
+                        { id: 1, nombre: 'Refaccionaria Oviedo' },
+                        { id: 2, nombre: 'Filtros y Lubricantes' }
+                    ];
+
+                    localesList = opcionesLocales;
+
+                    const select = document.getElementById('filterSucursal');
+                    opcionesLocales.forEach(l => {
+                        const option = document.createElement('option');
+                        option.value = l.id;
+                        option.textContent = l.nombre;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error al cargar locales:', error);
+                // Fallback a valores por defecto si hay error
                 const opcionesLocales = [
                     { id: 1, nombre: 'Refaccionaria Oviedo' },
                     { id: 2, nombre: 'Filtros y Lubricantes' }
@@ -765,8 +823,6 @@
                     option.textContent = l.nombre;
                     select.appendChild(option);
                 });
-            } catch (error) {
-                console.error('Error al cargar locales:', error);
             }
         }
 
