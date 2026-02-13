@@ -33,7 +33,8 @@ async def lifespan(app: FastAPI):
     print("🚀 Sistema de Refaccionaria ERP")
     print(f"📊 Versión: {settings.VERSION}")
     print(f"🔧 Debug: {settings.DEBUG}")
-    print(f"🏪 Local ID: {settings.LOCAL_ID}")
+    print(f"� Environment: {settings.ENVIRONMENT}")
+    print(f"�🏪 Local ID: {settings.LOCAL_ID}")
     print("=" * 50)
     
     if HAS_DB:
